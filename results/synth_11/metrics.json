@@ -1,0 +1,180 @@
+{
+ "case": "synth_11",
+ "kind": "synthetic recording rendered from real adsb.lol tracks; the answer is known by construction (not blind)",
+ "true_mic": {
+  "lat": 28.538156,
+  "lon": -81.382573,
+  "elev_m": 34.9
+ },
+ "found": {
+  "lat": 28.576159,
+  "lon": -81.335789
+ },
+ "error_m": 6220.6,
+ "latency_injected_s": 22.0,
+ "latency_found_s": 50.75,
+ "latency_error_s": 28.75,
+ "score": 25.3661,
+ "null_grid_median": 6.1676,
+ "score_over_null": 4.11,
+ "two_band": false,
+ "mirror": {
+  "lat": 28.580696,
+  "lon": -81.16777,
+  "score": 9.824,
+  "latency_s": 53.75,
+  "reflected_lat": 28.584068,
+  "reflected_lon": -81.16777,
+  "distance_from_answer_m": 16430.5,
+  "ratio_to_top": 0.3873
+ },
+ "runner_up": {
+  "lat": 28.537039,
+  "lon": -81.302795,
+  "score": 20.9398,
+  "latency_s": 60.0,
+  "distance_from_answer_m": 5415.1
+ },
+ "n_candidate_aircraft": 58,
+ "aircraft_used": [
+  {
+   "hex": "ac6993",
+   "callsign": "SWA147",
+   "type": "B38M",
+   "closest_slant_m": 8429.9,
+   "contribution": 6.8757,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a7fdf2",
+   "callsign": "DAL2775",
+   "type": "",
+   "closest_slant_m": 8364.8,
+   "contribution": 5.3943,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a23473",
+   "callsign": "N241HP",
+   "type": "M20P",
+   "closest_slant_m": 3253.5,
+   "contribution": 2.9077,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "ad4584",
+   "callsign": "SWA46",
+   "type": "B737",
+   "closest_slant_m": 5408.8,
+   "contribution": 2.5784,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a17d6c",
+   "callsign": "PRD19",
+   "type": "E55P",
+   "closest_slant_m": 3242.3,
+   "contribution": 2.1664,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a3d2e5",
+   "callsign": "UAL667",
+   "type": "A21N",
+   "closest_slant_m": 2898.9,
+   "contribution": 1.976,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a718e0",
+   "callsign": "N5566A",
+   "type": "DA42",
+   "closest_slant_m": 3626.3,
+   "contribution": 1.835,
+   "in_truth_passes": true
+  },
+  {
+   "hex": "0d0939",
+   "callsign": "VIV701",
+   "type": "A320",
+   "closest_slant_m": 2119.2,
+   "contribution": 1.0415,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a208b1",
+   "callsign": "MXY607",
+   "type": "BCS3",
+   "closest_slant_m": 2506.9,
+   "contribution": 0.5099,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "ac53f8",
+   "callsign": "SWA2634",
+   "type": "B38M",
+   "closest_slant_m": 8413.6,
+   "contribution": 0.0813,
+   "in_truth_passes": false
+  }
+ ],
+ "truth_event_flights": {
+  "event1": "a85903:1788896352",
+  "event2": "a718e0:1788894691"
+ },
+ "truth_event_flights_found_among_used": [
+  false,
+  true
+ ],
+ "truth_audible_passes": [
+  {
+   "fid": "a85903:1788896352",
+   "audio_cpa_s": 240.0,
+   "distance_m": 640,
+   "gs_ms": 59.0,
+   "f0_hz": 101.0
+  },
+  {
+   "fid": "a718e0:1788894691",
+   "audio_cpa_s": 771.5,
+   "distance_m": 1684,
+   "gs_ms": 49.8,
+   "f0_hz": 107.1
+  }
+ ],
+ "runtime_s": 560.6,
+ "ridge_params": {
+  "case_dir": "C:\\Users\\Asus\\flyover-leak\\cases\\synth_11",
+  "out": "C:\\Users\\Asus\\flyover-leak\\results\\synth_11",
+  "fmin": 60.0,
+  "fmax": 1000.0,
+  "f0min": 60.0,
+  "f0max": 250.0,
+  "harmonics": 3,
+  "win": 0.512,
+  "hop": 0.25,
+  "dlog": 0.005,
+  "lmin": -10.0,
+  "lmax": 60.0,
+  "lstep": 1.0,
+  "grid": 450.0,
+  "fine": 75.0,
+  "fine_half": 1200.0,
+  "rmax": 8500.0,
+  "near_km": 8.0,
+  "max_alt": 5500.0,
+  "min_window": 10.0,
+  "peaks": 4,
+  "c_m_s": 340.28,
+  "mic_agl_m": 5.0,
+  "geoid_n_m": -29.28,
+  "heights": "Copernicus GLO-90 DEM; aircraft alt_geom (HAE) minus geoid; baro + per-hex geom-baro offset when geom missing; ground reports at DEM + 3 m; no wind"
+ },
+ "synth_parameters": {
+  "dopploc_synth": "dopploc synth cases/synth_base.toml --seed 11 --snr 6 (hour 18 UTC, 4 kHz, 2026-09-08 tracks) = clean",
+  "make_synth_case": "python solver/make_synth_case.py out/synth/seed11 cases/synth_11 --latency 22.0 --seed 11 (bbox 44 x 44 km offset from the mic, two polled ADS-B sources, 15% polls dropped, no --traces)"
+ },
+ "ridge_version": "solver_ridge/ridge.py as of commit 9fc7e3c (extracted byte-identical from git; HEAD of the repo has later versions v1.1-v1.3 that were not used)",
+ "ridge_cli_flags": "--fmin 60 --fmax 1000 --f0min 60 --f0max 250 --win 0.512 --rmax 8500 --max_alt 5500 (band set from the generator: f0 70-140 Hz with harmonics 1-4 at 4 kHz; rmax/max_alt same as for the colsto run), other flags default",
+ "not_blind": "true microphone known by construction"
+}

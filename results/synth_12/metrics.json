@@ -1,0 +1,293 @@
+{
+ "case": "synth_12",
+ "kind": "synthetic recording rendered from real adsb.lol tracks; the answer is known by construction (not blind)",
+ "true_mic": {
+  "lat": 40.779785,
+  "lon": -73.989354,
+  "elev_m": 0.4
+ },
+ "found": {
+  "lat": 40.787207,
+  "lon": -73.950941
+ },
+ "error_m": 3345.5,
+ "latency_injected_s": 41.5,
+ "latency_found_s": 2.25,
+ "latency_error_s": -39.25,
+ "score": 8.0162,
+ "null_grid_median": 1.8659,
+ "score_over_null": 4.3,
+ "two_band": false,
+ "mirror": null,
+ "runner_up": {
+  "lat": 40.81014,
+  "lon": -74.085571,
+  "score": 7.0098,
+  "latency_s": 29.0,
+  "distance_from_answer_m": 11608.5
+ },
+ "n_candidate_aircraft": 143,
+ "aircraft_used": [
+  {
+   "hex": "a97de4",
+   "callsign": "AAL1874",
+   "type": "A319",
+   "closest_slant_m": 8380.5,
+   "contribution": 4.4395,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a45b96",
+   "callsign": "DAL2536",
+   "type": "B738",
+   "closest_slant_m": 6929.4,
+   "contribution": 0.7606,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a8847f",
+   "callsign": "RPA4749",
+   "type": "E170",
+   "closest_slant_m": 6326.3,
+   "contribution": 0.5982,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "acfc00",
+   "callsign": "AAL1766",
+   "type": "B738",
+   "closest_slant_m": 7238.3,
+   "contribution": 0.3922,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a4f9af",
+   "callsign": "N42EE",
+   "type": "A139",
+   "closest_slant_m": 909.0,
+   "contribution": 0.2765,
+   "in_truth_passes": true
+  },
+  {
+   "hex": "a46819",
+   "callsign": "FTO383",
+   "type": "C208",
+   "closest_slant_m": 1933.1,
+   "contribution": 0.2597,
+   "in_truth_passes": true
+  },
+  {
+   "hex": "a03f84",
+   "callsign": "RPA4600",
+   "type": "E75L",
+   "closest_slant_m": 7005.1,
+   "contribution": 0.254,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a32f82",
+   "callsign": "EDV5455",
+   "type": "CRJ9",
+   "closest_slant_m": 6281.4,
+   "contribution": 0.1847,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a0acf8",
+   "callsign": "UAL529",
+   "type": "B738",
+   "closest_slant_m": 8418.6,
+   "contribution": 0.1701,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "abb54f",
+   "callsign": "SWA1301",
+   "type": "B738",
+   "closest_slant_m": 8352.7,
+   "contribution": 0.1165,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "abdb88",
+   "callsign": "RPA4623",
+   "type": "E170",
+   "closest_slant_m": 1653.7,
+   "contribution": 0.0977,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a4c170",
+   "callsign": "RPA4426",
+   "type": "E75L",
+   "closest_slant_m": 6245.5,
+   "contribution": 0.0736,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a6f28c",
+   "callsign": "GJS4491",
+   "type": "CRJ7",
+   "closest_slant_m": 2960.2,
+   "contribution": 0.0686,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a2a536",
+   "callsign": "N27M",
+   "type": "B06",
+   "closest_slant_m": 5925.1,
+   "contribution": 0.067,
+   "in_truth_passes": true
+  },
+  {
+   "hex": "ac2bd6",
+   "callsign": "ASH4014",
+   "type": "E75L",
+   "closest_slant_m": 6753.4,
+   "contribution": 0.0666,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a8a490",
+   "callsign": "RPA4538",
+   "type": "E170",
+   "closest_slant_m": 6300.9,
+   "contribution": 0.0662,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "a1d49e",
+   "callsign": "N217MH",
+   "type": "B06",
+   "closest_slant_m": 1437.8,
+   "contribution": 0.0489,
+   "in_truth_passes": true
+  },
+  {
+   "hex": "acca19",
+   "callsign": "JBU124",
+   "type": "A321",
+   "closest_slant_m": 6691.4,
+   "contribution": 0.0456,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "7380c1",
+   "callsign": "ELY028",
+   "type": "B789",
+   "closest_slant_m": 2307.0,
+   "contribution": 0.0234,
+   "in_truth_passes": false
+  },
+  {
+   "hex": "aba17b",
+   "callsign": "N849CA",
+   "type": "",
+   "closest_slant_m": 2809.3,
+   "contribution": 0.0066,
+   "in_truth_passes": true
+  }
+ ],
+ "truth_event_flights": {
+  "event1": "a4b973:1788889506",
+  "event2": "a4f9af:1788890147"
+ },
+ "truth_event_flights_found_among_used": [
+  false,
+  true
+ ],
+ "truth_audible_passes": [
+  {
+   "fid": "aba17b:1788888208",
+   "audio_cpa_s": -7.2,
+   "distance_m": 2743,
+   "gs_ms": 132.0,
+   "f0_hz": 138.2
+  },
+  {
+   "fid": "a5fa9f:1788889458",
+   "audio_cpa_s": 46.4,
+   "distance_m": 3767,
+   "gs_ms": 38.6,
+   "f0_hz": 129.0
+  },
+  {
+   "fid": "a2a536:1788889749",
+   "audio_cpa_s": 80.0,
+   "distance_m": 2920,
+   "gs_ms": 35.1,
+   "f0_hz": 134.9
+  },
+  {
+   "fid": "a4b973:1788889506",
+   "audio_cpa_s": 240.0,
+   "distance_m": 525,
+   "gs_ms": 57.5,
+   "f0_hz": 136.0
+  },
+  {
+   "fid": "a4f9af:1788890147",
+   "audio_cpa_s": 589.3,
+   "distance_m": 2127,
+   "gs_ms": 65.5,
+   "f0_hz": 83.9
+  },
+  {
+   "fid": "a46819:1788890168",
+   "audio_cpa_s": 644.1,
+   "distance_m": 3675,
+   "gs_ms": 58.3,
+   "f0_hz": 89.8
+  },
+  {
+   "fid": "a1d49e:1788889304",
+   "audio_cpa_s": 692.8,
+   "distance_m": 1382,
+   "gs_ms": 19.8,
+   "f0_hz": 139.9
+  },
+  {
+   "fid": "ad2138:1788889977",
+   "audio_cpa_s": 705.5,
+   "distance_m": 514,
+   "gs_ms": 54.1,
+   "f0_hz": 78.5
+  }
+ ],
+ "runtime_s": 2172.3,
+ "ridge_params": {
+  "case_dir": "C:\\Users\\Asus\\flyover-leak\\cases\\synth_12",
+  "out": "C:\\Users\\Asus\\flyover-leak\\results\\synth_12",
+  "fmin": 60.0,
+  "fmax": 1000.0,
+  "f0min": 60.0,
+  "f0max": 250.0,
+  "harmonics": 3,
+  "win": 0.512,
+  "hop": 0.25,
+  "dlog": 0.005,
+  "lmin": -10.0,
+  "lmax": 60.0,
+  "lstep": 1.0,
+  "grid": 450.0,
+  "fine": 75.0,
+  "fine_half": 1200.0,
+  "rmax": 8500.0,
+  "near_km": 8.0,
+  "max_alt": 5500.0,
+  "min_window": 10.0,
+  "peaks": 4,
+  "c_m_s": 340.28,
+  "mic_agl_m": 5.0,
+  "geoid_n_m": -32.68,
+  "heights": "Copernicus GLO-90 DEM; aircraft alt_geom (HAE) minus geoid; baro + per-hex geom-baro offset when geom missing; ground reports at DEM + 3 m; no wind"
+ },
+ "synth_parameters": {
+  "dopploc_synth": "dopploc synth cases/synth_base.toml --seed 12 --snr -12 (hour 18 UTC, 4 kHz, 2026-09-08 tracks) = noisy (6 dB worse than the default -6 dB, 18 dB worse than the clean seed 11)",
+  "make_synth_case": "python solver/make_synth_case.py out/synth/seed12 cases/synth_12 --latency 41.5 --seed 12 (bbox 44 x 44 km offset from the mic, two polled ADS-B sources, 15% polls dropped, no --traces)"
+ },
+ "ridge_version": "solver_ridge/ridge.py as of commit 9fc7e3c (extracted byte-identical from git; HEAD of the repo has later versions v1.1-v1.3 that were not used)",
+ "ridge_cli_flags": "--fmin 60 --fmax 1000 --f0min 60 --f0max 250 --win 0.512 --rmax 8500 --max_alt 5500 (band set from the generator: f0 70-140 Hz with harmonics 1-4 at 4 kHz; rmax/max_alt same as for the colsto run), other flags default",
+ "not_blind": "true microphone known by construction. The microphone is in Manhattan, so the box is full of airliners (143 candidate aircraft)."
+}

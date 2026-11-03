@@ -1,0 +1,12 @@
+spectrogram (3316, 564) hop 0.250s  (0.4s)
+143 candidate aircraft (geoid N -32.7 m, geom-baro 275 ft)  (4.3s)
+coarse grid 98x98 = 9604 pts, 71 latencies
+coarse done (2039.1s)
+  peak coarse 7.732 -> fine 8.016 at L=2.25s
+  peak coarse 6.849 -> fine 7.010 at L=29.00s
+  peak coarse 6.514 -> fine 6.927 at L=50.00s
+  peak coarse 6.168 -> fine 6.952 at L=8.75s
+best 40.78721,-73.95094 score 8.016 L 2.25s top ['AAL1874', 'DAL2536', 'RPA4749', 'AAL1766', 'N42EE']
+{"lat": 40.787207, "lon": -73.950941, "score": 8.0162, "null_grid_median": 1.8659, "latency_s": 2.25, "two_band": false}
+done in 2177.1s
+{"cmd": ["C:\\Users\\Asus\\flyover-leak\\data\\vendor\\doppler-locate\\.venv\\Scripts\\python.exe", "C:\\Users\\Asus\\flyover-leak\\data\\frozen\\solver_ridge\\ridge.py", "C:\\Users\\Asus\\flyover-leak\\cases\\synth_12", "--out", "C:\\Users\\Asus\\flyover-leak\\results\\synth_12", "--fmin", "60", "--fmax", "1000", "--f0min", "60", "--f0max", "250", "--win", "0.512", "--rmax", "8500", "--max_alt", "5500"], "returncode": 0, "wall_s": 2181.0, "peak_rss_gb": 1.61, "peak_private_gb": 3.31, "min_free_ram_gb": 0.01, "max_processes": 2}
