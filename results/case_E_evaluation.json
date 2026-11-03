@@ -1,0 +1,38 @@
+{
+ "case": "case_E",
+ "truth_hash_ok": true,
+ "truth": [
+  41.77844,
+  -87.74278
+ ],
+ "truth_uncertainty_m": 30,
+ "runs": [
+  {
+   "run": "solver v1 (detector-first, doppler-locate)",
+   "answer": "results/case_E/answer.json",
+   "found": null,
+   "error_m": null,
+   "status": "no_flyovers"
+  },
+  {
+   "run": "ridge v1",
+   "answer": "results/case_E_ridge/answer.json",
+   "found": [
+    41.976663,
+    -87.943825
+   ],
+   "error_m": 27620,
+   "status": "point"
+  },
+  {
+   "run": "ridge v1.1",
+   "answer": "results/case_E_ridge_v11/answer.json",
+   "found": [
+    41.928774,
+    -87.909442
+   ],
+   "error_m": 21679,
+   "status": "point"
+  }
+ ]
+}
