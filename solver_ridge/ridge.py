@@ -15,6 +15,9 @@ v1.2: latency step 0.5 s and STFT hop <= 0.1 s when the band reaches above 1 kHz
 sub-grid within 1.5 km of every airborne track sample below 600 m AGL inside the bbox; refinement of
 the top 25 peaks plus every local maximum within 30 % of the best.
 
+v1.3: each curve is scored only over max(8 s, 4 d_cpa / v) centred on its predicted CPA receive
+time; airborne needs >= 50 m above ground; latency scan -10..+90 s, flagged when the best L is at a bound.
+
     python solver_ridge/ridge.py cases/case_E --out results/case_E_ridge
 """
 
@@ -184,9 +187,9 @@ def track_heights(tr, terrain, geoid_n, global_off):
     return h
 
 
-def airborne_reports(tr, h, terrain, min_gs_kt=50.0, min_agl=30.0):
+def airborne_reports(tr, h, terrain, min_gs_kt=50.0, min_agl=50.0):
     """v1.1: a report counts as airborne only if not 'ground', gs >= 50 kt (finite-difference speed
-    when gs is missing) and >= 30 m above the local DEM ground."""
+    when gs is missing) and >= 50 m (v1.3; 30 m in v1.1) above the local DEM ground."""
     x, y = to_xy(tr["lat"], tr["lon"], tr["lat"][0], tr["lon"][0])
     fd = np.hypot(np.gradient(x, tr["t"]), np.gradient(y, tr["t"])) / KT
     gs = np.where(np.isfinite(tr["gs"]), tr["gs"], fd)
@@ -223,7 +226,7 @@ def interp_track(tr, h, te, lat0, lon0, max_gap=45.0, air=None):
 # ---------------------------------------------------------------- numba kernels
 
 @nb.njit(parallel=True, cache=True)
-def curves_kernel(gx, gy, gz, te, ax, ay, az, c, tj0, hop, nj, dlog, rmax, pad,
+def curves_kernel(gx, gy, gz, te, ax, ay, az, c, tj0, hop, nj, dlog, rmax, pad, cpa_min, cpa_k,
                   d_out, j0_out, j1_out, rmin_out, temin_out):
     G = gx.shape[0]
     N = te.shape[0]
@@ -232,14 +235,24 @@ def curves_kernel(gx, gy, gz, te, ax, ay, az, c, tj0, hop, nj, dlog, rmax, pad,
         r = np.empty(N)
         rmin = 1e30
         temin = np.nan
+        nc = -1
         for n in range(N):
             if np.isfinite(ax[n]):
                 r[n] = math.sqrt((ax[n] - gx[g]) ** 2 + (ay[n] - gy[g]) ** 2 + (az[n] - gz[g]) ** 2)
                 if r[n] < rmin:
                     rmin = r[n]
                     temin = te[n]
+                    nc = n
             else:
                 r[n] = np.nan
+        # v1.3: score only max(cpa_min, cpa_k * d_cpa / v) centred on the CPA receive time
+        half = 1e30
+        if 0 < nc < N - 1 and np.isfinite(ax[nc - 1]) and np.isfinite(ax[nc + 1]):
+            v = math.sqrt((ax[nc + 1] - ax[nc - 1]) ** 2 + (ay[nc + 1] - ay[nc - 1]) ** 2
+                          + (az[nc + 1] - az[nc - 1]) ** 2) / (2 * dt)
+            if v > 1.0:
+                half = 0.5 * max(cpa_min, cpa_k * rmin / v)
+        tcpa = temin + rmin / c
         rmin_out[g] = rmin
         temin_out[g] = temin
         j0_out[g] = -1
@@ -263,6 +276,8 @@ def curves_kernel(gx, gy, gz, te, ax, ay, az, c, tj0, hop, nj, dlog, rmax, pad,
             t = tj0 + j * hop
             while n < N - 2 and not (np.isfinite(tr[n + 1]) and tr[n + 1] > t):
                 n += 1
+            if abs(t - tcpa) > half:
+                continue
             if not (ok[n] and ok[n + 1]):
                 continue
             if not (tr[n] <= t < tr[n + 1]):
@@ -476,7 +491,8 @@ class Problem:
             rm = np.empty(G)
             tm = np.empty(G)
             curves_kernel(gx, gy, gz, self.te, ac["X"], ac["Y"], ac["Z"], C_AIR, self.tj0, self.hop_s,
-                          self.nj, self.a.dlog, self.a.rmax, self.pad, d, j0, j1, rm, tm)
+                          self.nj, self.a.dlog, self.a.rmax, self.pad, self.a.cpa_min, self.a.cpa_k,
+                          d, j0, j1, rm, tm)
             rmin[i], temin[i] = rm, tm
             e = np.empty((G, nL), np.float32)
             c = np.empty((G, nL), np.float32)
@@ -525,7 +541,8 @@ class Problem:
         rm = np.empty(1)
         tm = np.empty(1)
         curves_kernel(np.array([gx]), np.array([gy]), np.array([gz]), self.te, ac["X"], ac["Y"], ac["Z"],
-                      C_AIR, self.tj0, self.hop_s, self.nj, self.a.dlog, self.a.rmax, self.pad, d, j0, j1, rm, tm)
+                      C_AIR, self.tj0, self.hop_s, self.nj, self.a.dlog, self.a.rmax, self.pad,
+                      self.a.cpa_min, self.a.cpa_k, d, j0, j1, rm, tm)
         o = int(round((L_s / self.hop_s))) - self.Lmax_f
         rows = np.arange(self.nj) + o
         ok = (d[0] != SENT) & (rows >= 0) & (rows < self.T)
@@ -566,7 +583,7 @@ def main():
     ap.add_argument("--hop", type=float, default=0.25, help="STFT hop, s")
     ap.add_argument("--dlog", type=float, default=0.005)
     ap.add_argument("--lmin", type=float, default=-10.0)
-    ap.add_argument("--lmax", type=float, default=60.0)
+    ap.add_argument("--lmax", type=float, default=90.0)
     ap.add_argument("--lstep", type=float, default=0.5)
     ap.add_argument("--grid", type=float, default=450.0)
     ap.add_argument("--fine", type=float, default=75.0)
@@ -574,7 +591,9 @@ def main():
     ap.add_argument("--rmax", type=float, default=5000.0)
     ap.add_argument("--near_km", type=float, default=8.0)
     ap.add_argument("--max_alt", type=float, default=4000.0)
-    ap.add_argument("--min_window", type=float, default=10.0)
+    ap.add_argument("--min_window", type=float, default=6.0, help="v1.3: below the 8 s CPA window")
+    ap.add_argument("--cpa_min", type=float, default=8.0, help="v1.3: min scored window around CPA, s")
+    ap.add_argument("--cpa_k", type=float, default=4.0, help="v1.3: scored window = cpa_k * d_cpa / v")
     ap.add_argument("--min_swing", type=float, default=0.005, help="v1.1: min Doppler ratio swing in the scored frames")
     ap.add_argument("--peaks", type=int, default=25)
     ap.add_argument("--near_best", type=float, default=0.7, help="also refine local maxima >= this x best")
@@ -777,19 +796,22 @@ def main():
 
     runtime = time.time() - t_start
     ans = dict(
-        case=P.name, version="1.2", method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
+        case=P.name, version="1.3", method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
         "max over f0 (x1,x2,x3), minus flat-line null, airborne track segments only, min Doppler swing, positive excess over per-aircraft grid median, "
         "summed over aircraft, argmax over grid and shared latency",
         lat=round(float(blat), 6), lon=round(float(blon), 6), score=round(best_score, 4),
         null_grid_median=round(null, 4), score_over_null=round(best_score / null, 2) if null > 0 else None,
-        latency_s=round(float(bL), 2), two_band=two_band, mirror=mirror, runner_up=runner,
+        latency_s=round(float(bL), 2),
+        latency_at_bound=bool(min(abs(bL - Ls[0]), abs(bL - Ls[-1])) < 0.5 * P.Lstep_f * P.hop_s),
+        two_band=two_band, mirror=mirror, runner_up=runner,
         aircraft=used, n_candidates=len(P.ac),
         params=dict(vars(a), c_m_s=round(C_AIR, 2), mic_agl_m=MIC_AGL, geoid_n_m=round(P.geoid_n, 2),
                     heights=f"{P.terrain.note}; aircraft alt_geom (HAE) minus geoid; baro + per-hex geom-baro "
                             "offset when geom missing; ground reports at DEM + 3 m; no wind"),
         runtime_s=round(runtime, 1))
     (out / "answer.json").write_text(json.dumps(ans, indent=1))
-    print(json.dumps({k: ans[k] for k in ("lat", "lon", "score", "null_grid_median", "latency_s", "two_band")}), flush=True)
+    print(json.dumps({k: ans[k] for k in ("lat", "lon", "score", "null_grid_median", "latency_s", "latency_at_bound",
+                                          "two_band")}), flush=True)
 
     plots(P, out, a, xs, ys, heat_1, heat_2, heat_all, shape, top, bx, by, bL, mirror, curves,
           Ls, scan_pt, scan_grid, R, bi, bl)
