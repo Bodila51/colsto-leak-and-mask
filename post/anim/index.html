@@ -543,9 +543,9 @@ function drawColumn(t) {
     text(n + ' aircraft', K.x, y0 + rise(15.0), { size: L.big, weight: 700, alpha: ramp(t, 15.0, 15.4) });
     text('→ 1 place', K.x, y0 + L.mid + 22 + rise(15.6), { size: L.mid, weight: 700, color: C.cyan, alpha: ramp(t, 15.6, 16.0) });
     const area = M.area && !M.true;   // town match: no distance to show, a shorter block
-    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40) - (area ? 40 : 0);
+    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40) - (area ? 40 : M.note ? 34 : 0);
     if (DATA.second_event_note) text(DATA.second_event_note, K.x, y0 + L.mid + 22 + L.note + 34, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 15.8, 16.1) * (1 - ramp(t, 16.0, 16.3)) });
-    text('found:', K.x, fy - L.found - 4 + rise(16.3, 12), { size: L.note + 2, mono: true, color: C.cyan, alpha: fa, track: 1.5 });
+    text(M.found_label ?? 'found:', K.x, fy - L.found - 4 + rise(16.3, 12), { size: L.note + 2, mono: true, color: C.cyan, alpha: fa, track: 1.5 });
     if (area) {
       const o = { size: L.found, weight: 700 };
       while (o.size > 40 && measure(M.area.found_text, o) > K.w) o.size -= 2;
@@ -555,6 +555,7 @@ function drawColumn(t) {
     } else {
       text(fmtM(M.error_m) + ' m', K.x, fy + rise(16.3, 18), { size: L.found, weight: 700, alpha: fa, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 30 });
       text('from the real camera', K.x, fy + L.foundSub + 14 + rise(16.5, 12), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.95) });
+      if (M.note) text(M.note, K.x, fy + L.foundSub + L.note + 36 + rise(16.8, 12), { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
     }
     ctx.restore();
   }
@@ -593,12 +594,16 @@ function drawColumnTall(t) {         // one big line under the stage: scene 3, 4
     ctx.restore();
   } else if (s4b > 0) {
     ctx.save(); ctx.globalAlpha *= s4b;
-    const a = 'found: ' + fmtM(M.error_m) + ' m', fo = { size: L.found, weight: 700 }, w = measure(a + '  ', fo);
-    text('found:', K.x, y + rise(16.3), { ...fo, color: C.cyan });
-    const w1 = measure('found: ', fo);
+    const lab = M.found_label ?? 'found:', a = lab + ' ' + fmtM(M.error_m) + ' m', fo = { size: L.found, weight: 700 }, fs = { size: L.foundSub, weight: 500 };
+    while (fo.size > 36 && measure(a + '  ', fo) + measure('from the real camera', fs) > K.w) { fo.size -= 2; fs.size = Math.round(fo.size * L.foundSub / L.found); }
+    const w = measure(a + '  ', fo);
+    text(lab, K.x, y + rise(16.3), { ...fo, color: C.cyan });
+    const w1 = measure(lab + ' ', fo);
     text(fmtM(M.error_m) + ' m', K.x + w1, y + rise(16.3), { ...fo, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 26 });
-    text('from the real camera', K.x + w, y + rise(16.5), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.9) });
-    text('pin = solver answer  ·  star = real camera', K.x, ys, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
+    text('from the real camera', K.x + w, y + rise(16.5), { ...fs, alpha: ramp(t, 16.5, 16.9) });
+    const leg = [M.note, 'pin = solver answer', 'star = real camera'].filter(Boolean).join('  ·  '), lo = { size: L.note, mono: true };
+    while (lo.size > 14 && measure(leg, lo) > K.w) lo.size -= 1;
+    text(leg, K.x, ys, { ...lo, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
     ctx.restore();
   }
   ctx.restore();

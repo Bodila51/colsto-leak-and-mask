@@ -94,6 +94,22 @@ and from the safe-copy audio. Nothing is typed into the page.
 
 Event 2 (3072 s) is 917 s after event 1 and is not in the 20 s spectrogram; the map in scene 4 uses it, the picture does not show it.
 
+### The blind Miami result (`post/anim_data_miami.json`, written by `post/anim/miami_data.py`)
+
+Same format with a real camera point: `map.found_label` ("found blind:") replaces "found:", and `map.note`
+("40×40 km search box") is shown under the result (landscape) or at the start of the legend line (tall).
+
+| Field | Source |
+|---|---|
+| spectrogram | `cases/case_A/audio.flac`, case audio 50-70 s, 3000-6000 Hz. ENY3714's first pass runs 0.1-69.9 s in `curves.json`; its closest approach is at 1.6 s, but there its tone does not stand out (power on the predicted curve = the median of shifted copies), at 50-70 s it does (8.3 dB vs 2.0 dB), so the clip is that part of the same pass. Silent outputs, no webcam footage. |
+| `curves` | `results/case_A_ridge_v11/curves.json`, ENY3714 x1: the solver's predicted curve at the answer point and latency, already in case audio seconds (snapped to its log-f bins, hence the steps). |
+| `clip` | `utc_start` of the case + 50 s, `latency_s` 38.5 from `answer.json` |
+| `aircraft` | the top two of `answer.json` (ENY3714 Embraer 175, AAL1901 Boeing 737 MAX 8), `closest_m` = `closest_slant_m`; tracks from `cases/case_A/adsb.jsonl`, ±7 min around each closest approach |
+| `heat_1`, `heat_all` | `heat_1.npy` (top aircraft alone) and `heat_all.npy` (all aircraft, max over latency) on `grid.json`. `planes_used` = the 74 aircraft listed in `answer.json` (those with a contribution at the answer; 163 candidates in total). |
+| `found`, `true`, `error_m` | `answer.json`; `results/case_A_evaluation.json` (owner-published camera, revealed after the answer, seal hash ok; 749 m) |
+
+No scene 5: `results/case_A_safe/` had no solver run on the safe copy yet when this was made.
+
 ## What each picture is made of
 
 | On screen | Source |
