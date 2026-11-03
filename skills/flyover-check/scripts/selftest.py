@@ -339,7 +339,7 @@ def run_jet(d, args):
 
 
 def run_links_and_locate(d, args):
-    """No network: yt-dlp is replaced by a stub that fails the way this PC does; the solver by a stub."""
+    """No network: yt-dlp is replaced by a stub that fails the way this PC does; dopploc by a stand-in command."""
     import io
     import contextlib
     import tempfile
@@ -370,65 +370,115 @@ def run_links_and_locate(d, args):
        and "--compat-options" not in log[0], f"{len(log)} calls")
     ok("links: --no-check-certificates is never used", not any("--no-check-certificates" in l for l in log))
 
-    print("\n== locate: consent gate, case files, honest two-place report ==")
+    print("\n== locate: consent gate, doppler-locate pipeline (stand-in dopploc), honest one-flyover report ==")
     base = os.path.join(d, "main")
-    fake_repo = os.path.join(tmp, "repo")
-    os.makedirs(os.path.join(fake_repo, "solver"))
-    with open(os.path.join(fake_repo, "solver", "solve.py"), "w") as fh:
-        fh.write("# stub\n")
+    ddir = os.path.join(tmp, "doppler-locate")                 # a stand-in clone: only what the install check looks for
+    os.makedirs(os.path.join(ddir, "src", "dopploc"))
+    open(os.path.join(ddir, "pyproject.toml"), "w").write("[project]\nname='dopploc'\n")
+    stub = os.path.join(tmp, "fake_dopploc.py")
+    calls_log = os.path.join(tmp, "calls.log")
+    with open(stub, "w") as fh:
+        fh.write(
+            "import sys, os, re, json\n"
+            "a = sys.argv[1:]\n"
+            "open(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'calls.log'), 'a').write(' '.join(a) + chr(10))\n"
+            "scen = os.environ.get('FAKE_SCEN', 'two')\n"
+            "def fl(t, v, d, z, conf='high'):\n"
+            "    return {'t_cpa': t, 'f0': 120.0, 'v': v, 'd': d, 'z': z, 'harmonics': [1, 2], 'refined': True, 'rms': 0.3,\n"
+            "            'ranges': {'speed_ms': [v - 20, v + 20], 'slant_m': [d * 0.6, d * 1.4]}, 'confidence': conf, 'kind': 'aircraft'}\n"
+            "if a[0] == 'detect':\n"
+            "    out = a[a.index('--out') + 1]\n"
+            "    os.makedirs(out, exist_ok=True)\n"
+            "    fls = {'two': [fl(100, 130, 5000, 30), fl(300, 240, 6000, 40), fl(500, 90, 2000, 25)],\n"
+            "           'one': [fl(100, 130, 5000, 30)], 'none': [], 'jets': [fl(100, 240, 6000, 40), fl(500, 250, 7000, 35)]}[scen]\n"
+            "    json.dump({'source': a[1], 'start': 0, 'end': 600, 'meta': {}, 'found': bool(fls), 'flyovers': fls}, open(os.path.join(out, 'detections.json'), 'w'))\n"
+            "    open(os.path.join(out, 'report.md'), 'w').write('table')\n"
+            "elif a[0] == 'fetch-types':\n"
+            "    os.makedirs('data/ref', exist_ok=True); open('data/ref/icao_aircraft_types2.js.gz', 'w').write('x')\n"
+            "elif a[0] == 'fetch-adsb':\n"
+            "    os.makedirs('data/adsb/raw/' + a[1], exist_ok=True)\n"
+            "elif a[0] == 'ingest':\n"
+            "    o = a[a.index('--out') + 1]\n"
+            "    os.makedirs(o, exist_ok=True); open(os.path.join(o, 'aircraft.parquet'), 'w').write('x')\n"
+            "elif a[0] == 'search':\n"
+            "    pass\n"
+            "elif a[0] == 'score':\n"
+            "    out = re.search(r'^out = \"(.*)\"', open(a[1]).read(), re.M).group(1)\n"
+            "    with open(os.path.join(out, 'best_per_pair.csv'), 'w') as fh:\n"
+            "        fh.write('f1,f2,lat,lon,score,S1,S2,t1m,t2m,d1m,d2m' + chr(10))\n"
+            "        fh.write('a1dfeb:1788899524,ace391:1788901233,40.87639,-73.52577,3.662,2.115,1.548,1788900805.2,1788901729.4,6129,3596' + chr(10))\n"
+            "        fh.write('a1d3d1:1788874327,a88f95:1788873766,41.92009,-72.68470,3.483,2.211,1.272,1788874562.1,1788875475.9,6717,1669' + chr(10))\n"
+            "        fh.write('a1b038:1788882437,a944b5:1788880596,40.80729,-72.50174,3.287,2.131,1.156,1788882644.9,1788883564.5,5926,2528' + chr(10))\n"
+            "else:\n"
+            "    sys.exit(2)\n")
+    fake_cmd = f"{sys.executable} {stub}"
+    wav = base + ".wav"
+    box = "40.0,-75.0,42.0,-72.0"
     cases = os.path.join(tmp, "cases")
 
-    def run(argv):
+    def run(argv, scen="two"):
+        os.environ["FAKE_SCEN"] = scen
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             code = locate.main(argv)
         return code, buf.getvalue()
 
-    code, txt = run([base + ".mp4"])
-    ok("locate: refuses to run without a consent word and asks", code == 3 and "ONLY for" in txt and "own" in txt)
-    code, txt = run([base + ".mp4", "--consent", "public-challenge"])
-    ok("locate: a public challenge must be named", code == 3)
-    code, txt = run([os.path.join(d, "no_plane.mp4"), "--consent", "own", "--bbox", "42,22,43,24",
-                     "--cases-dir", cases, "--repo", fake_repo])
-    ok("locate: no plane in the audio -> stops", code == 5 and "nothing to locate" in txt)
-    code, txt = run([base + ".mp4", "--consent", "own", "--cases-dir", cases, "--repo", fake_repo,
-                     "--bbox", "42.2,23.0,42.9,23.8"])
-    ok("locate: no ADS-B -> says what is needed", code == 6 and "ADS-B" in txt)
-    adsb = os.path.join(tmp, "adsb.jsonl")
-    with open(adsb, "w") as fh:
-        fh.write('{"t": 1, "src": "adsblol", "ac": []}\n')
-    code, txt = run([base + ".mp4", "--consent", "own", "--cases-dir", cases, "--repo", fake_repo, "--case", "t1",
-                     "--bbox", "42.5,23.3,42.7,23.5", "--adsb", adsb, "--dry-run"])
-    cj = json.load(open(os.path.join(cases, "t1", "case.json")))
-    ok("locate: case.json has audio, utc_start (from the file's creation_time) and bbox",
-       code == 0 and cj["utc_start"].startswith("2026-11-02T14:03:10") and cj["bbox"] == [42.5, 23.3, 42.7, 23.5]
-       and cj["audio"].endswith("audio.flac") and os.path.exists(os.path.join(cases, "t1", "audio.flac")),
-       str(cj["utc_start"]))
-    ok("locate: says the start time came from the file's tag and may be off", "file tag" in txt)
-    ok("locate: warns the box is smaller than 40 x 40 km", "WARNING" in txt and "40 x 40" in txt)
-    code, txt = run([base + ".mp4", "--consent", "own", "--cases-dir", cases, "--case", "t2", "--repo", fake_repo,
-                     "--bbox", "42,22,43.2,24", "--adsb", adsb])
-    ok("locate: solver not installed -> install steps are shown",
-       code == 4 and "git clone" in txt and "colsto-leak-and-mask" in txt)
-    # a stub solver that answers like the real one for a single plane (two-band result)
-    fake = os.path.join(tmp, "fake_solve.py")
-    with open(fake, "w") as fh:
-        fh.write(
-            "import sys, os, json\n"
-            "name = os.path.basename(os.path.normpath(sys.argv[-1]))\n"
-            "os.makedirs(os.path.join('results', name), exist_ok=True)\n"
-            "ans = {'lat': 42.5, 'lon': 23.4, 'n_flyovers_used': 1, 'n_flyovers_detected': 1, 'two_band': True,\n"
-            "       'two_band_reason': 'fewer than two flyovers used: one track leaves two mirror bands',\n"
-            "       'mirror_point': {'lat': 42.58, 'lon': 23.46},\n"
-            "       'flights_used': [{'used': True, 'callsign': 'TEST1', 'type': 'C172', 'cpa_distance_m': 300.0,\n"
-            "                         'cpa_utc': '2026-11-02T14:03:40', 'ground_speed_ms': 60.0}]}\n"
-            "json.dump(ans, open(os.path.join('results', name, 'answer.json'), 'w'))\n")
-    code, txt = run([base + ".mp4", "--consent", "owner-agreed", "--cases-dir", cases, "--case", "t3",
-                     "--repo", fake_repo, "--bbox", "42,22,43.2,24", "--adsb", adsb,
-                     "--solver-cmd", f"{sys.executable} {fake}"])
-    ok("locate: one plane -> says two possible places and gives the mirror point",
-       code == 0 and "TWO POSSIBLE PLACES" in txt and "42.58000" in txt and "apart" in txt)
-    out["locate_stub_output"] = txt.split("RESULT FROM THE SOLVER")[-1]
+    def calls():
+        return open(calls_log).read().split("\n") if os.path.exists(calls_log) else []
+
+    common = ["--dopploc-dir", ddir, "--dopploc-cmd", fake_cmd]
+    code, txt = run([wav])
+    ok("locate: no consent word -> refuses at the top and asks",
+       code == 3 and txt.startswith("MODE: find where") and "NOT RUNNING" in txt and "own" in txt)
+    code, txt = run([wav, "--consent", "public-challenge"])
+    ok("locate: a public challenge must be named", code == 3 and "NOT RUNNING" in txt)
+    code, txt = run([wav, "--consent", "own", "--dopploc-dir", os.path.join(tmp, "nowhere"), "--date", "2026-09-08", "--bbox", box])
+    ok("locate: doppler-locate missing -> exact install steps (clone, uv venv, uv pip install -e .)",
+       code == 4 and "git clone https://github.com/digitalis-p/doppler-locate" in txt and "uv venv" in txt
+       and "uv pip install -e ." in txt, str(code))
+    code, txt = run([wav, "--consent", "own", "--bbox", box] + common)
+    ok("locate: no date (the wav has no tag) -> asks; says adsb.lol history starts in 2023 and appears the day after",
+       code == 5 and "No date" in txt and "03:30 UTC" in txt and "2023" in txt)
+    code, txt = run([wav, "--consent", "own", "--date", "2020-05-01", "--bbox", box] + common)
+    ok("locate: a day before 2023 -> stops, no flight data exists", code == 5 and "starts in 2023" in txt)
+    code, txt = run([wav, "--consent", "own", "--date", "2099-01-01", "--bbox", box] + common)
+    ok("locate: a day that is not out yet -> stops and says when", code == 5 and "not out yet" in txt and "03:30 UTC" in txt)
+    code, txt = run([wav, "--consent", "own", "--date", "2026-09-08"] + common)
+    ok("locate: no region -> asks for one", code == 5 and "No region" in txt)
+    code, txt = run([wav, "--consent", "own", "--date", "2026-09-08", "--country", "US"] + common)
+    ok("locate: a whole-country box is refused (RAM-heavy, start regional)", code == 5 and "RAM-heavy" in txt)
+    code, txt = run([wav, "--consent", "own", "--date", "2026-09-08", "--bbox", box, "--dry-run"] + common)
+    ok("locate: dry run prints every command and writes nothing",
+       code == 0 and all(k in txt for k in ("detect", "fetch-adsb 2026-09-08", "ingest", "search", "score"))
+       and "gpu=false" in txt and "run-capped" not in txt and not os.path.exists(cases) and not calls())
+    ok("locate: search workers come from free RAM, GPU off by default", "worker(s); GPU off" in txt)
+    # a full run with the stand-in: three curves, the jet-speed one (240 m/s) is skipped
+    code, txt = run([wav, "--consent", "owner-agreed", "--utc-start", "2026-09-08T14:00:00Z", "--bbox", box,
+                     "--case", "t1", "--out-dir", os.path.join(cases, "t1")] + common)
+    tp = os.path.join(cases, "t1", "case.toml")
+    toml = open(tp).read() if os.path.exists(tp) else ""
+    ok("locate: two flyovers -> case.toml with a lon-first box, gpu=false, a UTC window and the two propeller-speed events",
+       code == 0 and "bbox = [-75.0, 40.0, -72.0, 42.0]" in toml and "gpu = false" in toml and "utc_window" in toml
+       and toml.count("[[event]]") == 2 and "detection #1" in toml and "detection #3" in toml
+       and "detection #2" not in toml, str(code))
+    ok("locate: runs detect, fetch-types, fetch-adsb, ingest, search, score in that order",
+       [c.split()[0] for c in calls() if c] == ["detect", "fetch-types", "fetch-adsb", "ingest", "search", "score"], str(calls()))
+    ok("locate: reports rank 1, rank 2, the gap and the distance between them",
+       "RANK 1: 40.87639, -73.52577" in txt and "RANK 2: 41.92009" in txt and "ahead by 0.179" in txt
+       and "km from rank 1" in txt and "icao a1dfeb" in txt and "icao ace391" in txt)
+    ok("locate: says rank 1 is a best fit, not a proof", "not a proof" in txt)
+    ok("locate: the ingested day goes to its own region folder, never the plain data/adsb/<day>",
+       "2026-09-08_" in "".join(calls()) and "--out" in "".join(calls()))
+    os.remove(calls_log)
+    code, txt = run([wav, "--consent", "own", "--utc-start", "2026-09-08T14:00:00Z", "--bbox", box, "--case", "t2", "--out-dir", os.path.join(cases, "t2")] + common, scen="one")
+    ok("locate: one usable flyover -> says so, explains the two mirror-image places, runs no search",
+       code == 5 and "Only ONE usable flyover" in txt and "TWO possible places" in txt
+       and "mirror images" in txt and not any(c.startswith(("search", "score", "fetch-adsb")) for c in calls()), str(code))
+    code, txt = run([wav, "--consent", "own", "--utc-start", "2026-09-08T14:00:00Z", "--bbox", box, "--case", "t3", "--out-dir", os.path.join(cases, "t3")] + common, scen="none")
+    ok("locate: no flyover -> nothing to locate from", code == 5 and "nothing to locate" in txt)
+    code, txt = run([wav, "--consent", "own", "--utc-start", "2026-09-08T14:00:00Z", "--bbox", box, "--case", "t4", "--out-dir", os.path.join(cases, "t4")] + common, scen="jets")
+    ok("locate: only jet-speed flyovers -> says jets are left out and stops", code == 5 and "jets" in txt)
+    out["locate_stub_output"] = txt
     shutil.rmtree(tmp, ignore_errors=True)
     return out
 

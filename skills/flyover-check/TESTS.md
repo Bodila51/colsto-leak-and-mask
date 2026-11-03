@@ -4,7 +4,7 @@ Everything except the two real-recording sections was produced by `uv run script
 (Python 3.12, ffmpeg 8.1, uv 0.13). The recordings are **synthetic**, built by `scripts/make_test_audio.py` with a fixed
 seed, so every part of them is known. The test files go in `data/skilltest/`, which is git-ignored. Result file: `data/skilltest/results.json`.
 
-**56 of 56 checks pass.** The two real recordings that were tried (the last two sections) have no list of true flyover
+**65 of 65 checks pass** (47 from the full run of 2026-11-03, plus the 18 `locate:` checks, which were rewritten later the same day and re-run on their own; the other sections were not re-run). The two real recordings that were tried (the last two sections) have no list of true flyover
 times, so they show behaviour, not accuracy.
 
 ## What the synthetic recordings contain
@@ -85,7 +85,7 @@ A 10-minute mp4 (AAC, 48 kHz stereo, the 90 s main file repeated 7 times, so 7 p
 ## 6. other tested behaviour
 
 - Links: when yt-dlp prints `CERTIFICATE_VERIFY_FAILED` the call is retried once with `--compat-options no-certifi`; `--no-check-certificates` is never used (tested with a stand-in yt-dlp).
-- locate: refuses to run without a consent word and asks; a public challenge must be named; stops when no plane is audible; says what ADS-B data is needed; writes `case.json` with `audio`, `utc_start` (from the file's `creation_time`, with a warning) and `bbox`; prints the install steps when the solver is missing; with a stand-in solver that returns a one-plane result it says there are two possible places and gives the mirror point and the distance between them.
+- locate (rewritten 2026-11-03 to drive doppler-locate's pipeline; tested with a stand-in `dopploc` command, so no download or heavy compute): refuses without a consent word and a named challenge, with the rule printed first; shows exact install steps (clone, `uv venv`, `uv pip install -e .`) when doppler-locate is missing; asks for the date when the file has no tag and says adsb.lol history starts in 2023 and appears the day after at about 03:30 UTC; stops for a day before 2023 or not out yet; asks for a region and refuses a whole-country box; a dry run prints every command and writes nothing; a full run writes `case.toml` (lon-first box, `gpu = false`, UTC window, two propeller-speed events), runs detect, fetch-types, fetch-adsb, ingest, search, score in order, and reports rank 1, rank 2, the gap and the distance between them; with one usable flyover it says there are two mirror-image places and runs no search; with none, or only jet-speed ones, it stops. The result printer was also run on the real top-20 table of colsto's run (`results/colsto_dopploc/best_per_pair_top20.csv`).
 - Mono 44.1 kHz audio-only (`.m4a`) input goes through `safe_copy.py` and the check on the output finds nothing.
 
 ## All checks
@@ -136,15 +136,24 @@ A 10-minute mp4 (AAC, 48 kHz stereo, the 90 s main file repeated 7 times, so 7 p
 | pass | jet: safe copy says SAFE and the second check finds no flyover | SAFE  |
 | pass | links: CERTIFICATE_VERIFY_FAILED is retried once with --compat-options no-certifi | 2 calls |
 | pass | links: --no-check-certificates is never used |  |
-| pass | locate: refuses to run without a consent word and asks |  |
+| pass | locate: no consent word -> refuses at the top and asks |  |
 | pass | locate: a public challenge must be named |  |
-| pass | locate: no plane in the audio -> stops |  |
-| pass | locate: no ADS-B -> says what is needed |  |
-| pass | locate: case.json has audio, utc_start (from the file's creation_time) and bbox | 2026-11-02T14:03:10Z |
-| pass | locate: says the start time came from the file's tag and may be off |  |
-| pass | locate: warns the box is smaller than 40 x 40 km |  |
-| pass | locate: solver not installed -> install steps are shown |  |
-| pass | locate: one plane -> says two possible places and gives the mirror point |  |
+| pass | locate: doppler-locate missing -> exact install steps (clone, uv venv, uv pip install -e .) | 4 |
+| pass | locate: no date (the wav has no tag) -> asks; says adsb.lol history starts in 2023 and appears the day after |  |
+| pass | locate: a day before 2023 -> stops, no flight data exists |  |
+| pass | locate: a day that is not out yet -> stops and says when |  |
+| pass | locate: no region -> asks for one |  |
+| pass | locate: a whole-country box is refused (RAM-heavy, start regional) |  |
+| pass | locate: dry run prints every command and writes nothing |  |
+| pass | locate: search workers come from free RAM, GPU off by default |  |
+| pass | locate: two flyovers -> case.toml with a lon-first box, gpu=false, a UTC window and the two propeller-speed events | 0 |
+| pass | locate: runs detect, fetch-types, fetch-adsb, ingest, search, score in that order | ['detect C:\\Users\\Asus\\flyover-leak\\data\\skilltest\\mai |
+| pass | locate: reports rank 1, rank 2, the gap and the distance between them |  |
+| pass | locate: says rank 1 is a best fit, not a proof |  |
+| pass | locate: the ingested day goes to its own region folder, never the plain data/adsb/<day> |  |
+| pass | locate: one usable flyover -> says so, explains the two mirror-image places, runs no search | 5 |
+| pass | locate: no flyover -> nothing to locate from |  |
+| pass | locate: only jet-speed flyovers -> says jets are left out and stops |  |
 | pass | long: file is 10 minutes | 600.0 s |
 | pass | long: check.py (with spectrogram PNG) finishes in under 60 s | 21.4 s (analysis alone 26.3 s) |
 | pass | long: the 6 whole repeated planes and the start of the 7th (cut at 10:00) are all found | 7 found |

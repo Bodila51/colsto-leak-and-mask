@@ -1,6 +1,6 @@
 ---
 name: flyover-check
-description: Check a video, audio file or link (YouTube, live webcam) for what its sound and file tags give away about where and when it was recorded - plane flyover tones that Doppler-slide as a plane passes, mains hum, sirens, GPS and creation-time metadata. Makes a "safe copy" that sounds the same but no longer leaks those things, and re-checks it. A third mode locates a recording from plane Doppler slides plus public ADS-B flight data, only for the user's own recordings, public challenges or recordings whose owner agreed. Use when someone wants to check a video before posting, remove plane sounds or location tags, or asks where a recording was made.
+description: Check a video, audio file or link (YouTube, live webcam) for what its sound and file tags give away about where and when it was recorded - plane flyover tones that Doppler-slide as a plane passes, mains hum, sirens, GPS and creation-time metadata. Makes a "safe copy" that sounds the same but no longer leaks those things, and re-checks it. A third mode locates a recording from plane Doppler slides plus public ADS-B flight data (doppler-locate's pipeline), only for the user's own recordings, public challenges or recordings whose owner agreed. Use when someone wants to check a video before posting, remove plane sounds or location tags, or asks where a recording was made.
 ---
 
 # flyover-check
@@ -12,7 +12,7 @@ A plane passing a microphone makes a steady tone (about 70-300 Hz, plus harmonic
 ```
 uv run SKILL_DIR/scripts/check.py     INPUT
 uv run SKILL_DIR/scripts/safe_copy.py INPUT
-uv run SKILL_DIR/scripts/locate.py    INPUT --consent ...
+uv run SKILL_DIR/scripts/locate.py    INPUT --consent ... --date ... --bbox ...
 ```
 
 `INPUT` is a local file, a YouTube (or other yt-dlp) link, or a live webcam link.
@@ -70,28 +70,33 @@ Read the result:
 
 **Say this first, in these words:** this mode is only for the user's own recordings, public challenges such as colsto's, or recordings whose owner has agreed. It is not for finding where someone else is.
 
-Ask the user which of the three applies (`own`, `public-challenge` with the challenge's name, `owner-agreed`). If none applies, or they will not say, stop and refuse. Do not run `locate.py` without a clear answer. Do not look for ways around it. If the recording looks like a private person's content that the user does not own and has no agreement for, refuse.
+Ask the user which of the three applies (`own`, `public-challenge` with the challenge's name, `owner-agreed`). If none applies, or they will not say, stop and refuse, and say so at the top of the answer. Do not run `locate.py` without a clear answer. Do not look for ways around it. If the recording looks like a private person's content that the user does not own and has no agreement for, refuse.
 
 ```
 uv run SKILL_DIR/scripts/locate.py INPUT --consent own|public-challenge|owner-agreed [--challenge-name NAME] \
-    (--bbox LAT_MIN,LON_MIN,LAT_MAX,LON_MAX | --center LAT,LON [--radius-km 25] | --country BG) \
-    [--utc-start 2026-11-02T14:03:10Z] [--adsb FILE | --fetch-adsb-now] [--repo PATH]
+    (--utc-start 2026-09-08T14:03:10Z | --date 2026-09-08) \
+    (--bbox LAT_MIN,LON_MIN,LAT_MAX,LON_MAX | --center LAT,LON [--radius-km 100] | --country BG) \
+    [--dry-run] [--dopploc-dir PATH] [--events A,B] [--workers N]
 ```
 
-It needs four things; ask for what is missing:
+It runs doppler-locate's own pipeline (`github.com/digitalis-p/doppler-locate`, MIT; the method from colsto's video, rebuilt on free adsb.lol data): find the flyovers in the file (`dopploc detect`), download that UTC day of adsb.lol history and cut it down to the region (`fetch-adsb`, `ingest`), then `search` every pair of real flights that could explain two flyovers and `score` them. It reports rank 1, the two flights behind it, and how far ahead of rank 2 it is. `--dry-run` prints every check and command and changes nothing; run it first and show the user.
 
-1. **Date and UTC start time** of the first sample, accurate to a few seconds. It reads the file's `creation_time` if present and says that tag is when the file was written (start or end of the recording, sometimes local time stored as UTC). Confirm it with the user.
-2. **A search area**: a box of about 40 x 40 km or more around a guess, or a country code (a whole country is slow and coarse).
-3. **ADS-B data** for that time: `--adsb FILE` in the solver's `adsb.jsonl` format, or `--fetch-adsb-now` (public adsb.lol, only for recordings made today or in the last hours, because planes that already landed are not listed). For older dates use the adsb.lol daily history as described in the repo README.
-4. **The solver**: `solver/solve.py` in the repo `https://github.com/Bodila51/colsto-leak-and-mask`, running in the doppler-locate virtual environment. It is not part of the skill folder. If it is missing, `locate.py` prints the install steps (clone the repo, clone `digitalis-p/doppler-locate` into `data/vendor/doppler-locate`, create the venv; see `docs/windows-notes.md` there) and keeps the case files it wrote. Pass `--repo PATH` if the repo is somewhere else. The solver is heavy: several GB of memory and many minutes.
+Ask for what is missing, do not guess it:
 
-It writes `cases/<name>/{audio.flac, case.json, adsb.jsonl}`, runs the solver, and prints the best point, the planes used and their closest distance and time.
+1. **The date, and the UTC time of the first sample if known.** Date and time come from the file's tags (it prints which tag and warns that a tag can be the write time, the end of the recording, or local time stored as UTC) or from the user. The date is required. A start time good to a minute or two narrows the search to that window, which is faster and gives fewer look-alike places; with the date alone the whole day is searched. Tell the user that adsb.lol history for a day appears the day after, at about 03:30 UTC, and starts in 2023: a recording from today or yesterday morning, or from before 2023, cannot be located. The script stops and says so.
+2. **A region**, as a box, a centre with a radius, or a country code. Start regional: a box of about 100-300 km around the best guess. A full country is RAM-heavy (colsto's 300 x 300 km box peaked near 5 GB; the continental US needed about 26 GB upstream), so the script refuses boxes over 700 km on a side unless `--allow-large`. A box under about 80 km can cut off the plane that was heard.
+3. **Two audible planes on different lines.** The search is a two-flyover search. Propeller and turboprop planes are the best case: low, slow, steady tones that carry for kilometres. Jets are left out of the search (their sound is mostly broadband and high-pitched), so a recording whose only planes are jets, or planes near a runway where jets dominate, mostly fails. It needs a plane you can actually hear, not one that is only in the data.
+4. **doppler-locate installed.** The script looks in `data/vendor/doppler-locate`, `./doppler-locate`, `$DOPPLOC_DIR` and `--dopploc-dir`. If it is missing, it prints the exact steps (`git clone https://github.com/digitalis-p/doppler-locate`, `cd doppler-locate`, `uv venv --python 3.12 .venv`, `uv pip install -e .`), plus what Windows needs (the upstream is Linux-only; apply `solver/windows_patches.diff` from the colsto repo, see `docs/windows-notes.md` there) and the `gh` and ffmpeg requirements. Show these to the user as printed.
+
+Runs on Windows, macOS and Linux. The GPU search is off by default (`--gpu` to turn it on), the number of search processes comes from the free RAM (about 1.5 GB each, at most 6), and `scripts/run-capped.sh` is never used. The first run downloads about 3.9 GB for the day and takes tens of minutes (measured on a 16 GB Windows PC for a 300 km box: ingest 4 min, search 3 min, score 20 min); finished steps are reused if it is run again. Nothing outside the doppler-locate folder is touched.
 
 Be honest about the result:
 
-- **One plane leaves two possible places**, one on each side of its path, mirror images of each other. If the solver says `two_band`, give both points and the distance between them, and say nothing in the sound tells them apart. A second plane on a different line, or any other fact about the scene, can.
-- The point is the computed best fit, not a certainty. It is wrong if the start time is off by more than a few seconds, a plane is missing from public data, or the tone was misread. A miss is a result.
-- Never present a place as found if the solver returned nothing or flagged ambiguity.
+- **Only one usable flyover:** the script stops and says so. One plane's pitch slide gives how far its path passed, not on which side, so even a known plane leaves two places, mirror images across its path, and nothing in the sound tells them apart. Give the user that message in plain words; do not offer a guess. A longer recording, a second plane, or another fact about the scene is what helps.
+- **Rank 1 is the best fit, not a certainty.** Give the point, the two flights (callsign, type, closest distance and time), the score, rank 2 and the gap. If rank 2 is another town, say that the margin is all that separates them. On colsto's own challenge rank 1 was right with 3.66 against 3.48, a narrow gap, but that run used a 300 km box picked knowing the answer, so it shows the pipeline works, not how often a blind run succeeds.
+- It is wrong if the start time is off by more than a few seconds, a plane is missing from the public data (adsb.lol has fewer receivers than commercial services), or the tone was misread or belongs to a jet. A miss is a result: say "nothing found", not a place.
+- The upstream search grid is the continental-US grid and was validated only on colsto's US challenge. Outside the US it is untested: call a result there a lead.
+- Never present a place as found if the pipeline returned nothing or flagged ambiguity.
 
 ## Files
 
