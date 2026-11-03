@@ -1,0 +1,556 @@
+$ flyover-check: which flight made this sound?
+known location: Midway camera 41.77844, -87.74278 (owner-published)
+audio: mdw_163340.mp4, 425-480 s of the recording
+read 8039765 samples at 16000 Hz (502 s of audio)
+STFT: window 256 ms, FFT 16384, hop 50 ms, harmonic sum x1..x4
+tracking the jet fan tone (900-1800 Hz fundamental) frame by frame
+  t= 425.13 s   tone   961.9 Hz   confidence   3.0
+  t= 425.28 s   tone   964.9 Hz   confidence   3.2
+  t= 425.43 s   tone   975.8 Hz   confidence   2.0
+  t= 425.58 s   tone   972.9 Hz   confidence   1.9
+  t= 425.73 s   tone   956.6 Hz   confidence   2.1
+  t= 425.88 s   tone   961.3 Hz   confidence   1.9
+  t= 426.03 s   tone  1013.2 Hz   confidence   1.8
+  t= 426.18 s   tone  1063.0 Hz   confidence   2.8
+  t= 426.33 s   tone  1063.4 Hz   confidence   3.0
+  t= 426.48 s   tone  1063.9 Hz   confidence   1.8
+  t= 426.63 s   tone  1066.9 Hz   confidence   2.1
+  t= 426.78 s   tone  1066.1 Hz   confidence   2.8
+  t= 426.93 s   tone  1072.0 Hz   confidence   1.5
+  t= 427.08 s   tone  1041.1 Hz   confidence   1.4
+  t= 427.23 s   tone  1059.7 Hz   confidence   1.1
+  t= 427.38 s   tone  1036.6 Hz   confidence   1.3
+  t= 427.53 s   tone  1020.1 Hz   confidence   1.4
+  t= 427.68 s   tone  1019.4 Hz   confidence   2.3
+  t= 427.83 s   tone  1003.6 Hz   confidence   2.3
+  t= 427.98 s   tone  1003.4 Hz   confidence   2.4
+  t= 428.13 s   tone  1034.3 Hz   confidence   2.1
+  t= 428.28 s   tone  1035.5 Hz   confidence   2.5
+  t= 428.43 s   tone  1061.4 Hz   confidence   1.8
+  t= 428.58 s   tone  1092.1 Hz   confidence   1.6
+  t= 428.73 s   tone  1098.7 Hz   confidence   3.3
+  t= 428.88 s   tone  1102.5 Hz   confidence   3.2
+  t= 429.03 s   tone  1101.9 Hz   confidence   4.1
+  t= 429.18 s   tone  1096.9 Hz   confidence   4.5
+  t= 429.33 s   tone  1095.9 Hz   confidence   3.6
+  t= 429.48 s   tone  1095.6 Hz   confidence   3.9
+  t= 429.63 s   tone  1096.9 Hz   confidence   5.0
+  t= 429.78 s   tone  1098.6 Hz   confidence   4.6
+  t= 429.93 s   tone  1099.4 Hz   confidence   4.5
+  t= 430.08 s   tone  1098.8 Hz   confidence   4.6
+  t= 430.23 s   tone  1097.0 Hz   confidence   3.9
+  t= 430.38 s   tone  1098.1 Hz   confidence   3.3
+  t= 430.53 s   tone  1093.0 Hz   confidence   3.3
+  t= 430.68 s   tone  1097.8 Hz   confidence   4.0
+  t= 430.83 s   tone  1096.1 Hz   confidence   2.8
+  t= 430.98 s   tone  1075.1 Hz   confidence   2.5
+  t= 431.13 s   tone  1071.5 Hz   confidence   2.7
+  t= 431.28 s   tone  1069.1 Hz   confidence   2.2
+  t= 431.43 s   tone  1149.9 Hz   confidence   0.9
+  t= 431.58 s   tone  1180.9 Hz   confidence   2.8
+  t= 431.73 s   tone  1183.5 Hz   confidence   2.5
+  t= 431.88 s   tone  1142.7 Hz   confidence   2.4
+  t= 432.03 s   tone  1149.6 Hz   confidence   2.0
+  t= 432.18 s   tone  1160.9 Hz   confidence   2.1
+  t= 432.33 s   tone  1177.9 Hz   confidence   1.7
+  t= 432.48 s   tone  1193.9 Hz   confidence   1.9
+  t= 432.63 s   tone  1180.5 Hz   confidence   2.0
+  t= 432.78 s   tone  1198.8 Hz   confidence   1.4
+  t= 432.93 s   tone  1188.7 Hz   confidence   1.7
+  t= 433.08 s   tone  1177.3 Hz   confidence   1.9
+  t= 433.23 s   tone  1178.4 Hz   confidence   1.8
+  t= 433.38 s   tone  1130.4 Hz   confidence   0.9
+  t= 433.53 s   tone  1089.6 Hz   confidence   1.9
+  t= 433.68 s   tone  1088.2 Hz   confidence   3.7
+  t= 433.83 s   tone  1086.0 Hz   confidence   3.0
+  t= 433.98 s   tone  1087.4 Hz   confidence   2.5
+  t= 434.13 s   tone  1089.2 Hz   confidence   3.6
+  t= 434.28 s   tone  1088.7 Hz   confidence   2.6
+  t= 434.43 s   tone  1081.0 Hz   confidence   3.4
+  t= 434.58 s   tone  1089.9 Hz   confidence   4.7
+  t= 434.73 s   tone  1086.1 Hz   confidence   4.1
+  t= 434.88 s   tone  1087.9 Hz   confidence   2.6
+  t= 435.03 s   tone  1085.1 Hz   confidence   2.3
+  t= 435.18 s   tone  1088.4 Hz   confidence   1.9
+  t= 435.33 s   tone  1088.4 Hz   confidence   2.3
+  t= 435.48 s   tone  1103.4 Hz   confidence   1.8
+  t= 435.63 s   tone  1120.6 Hz   confidence   1.2
+  t= 435.78 s   tone  1147.8 Hz   confidence   2.2
+  t= 435.93 s   tone  1147.3 Hz   confidence   1.9
+  t= 436.08 s   tone  1192.9 Hz   confidence   1.6
+  t= 436.23 s   tone  1219.8 Hz   confidence   1.6
+  t= 436.38 s   tone  1249.2 Hz   confidence   2.3
+  t= 436.53 s   tone  1285.6 Hz   confidence   2.4
+  t= 436.68 s   tone  1285.1 Hz   confidence   1.3
+  t= 436.83 s   tone  1271.7 Hz   confidence   1.3
+  t= 436.98 s   tone  1258.3 Hz   confidence   2.4
+  t= 437.13 s   tone  1215.6 Hz   confidence   1.9
+  t= 437.28 s   tone  1198.5 Hz   confidence   1.0
+  t= 437.43 s   tone  1168.1 Hz   confidence   1.2
+  t= 437.58 s   tone  1172.9 Hz   confidence   1.7
+  t= 437.73 s   tone  1177.0 Hz   confidence   2.5
+  t= 437.88 s   tone  1200.5 Hz   confidence   0.9
+  t= 438.03 s   tone  1224.1 Hz   confidence   1.1
+  t= 438.18 s   tone  1238.4 Hz   confidence   1.6
+  t= 438.33 s   tone  1207.0 Hz   confidence   1.9
+  t= 438.48 s   tone  1197.8 Hz   confidence   2.1
+  t= 438.63 s   tone  1215.2 Hz   confidence   1.6
+  t= 438.78 s   tone  1286.2 Hz   confidence   2.6
+  t= 438.93 s   tone  1287.5 Hz   confidence   4.3
+  t= 439.08 s   tone  1287.5 Hz   confidence   5.1
+  t= 439.23 s   tone  1286.4 Hz   confidence   6.3
+  t= 439.38 s   tone  1233.9 Hz   confidence   0.5
+  t= 439.53 s   tone  1153.0 Hz   confidence   0.5
+  t= 439.68 s   tone  1085.7 Hz   confidence   1.0
+  t= 439.83 s   tone  1050.4 Hz   confidence   2.2
+  t= 439.98 s   tone   971.8 Hz   confidence   2.1
+  t= 440.13 s   tone   938.5 Hz   confidence   2.3
+  t= 440.28 s   tone   929.5 Hz   confidence   3.4
+  t= 440.43 s   tone   947.0 Hz   confidence   3.7
+  t= 440.58 s   tone   928.1 Hz   confidence   3.2
+  t= 440.73 s   tone   949.0 Hz   confidence   4.1
+  t= 440.88 s   tone   951.9 Hz   confidence   3.1
+  t= 441.03 s   tone   940.9 Hz   confidence   3.1
+  t= 441.18 s   tone   948.0 Hz   confidence   2.9
+  t= 441.33 s   tone   975.1 Hz   confidence   1.1
+  t= 441.48 s   tone  1043.9 Hz   confidence   1.7
+  t= 441.63 s   tone  1120.1 Hz   confidence   3.4
+  t= 441.78 s   tone  1117.9 Hz   confidence   2.9
+  t= 441.93 s   tone  1115.6 Hz   confidence   2.6
+  t= 442.08 s   tone  1117.4 Hz   confidence   2.7
+  t= 442.23 s   tone  1110.2 Hz   confidence   1.8
+  t= 442.38 s   tone  1133.6 Hz   confidence   2.7
+  t= 442.53 s   tone  1121.3 Hz   confidence   2.5
+  t= 442.68 s   tone  1145.7 Hz   confidence   3.3
+  t= 442.83 s   tone  1120.0 Hz   confidence   2.8
+  t= 442.98 s   tone  1152.6 Hz   confidence   3.5
+  t= 443.13 s   tone  1148.1 Hz   confidence   3.4
+  t= 443.28 s   tone  1148.5 Hz   confidence   2.7
+  t= 443.43 s   tone  1150.3 Hz   confidence   3.1
+  t= 443.58 s   tone  1151.4 Hz   confidence   2.7
+  t= 443.73 s   tone  1138.9 Hz   confidence   2.7
+  t= 443.88 s   tone  1140.7 Hz   confidence   2.4
+  t= 444.03 s   tone  1145.8 Hz   confidence   2.4
+  t= 444.18 s   tone  1151.5 Hz   confidence   2.3
+  t= 444.33 s   tone  1148.2 Hz   confidence   2.3
+  t= 444.48 s   tone  1152.4 Hz   confidence   3.4
+  t= 444.63 s   tone  1152.8 Hz   confidence   2.3
+  t= 444.78 s   tone  1161.2 Hz   confidence   1.5
+  t= 444.93 s   tone  1147.0 Hz   confidence   2.5
+  t= 445.08 s   tone  1146.0 Hz   confidence   3.1
+  t= 445.23 s   tone  1209.3 Hz   confidence   1.5
+  t= 445.38 s   tone  1269.4 Hz   confidence   1.4
+  t= 445.53 s   tone  1340.9 Hz   confidence   1.0
+  t= 445.63 s   tone  1395.1 Hz   confidence   3.0   pass
+  t= 445.68 s   tone  1399.3 Hz   confidence   4.2   pass
+  t= 445.73 s   tone  1399.3 Hz   confidence   3.8   pass
+  t= 445.78 s   tone  1398.1 Hz   confidence   3.7   pass
+  t= 445.83 s   tone  1397.8 Hz   confidence   4.6   pass
+  t= 445.88 s   tone  1398.0 Hz   confidence   5.4   pass
+  t= 445.93 s   tone  1397.9 Hz   confidence   4.9   pass
+  t= 445.98 s   tone  1395.1 Hz   confidence   4.0   pass
+  t= 446.03 s   tone  1393.3 Hz   confidence   3.1   pass
+  t= 446.08 s   tone  1397.6 Hz   confidence   2.9   pass
+  t= 446.13 s   tone  1397.5 Hz   confidence   3.4   pass
+  t= 446.18 s   tone  1397.3 Hz   confidence   4.0   pass
+  t= 446.23 s   tone  1398.2 Hz   confidence   3.9   pass
+  t= 446.28 s   tone  1398.3 Hz   confidence   3.7   pass
+  t= 446.33 s   tone  1389.3 Hz   confidence   4.5   pass
+  t= 446.38 s   tone  1390.0 Hz   confidence   4.5   pass
+  t= 446.43 s   tone  1392.6 Hz   confidence   4.3   pass
+  t= 446.48 s   tone  1398.2 Hz   confidence   4.6   pass
+  t= 446.53 s   tone  1398.5 Hz   confidence   4.8   pass
+  t= 446.58 s   tone  1398.4 Hz   confidence   5.0   pass
+  t= 446.63 s   tone  1396.8 Hz   confidence   4.8   pass
+  t= 446.68 s   tone  1394.3 Hz   confidence   5.4   pass
+  t= 446.73 s   tone  1392.1 Hz   confidence   6.1   pass
+  t= 446.78 s   tone  1391.5 Hz   confidence   5.9   pass
+  t= 446.83 s   tone  1389.9 Hz   confidence   5.6   pass
+  t= 446.88 s   tone  1392.7 Hz   confidence   5.7   pass
+  t= 446.93 s   tone  1391.5 Hz   confidence   5.6   pass
+  t= 446.98 s   tone  1394.9 Hz   confidence   6.2   pass
+  t= 447.03 s   tone  1390.7 Hz   confidence   6.0   pass
+  t= 447.08 s   tone  1388.7 Hz   confidence   5.6   pass
+  t= 447.13 s   tone  1390.9 Hz   confidence   4.8   pass
+  t= 447.18 s   tone  1391.7 Hz   confidence   5.3   pass
+  t= 447.23 s   tone  1390.0 Hz   confidence   6.9   pass
+  t= 447.28 s   tone  1390.2 Hz   confidence   6.6   pass
+  t= 447.33 s   tone  1393.3 Hz   confidence   4.9   pass
+  t= 447.38 s   tone  1394.1 Hz   confidence   4.0   pass
+  t= 447.43 s   tone  1394.5 Hz   confidence   4.1   pass
+  t= 447.48 s   tone  1389.0 Hz   confidence   4.5   pass
+  t= 447.53 s   tone  1388.0 Hz   confidence   5.4   pass
+  t= 447.58 s   tone  1392.8 Hz   confidence   5.6   pass
+  t= 447.63 s   tone  1392.1 Hz   confidence   5.8   pass
+  t= 447.68 s   tone  1387.0 Hz   confidence   5.3   pass
+  t= 447.73 s   tone  1386.0 Hz   confidence   5.7   pass
+  t= 447.78 s   tone  1385.0 Hz   confidence   6.2   pass
+  t= 447.83 s   tone  1384.6 Hz   confidence   6.4   pass
+  t= 447.88 s   tone  1383.3 Hz   confidence   5.1   pass
+  t= 447.93 s   tone  1381.5 Hz   confidence   4.7   pass
+  t= 447.98 s   tone  1381.4 Hz   confidence   4.6   pass
+  t= 448.03 s   tone  1385.3 Hz   confidence   4.8   pass
+  t= 448.08 s   tone  1381.0 Hz   confidence   4.5   pass
+  t= 448.13 s   tone  1381.2 Hz   confidence   4.8   pass
+  t= 448.18 s   tone  1379.1 Hz   confidence   4.9   pass
+  t= 448.23 s   tone  1377.3 Hz   confidence   5.1   pass
+  t= 448.28 s   tone  1371.6 Hz   confidence   4.5   pass
+  t= 448.33 s   tone  1372.1 Hz   confidence   4.1   pass
+  t= 448.38 s   tone  1371.0 Hz   confidence   4.2   pass
+  t= 448.43 s   tone  1371.4 Hz   confidence   5.7   pass
+  t= 448.48 s   tone  1372.0 Hz   confidence   5.3   pass
+  t= 448.53 s   tone  1369.3 Hz   confidence   6.3   pass
+  t= 448.58 s   tone  1369.8 Hz   confidence   6.8   pass
+  t= 448.63 s   tone  1366.7 Hz   confidence   5.9   pass
+  t= 448.68 s   tone  1372.4 Hz   confidence   5.4   pass
+  t= 448.73 s   tone  1372.0 Hz   confidence   5.0   pass
+  t= 448.78 s   tone  1372.2 Hz   confidence   4.2   pass
+  t= 448.83 s   tone  1370.0 Hz   confidence   4.5   pass
+  t= 448.88 s   tone  1362.6 Hz   confidence   5.3   pass
+  t= 448.93 s   tone  1360.4 Hz   confidence   6.2   pass
+  t= 448.98 s   tone  1361.3 Hz   confidence   5.5   pass
+  t= 449.03 s   tone  1354.2 Hz   confidence   4.3   pass
+  t= 449.08 s   tone  1346.0 Hz   confidence   4.9   pass
+  t= 449.13 s   tone  1346.3 Hz   confidence   5.4   pass
+  t= 449.18 s   tone  1349.7 Hz   confidence   4.3   pass
+  t= 449.23 s   tone  1350.7 Hz   confidence   4.3   pass
+  t= 449.28 s   tone  1339.9 Hz   confidence   4.2   pass
+  t= 449.33 s   tone  1339.2 Hz   confidence   5.8   pass
+  t= 449.38 s   tone  1336.6 Hz   confidence   5.2   pass
+  t= 449.43 s   tone  1337.1 Hz   confidence   5.3   pass
+  t= 449.48 s   tone  1336.9 Hz   confidence   4.8   pass
+  t= 449.53 s   tone  1323.9 Hz   confidence   5.1   pass
+  t= 449.58 s   tone  1319.8 Hz   confidence   5.8   pass
+  t= 449.63 s   tone  1319.9 Hz   confidence   5.0   pass
+  t= 449.68 s   tone  1316.6 Hz   confidence   4.5   pass
+  t= 449.73 s   tone  1316.8 Hz   confidence   4.8   pass
+  t= 449.78 s   tone  1317.9 Hz   confidence   4.5   pass
+  t= 449.83 s   tone  1307.2 Hz   confidence   4.6   pass
+  t= 449.88 s   tone  1290.5 Hz   confidence   4.8   pass
+  t= 449.93 s   tone  1289.9 Hz   confidence   3.9   pass
+  t= 449.98 s   tone  1278.3 Hz   confidence   4.3   pass
+  t= 450.03 s   tone  1272.0 Hz   confidence   4.1   pass
+  t= 450.08 s   tone  1273.5 Hz   confidence   4.2   pass
+  t= 450.13 s   tone  1276.2 Hz   confidence   4.6   pass
+  t= 450.18 s   tone  1269.1 Hz   confidence   4.0   pass
+  t= 450.23 s   tone  1268.7 Hz   confidence   3.9   pass
+  t= 450.28 s   tone  1248.2 Hz   confidence   4.2   pass
+  t= 450.33 s   tone  1251.2 Hz   confidence   4.3   pass
+  t= 450.38 s   tone  1241.0 Hz   confidence   4.5   pass
+  t= 450.43 s   tone  1232.2 Hz   confidence   4.3   pass
+  t= 450.48 s   tone  1231.2 Hz   confidence   4.0   pass
+  t= 450.53 s   tone  1230.1 Hz   confidence   4.1   pass
+  t= 450.58 s   tone  1211.2 Hz   confidence   3.1   pass
+  t= 450.63 s   tone  1205.7 Hz   confidence   3.9   pass
+  t= 450.68 s   tone  1205.2 Hz   confidence   4.4   pass
+  t= 450.73 s   tone  1200.2 Hz   confidence   3.9   pass
+  t= 450.78 s   tone  1191.4 Hz   confidence   3.3   pass
+  t= 450.83 s   tone  1183.4 Hz   confidence   3.3   pass
+  t= 450.88 s   tone  1180.4 Hz   confidence   2.6   pass
+  t= 450.93 s   tone  1155.1 Hz   confidence   2.1   pass
+  t= 450.98 s   tone  1150.4 Hz   confidence   3.3   pass
+  t= 451.03 s   tone  1146.5 Hz   confidence   3.5   pass
+  t= 451.08 s   tone  1144.9 Hz   confidence   3.6   pass
+  t= 451.13 s   tone  1126.9 Hz   confidence   2.4   pass
+  t= 451.18 s   tone  1126.2 Hz   confidence   2.6   pass
+  t= 451.23 s   tone  1126.1 Hz   confidence   2.6   pass
+  t= 451.28 s   tone  1125.2 Hz   confidence   2.1   pass
+  t= 451.33 s   tone  1107.7 Hz   confidence   2.3   pass
+  t= 451.38 s   tone  1108.1 Hz   confidence   1.7   pass
+  t= 451.43 s   tone  1094.5 Hz   confidence   1.7   pass
+  t= 451.48 s   tone  1091.4 Hz   confidence   1.8   pass
+  t= 451.53 s   tone  1089.7 Hz   confidence   1.5
+  t= 451.58 s   tone  1070.6 Hz   confidence   2.5   pass
+  t= 451.63 s   tone  1070.6 Hz   confidence   3.1   pass
+  t= 451.68 s   tone  1066.0 Hz   confidence   2.6   pass
+  t= 451.83 s   tone  1058.9 Hz   confidence   1.2
+  t= 451.98 s   tone  1041.3 Hz   confidence   1.0
+  t= 452.13 s   tone  1023.2 Hz   confidence   2.0   pass
+  t= 452.18 s   tone  1023.2 Hz   confidence   2.0   pass
+  t= 452.28 s   tone  1018.8 Hz   confidence   1.5   pass
+  t= 452.43 s   tone  1012.8 Hz   confidence   0.6
+  t= 452.58 s   tone  1004.1 Hz   confidence   0.7
+  t= 452.73 s   tone   992.4 Hz   confidence   1.3
+  t= 452.88 s   tone   980.7 Hz   confidence   1.5
+  t= 452.93 s   tone   984.9 Hz   confidence   1.8   pass
+  t= 452.98 s   tone   984.8 Hz   confidence   2.2   pass
+  t= 453.03 s   tone   985.4 Hz   confidence   1.6   pass
+  t= 453.08 s   tone   972.4 Hz   confidence   1.9   pass
+  t= 453.13 s   tone   970.9 Hz   confidence   2.8   pass
+  t= 453.18 s   tone   969.0 Hz   confidence   3.0   pass
+  t= 453.23 s   tone   968.5 Hz   confidence   3.1   pass
+  t= 453.28 s   tone   968.5 Hz   confidence   2.5   pass
+  t= 453.33 s   tone   964.0 Hz   confidence   1.7   pass
+  t= 453.38 s   tone   963.1 Hz   confidence   2.4   pass
+  t= 453.43 s   tone   962.9 Hz   confidence   2.6   pass
+  t= 453.48 s   tone   962.5 Hz   confidence   2.8   pass
+  t= 453.53 s   tone   961.4 Hz   confidence   2.8   pass
+  t= 453.58 s   tone   961.1 Hz   confidence   2.3   pass
+  t= 453.63 s   tone   953.0 Hz   confidence   1.9   pass
+  t= 453.68 s   tone   951.9 Hz   confidence   2.3   pass
+  t= 453.73 s   tone   952.4 Hz   confidence   2.3   pass
+  t= 453.78 s   tone   952.7 Hz   confidence   2.3   pass
+  t= 453.83 s   tone   952.7 Hz   confidence   1.6   pass
+  t= 453.93 s   tone   953.7 Hz   confidence   1.2
+  t= 453.98 s   tone   952.6 Hz   confidence   1.8   pass
+  t= 454.03 s   tone   952.1 Hz   confidence   2.3   pass
+  t= 454.08 s   tone   950.9 Hz   confidence   2.5   pass
+  t= 454.13 s   tone   950.1 Hz   confidence   2.6   pass
+  t= 454.18 s   tone   948.4 Hz   confidence   2.4   pass
+  t= 454.23 s   tone   945.2 Hz   confidence   2.4   pass
+  t= 454.28 s   tone   945.6 Hz   confidence   2.7   pass
+  t= 454.33 s   tone   946.4 Hz   confidence   2.7   pass
+  t= 454.38 s   tone   951.9 Hz   confidence   2.0   pass
+  t= 454.48 s   tone   944.5 Hz   confidence   3.6   pass
+  t= 454.53 s   tone   944.2 Hz   confidence   3.6   pass
+  t= 454.58 s   tone   942.8 Hz   confidence   3.4   pass
+  t= 454.63 s   tone   942.2 Hz   confidence   3.5   pass
+  t= 454.68 s   tone   941.9 Hz   confidence   3.8   pass
+  t= 454.73 s   tone   941.1 Hz   confidence   3.7   pass
+  t= 454.78 s   tone   940.5 Hz   confidence   4.1   pass
+  t= 454.83 s   tone   940.8 Hz   confidence   3.7   pass
+  t= 454.88 s   tone   940.7 Hz   confidence   3.8   pass
+  t= 454.93 s   tone   940.5 Hz   confidence   3.4   pass
+  t= 454.98 s   tone   940.0 Hz   confidence   2.6   pass
+  t= 455.03 s   tone   939.5 Hz   confidence   3.0   pass
+  t= 455.08 s   tone   936.1 Hz   confidence   3.4   pass
+  t= 455.13 s   tone   936.8 Hz   confidence   3.7   pass
+  t= 455.18 s   tone   934.9 Hz   confidence   2.9   pass
+  t= 455.23 s   tone   935.6 Hz   confidence   3.1   pass
+  t= 455.28 s   tone   930.3 Hz   confidence   2.5   pass
+  t= 455.33 s   tone   936.7 Hz   confidence   2.5   pass
+  t= 455.38 s   tone   935.8 Hz   confidence   3.1   pass
+  t= 455.43 s   tone   935.8 Hz   confidence   3.2   pass
+  t= 455.48 s   tone   935.8 Hz   confidence   2.8   pass
+  t= 455.53 s   tone   935.8 Hz   confidence   2.0   pass
+  t= 455.58 s   tone   934.4 Hz   confidence   2.7   pass
+  t= 455.63 s   tone   934.2 Hz   confidence   3.0   pass
+  t= 455.68 s   tone   936.7 Hz   confidence   2.1   pass
+  t= 455.73 s   tone   935.3 Hz   confidence   1.9   pass
+  t= 455.78 s   tone   935.3 Hz   confidence   2.7   pass
+  t= 455.83 s   tone   935.1 Hz   confidence   2.4   pass
+  t= 455.88 s   tone   934.0 Hz   confidence   2.0   pass
+  t= 455.93 s   tone   934.7 Hz   confidence   1.7   pass
+  t= 455.98 s   tone   934.3 Hz   confidence   1.9   pass
+  t= 456.03 s   tone   959.2 Hz   confidence   1.0
+  t= 456.18 s   tone  1022.6 Hz   confidence   1.9
+  t= 456.33 s   tone  1066.0 Hz   confidence   1.9
+  t= 456.48 s   tone  1132.6 Hz   confidence   2.2
+  t= 456.63 s   tone  1169.8 Hz   confidence   1.4
+  t= 456.78 s   tone  1180.5 Hz   confidence   1.7
+  t= 456.93 s   tone  1202.8 Hz   confidence   2.8
+  t= 457.08 s   tone  1216.6 Hz   confidence   2.3
+  t= 457.23 s   tone  1191.2 Hz   confidence   2.3
+  t= 457.38 s   tone  1161.6 Hz   confidence   2.8
+  t= 457.53 s   tone  1157.7 Hz   confidence   2.2
+  t= 457.68 s   tone  1115.1 Hz   confidence   2.4
+  t= 457.83 s   tone  1098.2 Hz   confidence   2.9
+  t= 457.98 s   tone  1105.6 Hz   confidence   3.7
+  t= 458.13 s   tone  1105.3 Hz   confidence   3.1
+  t= 458.28 s   tone  1099.1 Hz   confidence   2.2
+  t= 458.43 s   tone  1093.9 Hz   confidence   3.0
+  t= 458.58 s   tone  1105.0 Hz   confidence   1.8
+  t= 458.73 s   tone  1102.7 Hz   confidence   2.8
+  t= 458.88 s   tone  1105.8 Hz   confidence   2.4
+  t= 459.03 s   tone  1105.4 Hz   confidence   2.0
+  t= 459.18 s   tone  1104.1 Hz   confidence   2.2
+  t= 459.33 s   tone  1101.2 Hz   confidence   1.9
+  t= 459.48 s   tone  1095.8 Hz   confidence   1.9
+  t= 459.63 s   tone  1068.1 Hz   confidence   1.9
+  t= 459.78 s   tone  1071.7 Hz   confidence   1.9
+  t= 459.93 s   tone  1055.2 Hz   confidence   2.2
+  t= 460.08 s   tone  1044.6 Hz   confidence   2.1
+  t= 460.23 s   tone  1052.0 Hz   confidence   1.0
+  t= 460.38 s   tone  1004.8 Hz   confidence   1.6
+  t= 460.53 s   tone  1005.6 Hz   confidence   2.7
+  t= 460.68 s   tone  1012.1 Hz   confidence   2.5
+  t= 460.83 s   tone  1032.6 Hz   confidence   1.9
+  t= 460.98 s   tone  1007.2 Hz   confidence   1.8
+  t= 461.13 s   tone   995.1 Hz   confidence   2.9
+  t= 461.28 s   tone   966.7 Hz   confidence   2.8
+  t= 461.43 s   tone   942.7 Hz   confidence   2.3
+  t= 461.58 s   tone   948.4 Hz   confidence   2.3
+  t= 461.73 s   tone   948.1 Hz   confidence   2.7
+  t= 461.88 s   tone   965.2 Hz   confidence   4.4
+  t= 462.03 s   tone   967.7 Hz   confidence   2.4
+  t= 462.18 s   tone   978.2 Hz   confidence   2.3
+  t= 462.33 s   tone  1043.0 Hz   confidence   1.9
+  t= 462.48 s   tone  1091.7 Hz   confidence   1.9
+  t= 462.63 s   tone  1111.7 Hz   confidence   2.9
+  t= 462.78 s   tone  1118.0 Hz   confidence   3.2
+  t= 462.93 s   tone  1106.6 Hz   confidence   1.9
+  t= 463.08 s   tone  1132.6 Hz   confidence   2.2
+  t= 463.23 s   tone  1106.2 Hz   confidence   2.6
+  t= 463.38 s   tone  1109.7 Hz   confidence   3.1
+  t= 463.53 s   tone  1108.4 Hz   confidence   4.0
+  t= 463.68 s   tone  1111.8 Hz   confidence   2.4
+  t= 463.83 s   tone  1090.8 Hz   confidence   2.5
+  t= 463.98 s   tone  1042.4 Hz   confidence   2.7
+  t= 464.13 s   tone  1027.9 Hz   confidence   1.9
+  t= 464.28 s   tone  1037.1 Hz   confidence   2.8
+  t= 464.43 s   tone  1060.9 Hz   confidence   1.9
+  t= 464.58 s   tone  1039.2 Hz   confidence   2.2
+  t= 464.73 s   tone  1056.7 Hz   confidence   2.1
+  t= 464.88 s   tone  1048.9 Hz   confidence   2.0
+  t= 465.03 s   tone  1122.1 Hz   confidence   1.4
+  t= 465.18 s   tone  1201.9 Hz   confidence   1.5
+  t= 465.33 s   tone  1248.4 Hz   confidence   2.2
+  t= 465.48 s   tone  1288.0 Hz   confidence   1.1
+  t= 465.63 s   tone  1314.0 Hz   confidence   1.9
+  t= 465.78 s   tone  1298.6 Hz   confidence   2.2
+  t= 465.93 s   tone  1308.0 Hz   confidence   2.1
+  t= 466.08 s   tone  1327.3 Hz   confidence   1.3
+  t= 466.23 s   tone  1372.1 Hz   confidence   1.4
+  t= 466.38 s   tone  1377.8 Hz   confidence   1.7
+  t= 466.53 s   tone  1353.7 Hz   confidence   1.4
+  t= 466.68 s   tone  1367.5 Hz   confidence   2.1
+  t= 466.83 s   tone  1376.6 Hz   confidence   2.2
+  t= 466.98 s   tone  1385.3 Hz   confidence   2.1
+  t= 467.13 s   tone  1389.6 Hz   confidence   2.7
+  t= 467.28 s   tone  1385.3 Hz   confidence   2.6
+  t= 467.43 s   tone  1384.8 Hz   confidence   2.7
+  t= 467.58 s   tone  1380.5 Hz   confidence   2.3
+  t= 467.73 s   tone  1376.0 Hz   confidence   3.1
+  t= 467.88 s   tone  1381.1 Hz   confidence   2.9
+  t= 468.03 s   tone  1376.9 Hz   confidence   2.7
+  t= 468.18 s   tone  1379.7 Hz   confidence   3.2
+  t= 468.33 s   tone  1380.4 Hz   confidence   2.6
+  t= 468.48 s   tone  1385.8 Hz   confidence   3.0
+  t= 468.63 s   tone  1380.7 Hz   confidence   2.3
+  t= 468.78 s   tone  1385.5 Hz   confidence   2.2
+  t= 468.93 s   tone  1362.4 Hz   confidence   2.5
+  t= 469.08 s   tone  1356.0 Hz   confidence   3.2
+  t= 469.23 s   tone  1369.5 Hz   confidence   2.7
+  t= 469.38 s   tone  1373.5 Hz   confidence   2.5
+  t= 469.53 s   tone  1396.4 Hz   confidence   1.3
+  t= 469.68 s   tone  1463.0 Hz   confidence   0.3
+  t= 469.83 s   tone  1511.9 Hz   confidence   2.2
+  t= 469.98 s   tone  1556.9 Hz   confidence   2.2
+  t= 470.13 s   tone  1550.7 Hz   confidence   2.2
+  t= 470.28 s   tone  1569.0 Hz   confidence   1.9
+  t= 470.43 s   tone  1565.0 Hz   confidence   2.2
+  t= 470.58 s   tone  1565.2 Hz   confidence   1.9
+  t= 470.73 s   tone  1566.0 Hz   confidence   1.7
+  t= 470.88 s   tone  1605.2 Hz   confidence   2.8
+  t= 471.03 s   tone  1606.0 Hz   confidence   2.7
+  t= 471.18 s   tone  1607.1 Hz   confidence   4.2
+  t= 471.33 s   tone  1605.3 Hz   confidence   2.7
+  t= 471.48 s   tone  1618.3 Hz   confidence   2.5
+  t= 471.63 s   tone  1632.1 Hz   confidence   2.0
+  t= 471.78 s   tone  1623.3 Hz   confidence   2.1
+  t= 471.93 s   tone  1642.8 Hz   confidence   2.0
+  t= 472.08 s   tone  1631.8 Hz   confidence   2.1
+  t= 472.23 s   tone  1635.7 Hz   confidence   2.4
+  t= 472.38 s   tone  1628.8 Hz   confidence   1.7
+  t= 472.53 s   tone  1633.5 Hz   confidence   1.9
+  t= 472.68 s   tone  1642.0 Hz   confidence   1.7
+  t= 472.83 s   tone  1645.7 Hz   confidence   2.0
+  t= 472.98 s   tone  1667.8 Hz   confidence   2.6
+  t= 473.13 s   tone  1641.4 Hz   confidence   1.7
+  t= 473.28 s   tone  1640.7 Hz   confidence   1.8
+  t= 473.43 s   tone  1653.2 Hz   confidence   2.8
+  t= 473.58 s   tone  1655.7 Hz   confidence   2.0
+  t= 473.73 s   tone  1648.4 Hz   confidence   2.1
+  t= 473.88 s   tone  1639.4 Hz   confidence   1.9
+  t= 474.03 s   tone  1635.6 Hz   confidence   1.9
+  t= 474.18 s   tone  1609.4 Hz   confidence   2.1
+  t= 474.33 s   tone  1602.9 Hz   confidence   5.1
+  t= 474.48 s   tone  1601.7 Hz   confidence   4.9
+  t= 474.63 s   tone  1609.1 Hz   confidence   3.9
+  t= 474.78 s   tone  1605.0 Hz   confidence   2.0
+  t= 474.93 s   tone  1648.0 Hz   confidence   1.4
+  t= 475.08 s   tone  1712.1 Hz   confidence   2.4
+  t= 475.23 s   tone  1750.4 Hz   confidence   2.6
+  t= 475.38 s   tone  1743.8 Hz   confidence   2.4
+  t= 475.53 s   tone  1693.0 Hz   confidence   2.1
+  t= 475.68 s   tone  1655.3 Hz   confidence   2.2
+  t= 475.83 s   tone  1645.6 Hz   confidence   1.6
+  t= 475.98 s   tone  1649.4 Hz   confidence   2.2
+  t= 476.13 s   tone  1716.4 Hz   confidence   1.5
+  t= 476.28 s   tone  1725.5 Hz   confidence   1.5
+  t= 476.43 s   tone  1767.2 Hz   confidence   2.2
+  t= 476.58 s   tone  1795.3 Hz   confidence   2.7
+  t= 476.73 s   tone  1785.8 Hz   confidence   2.2
+  t= 476.88 s   tone  1766.4 Hz   confidence   1.9
+  t= 477.03 s   tone  1754.9 Hz   confidence   1.9
+  t= 477.18 s   tone  1730.3 Hz   confidence   1.9
+  t= 477.33 s   tone  1705.2 Hz   confidence   1.5
+  t= 477.48 s   tone  1731.7 Hz   confidence   1.0
+  t= 477.63 s   tone  1749.9 Hz   confidence   1.1
+  t= 477.78 s   tone  1732.9 Hz   confidence   2.5
+  t= 477.93 s   tone  1733.3 Hz   confidence   1.9
+  t= 478.08 s   tone  1723.6 Hz   confidence   1.4
+  t= 478.23 s   tone  1736.7 Hz   confidence   1.9
+  t= 478.38 s   tone  1752.0 Hz   confidence   2.6
+  t= 478.53 s   tone  1732.5 Hz   confidence   1.9
+  t= 478.68 s   tone  1717.7 Hz   confidence   1.9
+  t= 478.83 s   tone  1723.5 Hz   confidence   2.7
+  t= 478.98 s   tone  1749.0 Hz   confidence   1.7
+  t= 479.13 s   tone  1757.1 Hz   confidence   1.5
+  t= 479.28 s   tone  1738.4 Hz   confidence   2.2
+  t= 479.43 s   tone  1759.0 Hz   confidence   1.9
+  t= 479.58 s   tone  1766.3 Hz   confidence   3.1
+  t= 479.73 s   tone  1784.7 Hz   confidence   1.8
+tone found: 445.63-455.98 s, 1395 -> 934 Hz, 183 frames
+fitting a straight, constant-speed pass to the tone alone (no flight data)
+  start speed    78 kt, closest   100 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed    78 kt, closest   300 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed    78 kt, closest  1000 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   136 kt, closest   100 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   136 kt, closest   300 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   136 kt, closest  1000 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   194 kt, closest   100 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   194 kt, closest   300 m  ->    139 kt,    120 m, rms   4.18 Hz
+  start speed   194 kt, closest  1000 m  ->    139 kt,    120 m, rms   4.18 Hz
+from the sound alone: speed 139 kt, closest pass 120 m, at recording t = 451.3 s (rms 4.2 Hz)
+stream delay 28 s (from the clock burned into the video) -> real time of closest pass 14:32:20 UTC
+reading public ADS-B (adsb.lol) for every aircraft within 10 km, +-10 min
+16943 positions from 138 aircraft
+  RPA4643  E75L   closest  5.14 km  alt  9525 ft    272 kt  dt   +89.0 s   mismatch  23.36
+  N22HP    TBM7   closest  7.14 km  alt  1550 ft    148 kt  dt  +596.3 s   mismatch  73.99
+  ENY4096  E75L   closest  8.81 km  alt 11150 ft    273 kt  dt  -599.7 s   mismatch  81.82
+  ENY3750  E75L   closest  5.82 km  alt  7600 ft    265 kt  dt  +416.6 s   mismatch  57.28
+  SWA1324  B737   closest  2.37 km  alt   675 ft    140 kt  dt  +256.0 s   mismatch  30.14
+  EDV4712  CRJ7   closest  2.04 km  alt   675 ft    134 kt  dt  -558.9 s   mismatch  59.91
+  N404LR   BE40   closest  0.06 km  alt  1150 ft    153 kt  dt  +344.0 s   mismatch  34.98
+  LXJ437   E545   closest  0.55 km  alt  1775 ft    171 kt  dt  -599.8 s   mismatch  61.93
+  AAL2256  A21N   closest  3.50 km  alt  8675 ft    280 kt  dt  -254.9 s   mismatch  36.95
+  AAL1682  A21N   closest  6.41 km  alt  9475 ft    275 kt  dt  +290.8 s   mismatch  46.22
+  SWA1557  B737   closest  2.24 km  alt   650 ft    136 kt  dt  +554.0 s   mismatch  59.73
+  SWA2501  B737   closest  0.32 km  alt  1250 ft    144 kt  dt  -456.2 s   mismatch  46.19
+  ENY4132  E170   closest  9.17 km  alt  8300 ft    273 kt  dt  -390.2 s   mismatch  61.58
+  SKW6326  CRJ7   closest  9.40 km  alt  5650 ft    245 kt  dt  +596.7 s   mismatch  81.78
+  SWA1129  B737   closest  0.24 km  alt  1075 ft    150 kt  dt  +212.4 s   mismatch  21.84
+  SWA1508  B737   closest  0.05 km  alt  1050 ft    149 kt  dt  -111.1 s   mismatch  11.58
+  AAL2658  B738   closest  2.79 km  alt  9400 ft    276 kt  dt  -442.3 s   mismatch  54.16
+  SWA2679  B738   closest  0.04 km  alt  1100 ft    151 kt  dt  -240.6 s   mismatch  24.62
+  SWA3370  B738   closest  9.86 km  alt  4225 ft    239 kt  dt  -598.2 s   mismatch  82.64
+  SWA3372  B738   closest  2.58 km  alt   750 ft    144 kt  dt  -211.6 s   mismatch  26.24
+  SWA2177  B738   closest  0.05 km  alt   950 ft    160 kt  dt  +104.5 s   mismatch  11.29
+  SWA218   B38M   closest  0.10 km  alt   925 ft    157 kt  dt  +447.5 s   mismatch  45.39
+  SWA4565  B38M   closest  0.10 km  alt  1000 ft    157 kt  dt  -335.2 s   mismatch  34.15
+  EJA881   C700   closest  3.19 km  alt 41000 ft    490 kt  dt  +416.5 s   mismatch  59.49
+  SWA3671  B38M   closest  2.23 km  alt   650 ft    144 kt  dt  -325.9 s   mismatch  36.99
+  SWA4113  B38M   closest  0.01 km  alt  1050 ft    143 kt  dt    +0.1 s   mismatch   0.36
+  SWA3053  B38M   closest  2.48 km  alt   700 ft    151 kt  dt  -429.2 s   mismatch  48.05
+  SWA3854  B38M   closest  4.27 km  alt  3025 ft    185 kt  dt  -599.8 s   mismatch  69.84
+  SWA2334  B38M   closest  2.48 km  alt   725 ft    147 kt  dt  +458.6 s   mismatch  50.87
+  SWA845   B38M   closest  2.08 km  alt   650 ft    150 kt  dt  +364.3 s   mismatch  40.71
+  SWA323   B38M   closest  2.29 km  alt   675 ft    147 kt  dt  +121.8 s   mismatch  16.81
+  N90CG    G280   closest  1.34 km  alt 27450 ft    420 kt  dt  -574.0 s   mismatch  69.20
+  SWA1076  B737   closest  0.02 km  alt  1000 ft    144 kt  dt   -64.6 s   mismatch   6.84
+  SWA2340  B737   closest  0.02 km  alt  1150 ft    147 kt  dt   +66.4 s   mismatch   7.11
+  AAL2279  B738   closest  3.80 km  alt  9075 ft    277 kt  dt  -541.0 s   mismatch  66.07
+
+ranking (lower = closer match to the sound)
+  1. SWA4113  B38M   closest    13 m   143 kt  dt   +0.1 s  mismatch  0.36
+  2. SWA1076  B737   closest    21 m   144 kt  dt  -64.6 s  mismatch  6.84
+  3. SWA2340  B737   closest    23 m   147 kt  dt  +66.4 s  mismatch  7.11
+  4. SWA2177  B738   closest    49 m   160 kt  dt +104.5 s  mismatch 11.29
+  5. SWA1508  B737   closest    48 m   149 kt  dt -111.1 s  mismatch 11.58
+  6. SWA323   B38M   closest  2294 m   147 kt  dt +121.8 s  mismatch 16.81
+  7. SWA1129  B737   closest   244 m   150 kt  dt +212.4 s  mismatch 21.84
+  8. RPA4643  E75L   closest  5137 m   272 kt  dt  +89.0 s  mismatch 23.36
+
+match: SWA4113 (B38M) passed 13 m from the camera, +0.1 s from the moment the sound says. next best is 19x worse.
+known location; what the sound identified is the flight.
