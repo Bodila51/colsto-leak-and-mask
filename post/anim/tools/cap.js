@@ -8,8 +8,8 @@ const layout = arg('layout', 'landscape'), out = path.resolve(arg('out', 'frames
 const N = +arg('workers', 8), FPS = 30;
 const times = arg('times', null) ? String(arg('times')).split(',').map(Number) : null;
 const f0 = +arg('from', 0), f1 = +arg('to', 600);
-const page = arg('page', 'index.html');
-const size = { vertical: { width: 1080, height: 742 }, tall: { width: 1080, height: 1350 }, panel: { width: 960, height: 540 },
+const page = arg('page', 'index.html'), query = arg('query', '');     // --query 'data=midway_terminal' (extra URL parameters)
+const size = { vertical: { width: 1080, height: 742 }, tall: { width: 1080, height: 1350 }, panel: { width: 960, height: 540 }, panelv: { width: 1080, height: 500 },
   term: { width: 1920, height: 540 }, termv: { width: 1080, height: 242 }, overlayv: { width: 1080, height: 1350 } }[layout] || { width: 1920, height: 1080 };
 const clear = layout.startsWith('overlay') ? { omitBackground: true } : {};   // transparent PNG for ffmpeg overlay
 const root = path.resolve(__dirname, '..');
@@ -32,7 +32,7 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applica
     r.writeHead(200, { 'content-type': MIME[path.extname(p)] || 'application/octet-stream' }); fs.createReadStream(p).pipe(r);
   }).listen(0, '127.0.0.1');
   await new Promise(r => srv.on('listening', r));
-  const url = `http://127.0.0.1:${srv.address().port}/${page}?layout=${layout}`;
+  const url = `http://127.0.0.1:${srv.address().port}/${page}?layout=${layout}${query ? '&' + query : ''}`;
   const exe = process.env.LOCALAPPDATA + '/ms-playwright/chromium-1248/chrome-win64/chrome.exe';
   const br = await chromium.launch(fs.existsSync(exe) ? { executablePath: exe } : {});
   const jobs = [];

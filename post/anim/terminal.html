@@ -16,7 +16,8 @@
 /* The triptych's terminal strip and its frame overlay: window.renderAt(t), t in clip seconds (0..20).
    Every line comes from build/terminal.json, which post/anim/triptych.py writes from real files (repo commands,
    results/case_A_ridge_v11/run.log, answer.json, case_A_evaluation.json). Nothing is typed into this page.
-   ?layout=term (1920x540) | termv (1080x242) | overlay (1920x1080, transparent) | overlayv (1080x1350, transparent).
+   ?layout=term (1920x540) | termv (1080x242) | overlay (1920x1080, transparent) | overlayv (1080x1350, transparent);
+   ?data=NAME reads build/NAME.json instead (e.g. midway_terminal, written by post/anim/midway_triptych.py).
    No requestAnimationFrame, no Date, no Math.random. */
 "use strict";
 const Q = new URLSearchParams(location.search);
@@ -24,6 +25,7 @@ const LAYOUT = Q.get('layout') || 'term';
 const DUR = 20;
 const C = { bg: '#0a0d12', bar: '#11161d', line: 'rgba(255,255,255,0.10)', text: '#f3f6f9', dim: 'rgba(243,246,249,0.62)',
   dimmer: 'rgba(243,246,249,0.38)', cyan: '#19e3ff', amber: '#f5b84a' };
+const DATA_NAME = (Q.get('data') || 'terminal').replace(/[^a-z0-9_]/gi, '');
 const SANS = "'Inter','Segoe UI',system-ui,sans-serif";
 const MONO = "'JetBrains Mono','Cascadia Mono',Consolas,monospace";
 const L = {
@@ -57,11 +59,12 @@ let D;
 window.ready = (async () => {
   const font = (fam, url) => new FontFace(fam, `url(${url})`, { weight: '100 900' }).load().then(f => document.fonts.add(f));
   await Promise.all([font('Inter', 'fonts/Inter-var.woff2'), font('JetBrains Mono', 'fonts/JetBrainsMono-var.woff2')]);
-  D = await fetch('build/terminal.json').then(r => r.json());
+  D = await fetch(`build/${DATA_NAME}.json`).then(r => r.json());
+  Object.assign(L, (D.layout || {})[LAYOUT] || {});      // per-video geometry of the overlay (video box, dividers)
   window.__ok = true;
 })();
 
-// one terminal line; kinds: cmd (prompt, typed), log, head, ac (table row), res, hi
+// one terminal row; kinds: cmd (prompt, typed), log, head, ac (table row), res, hi, note (our annotation, amber)
 function drawLine(ln, x, y, t) {
   const fs = L.fs;
   if (ln.kind === 'cmd') {
@@ -83,9 +86,14 @@ function drawLine(ln, x, y, t) {
   }
   if (ln.kind === 'res') { text(ln.text, x, y, { size: fs, weight: 600 }); return {}; }
   if (ln.kind === 'hi') { text(ln.text, x, y, { size: fs, weight: 700, color: C.cyan, shadow: 'rgba(25,227,255,0.55)' }); return {}; }
+  if (ln.kind === 'note') { text(ln.text, x, y, { size: fs, weight: 600, color: C.amber }); return {}; }
   text(ln.text, x, y, { size: fs, color: C.dim }); return {};
 }
 
+function measure(s, ln) {
+  ctx.save(); ctx.font = `${ln.kind === 'hi' ? 700 : ln.kind === 'note' || ln.kind === 'res' ? 600 : 500} ${L.fs}px ${MONO}`;
+  const w = ctx.measureText(s).width; ctx.restore(); return w;
+}
 function drawTerm(t) {
   ctx.fillStyle = C.bg; ctx.fillRect(0, 0, L.W, L.H);
   // title bar: window dots, title, the honesty label
@@ -96,7 +104,17 @@ function drawTerm(t) {
   text(D.title, L.padX + r * 10, cy + L.titleSz * .36, { size: L.titleSz, color: C.dim });
   text(D.label, L.W - L.padX, cy + L.titleSz * .36, { size: L.titleSz, color: C.amber, align: 'right', weight: 600 });
   // body: the lines shown so far, newest at the bottom, scrolled to fit
-  const vis = D.lines.filter(l => l.t <= t);
+  const vis = [];
+  for (const l of D.lines.filter(l => l.t <= t)) {        // long text lines wrap at word boundaries
+    if (l.kind === 'cmd' || l.kind === 'ac' || measure(l.text, l) <= L.W - 2 * L.padX) { vis.push(l); continue; }
+    const lead = /^ */.exec(l.text)[0], ind = lead + '  ';
+    let cur = '';
+    for (const w of l.text.trim().split(' ')) {
+      const nx = cur ? cur + ' ' + w : lead + w;
+      if (cur && measure(nx, l) > L.W - 2 * L.padX) { vis.push({ ...l, text: cur }); cur = ind + w; } else cur = nx;
+    }
+    if (cur) vis.push({ ...l, text: cur });
+  }
   const rows = Math.floor((L.H - L.bar - 2 * L.padY) / L.lh) - 1;      // keep one row for the prompt
   const first = Math.max(0, vis.length - rows);
   let y = L.bar + L.padY + L.lh * .8, last = {};
@@ -116,14 +134,16 @@ function drawOverlay(t) {
   ctx.clearRect(0, 0, L.W, L.H);
   ctx.fillStyle = 'rgba(255,255,255,0.14)';
   for (const [x0, y0, x1, y1] of L.divs) ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
-  // caption on the webcam picture
+  // caption on the webcam picture (optional)
   const V = L.video, cap = D.caption, sub = D.caption_sub;
+  if (cap) {
   ctx.save(); ctx.font = `600 ${L.capSz}px ${SANS}`; const w1 = ctx.measureText(cap).width;
   ctx.font = `500 ${L.subSz}px ${MONO}`; const w2 = ctx.measureText(sub).width; ctx.restore();
   const bw = Math.max(w1, w2) + 28, bh = L.capSz + L.subSz + 30, bx = V.x + 16, by = V.y + V.h - bh - 16;
   rrect(bx, by, bw, bh, 8); ctx.fillStyle = 'rgba(5,7,10,0.74)'; ctx.fill();
   text(cap, bx + 14, by + 12 + L.capSz * .82, { size: L.capSz, weight: 600, mono: false });
   text(sub, bx + 14, by + bh - 11, { size: L.subSz, color: C.dim });
+  }
   // tag top-left
   const tag = D.video_tag, tw = (() => { ctx.save(); ctx.font = `600 ${L.subSz}px ${MONO}`; const w = ctx.measureText(tag).width; ctx.restore(); return w; })();
   rrect(V.x + 16, V.y + 14, tw + 20, L.subSz + 14, 6); ctx.fillStyle = 'rgba(5,7,10,0.7)'; ctx.fill();

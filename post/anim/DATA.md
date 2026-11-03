@@ -158,4 +158,9 @@ stream's owner if in doubt. Never commit an mp4 or a frame of the footage.
 - `triptych.py` + `terminal.html`: the Miami triptych (webcam | analysis `?layout=panel` / terminal replay of `results/case_A_ridge_v11/run.log`,
   `answer.json` and `case_A_evaluation.json`). Writes `post/miami_triptych.mp4` and `post/miami_triptych_vertical.mp4`: **local only**
   (PTZtv footage and audio).
+- `midway_triptych.py` + `livespec.html` + `midway_curve.py`: the Midway demo triptych (clip | live spectrogram of its audio with
+  SWA4113's predicted curve / terminal replay of the real flyover-check stdout and SWA4113's ADS-B reports). KNOWN camera, not blind:
+  the curve shape is `solver_paras/paras.py` at the published camera with L = 28 s; one number, the fan-tone f0, is fitted to the
+  clip's audio (1110.7 Hz; x1 then reads 1417 Hz at 7 s and 1037 Hz at 14 s, the check's two detections, so they are one aircraft).
+  Writes `post/midway_triptych.mp4` and `post/midway_triptych_vertical.mp4`: **local only** (stream footage and audio).
 - `fonts/`: Inter and JetBrains Mono, SIL Open Font License 1.1.
