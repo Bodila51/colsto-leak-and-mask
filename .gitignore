@@ -1,0 +1,13 @@
+# raw audio, raw ADS-B, sealed truth and caches never go into git
+data/
+*.ts
+*.wav
+*.flac
+*.m4a
+*.mp4
+!post/*.mp4
+__pycache__/
+.venv/
+*.tar
+*.tar.*
+cases/*/adsb.jsonl
