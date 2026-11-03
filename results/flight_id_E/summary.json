@@ -1,0 +1,353 @@
+{
+ "note": "Known location (camera 41.77844, -87.74278); the flight is what is identified. Not blind.",
+ "audio": {
+  "file": "data/screenrec/mdw_163340.mp4",
+  "why": "screen recording with no synthetic voice; sample-aligned with cases/case_E/audio.flac (cross-correlation 0.9994-0.99999 at 100/300/400 s, offset 0)",
+  "tone_span_s": [
+   445.628,
+   455.978
+  ],
+  "f_start_hz": 1396.490227408288,
+  "f_end_hz": 935.3530367475003
+ },
+ "audio_only_pass": {
+  "f0_hz": 1115.7858427161518,
+  "speed_kt": 138.87525051803206,
+  "speed_m_s": 71.44353937749848,
+  "closest_m": 119.95075358074145,
+  "cpa_emission_audio_s": 450.9218050946131,
+  "cpa_receive_audio_s": 451.2743162259022,
+  "rms_hz": 4.1783221423727435,
+  "visible_s": 10.350000000000023,
+  "frames": 183
+ },
+ "adsb": {
+  "n_candidates": 35,
+  "n_scored": 16,
+  "latency_bounds_s": [
+   0.0,
+   60.0
+  ],
+  "min_coverage": 0.8,
+  "radius_m": 10000.0,
+  "window_s": 600.0,
+  "flat_line_rms_hz": 191.34483553694182,
+  "ranked": [
+   {
+    "flight": "SWA4113",
+    "hex": "ac33a3",
+    "type": "B38M",
+    "rms_hz": 16.12,
+    "L_s": 27.5,
+    "f0_hz": 1131.5,
+    "coverage": 0.825,
+    "cpa_slant_m": 144,
+    "cpa_t_s": 423.0
+   },
+   {
+    "flight": "SWA323",
+    "hex": "ac5f42",
+    "type": "B38M",
+    "rms_hz": 159.95,
+    "L_s": 53.75,
+    "f0_hz": 997.6,
+    "coverage": 1.0,
+    "cpa_slant_m": 2800,
+    "cpa_t_s": 539.3
+   },
+   {
+    "flight": "AAL2658",
+    "hex": "aaf960",
+    "type": "B738",
+    "rms_hz": 163.68,
+    "L_s": 15.0,
+    "f0_hz": 1957.5,
+    "coverage": 0.825,
+    "cpa_slant_m": 3883,
+    "cpa_t_s": -22.1
+   },
+   {
+    "flight": "SWA4565",
+    "hex": "ac13d6",
+    "type": "B38M",
+    "rms_hz": 168.57,
+    "L_s": 18.5,
+    "f0_hz": 1685.0,
+    "coverage": 1.0,
+    "cpa_slant_m": 152,
+    "cpa_t_s": 88.1
+   },
+   {
+    "flight": "N22HP",
+    "hex": "a1df65",
+    "type": "TBM7",
+    "rms_hz": 171.31,
+    "L_s": 58.25,
+    "f0_hz": 898.9,
+    "coverage": 1.0,
+    "cpa_slant_m": 3135,
+    "cpa_t_s": 1079.9
+   },
+   {
+    "flight": "SWA1557",
+    "hex": "a5b954",
+    "type": "B737",
+    "rms_hz": 176.2,
+    "L_s": 20.25,
+    "f0_hz": 1082.7,
+    "coverage": 1.0,
+    "cpa_slant_m": 2638,
+    "cpa_t_s": 971.6
+   },
+   {
+    "flight": "ENY4132",
+    "hex": "a9f64b",
+    "type": "E170",
+    "rms_hz": 176.88,
+    "L_s": 32.25,
+    "f0_hz": 1783.2,
+    "coverage": 1.0,
+    "cpa_slant_m": 9472,
+    "cpa_t_s": 32.1
+   },
+   {
+    "flight": "SWA2679",
+    "hex": "abaeb2",
+    "type": "B738",
+    "rms_hz": 176.91,
+    "L_s": 8.25,
+    "f0_hz": 1733.8,
+    "coverage": 1.0,
+    "cpa_slant_m": 151,
+    "cpa_t_s": 182.7
+   },
+   {
+    "flight": "SWA2501",
+    "hex": "a5bd0b",
+    "type": "B737",
+    "rms_hz": 177.88,
+    "L_s": 60.0,
+    "f0_hz": 1839.6,
+    "coverage": 1.0,
+    "cpa_slant_m": 382,
+    "cpa_t_s": -32.9
+   },
+   {
+    "flight": "SWA845",
+    "hex": "ac5e6e",
+    "type": "B38M",
+    "rms_hz": 179.16,
+    "L_s": 0.0,
+    "f0_hz": 1098.2,
+    "coverage": 1.0,
+    "cpa_slant_m": 2376,
+    "cpa_t_s": 783.6
+   },
+   {
+    "flight": "SWA1324",
+    "hex": "a2efae",
+    "type": "B737",
+    "rms_hz": 179.73,
+    "L_s": 41.5,
+    "f0_hz": 1253.3,
+    "coverage": 1.0,
+    "cpa_slant_m": 2899,
+    "cpa_t_s": 671.8
+   },
+   {
+    "flight": "SWA1076",
+    "hex": "accb50",
+    "type": "B737",
+    "rms_hz": 180.2,
+    "L_s": 33.0,
+    "f0_hz": 1585.3,
+    "coverage": 1.0,
+    "cpa_slant_m": 122,
+    "cpa_t_s": 358.3
+   },
+   {
+    "flight": "SWA1508",
+    "hex": "aa9b42",
+    "type": "B737",
+    "rms_hz": 182.87,
+    "L_s": 37.25,
+    "f0_hz": 1575.3,
+    "coverage": 1.0,
+    "cpa_slant_m": 150,
+    "cpa_t_s": 312.1
+   },
+   {
+    "flight": "SWA2334",
+    "hex": "ac48f2",
+    "type": "B38M",
+    "rms_hz": 183.32,
+    "L_s": 57.5,
+    "f0_hz": 1152.1,
+    "coverage": 1.0,
+    "cpa_slant_m": 4723,
+    "cpa_t_s": 851.9
+   },
+   {
+    "flight": "RPA4643",
+    "hex": "a06aba",
+    "type": "E75L",
+    "rms_hz": 185.07,
+    "L_s": 30.25,
+    "f0_hz": 925.5,
+    "coverage": 1.0,
+    "cpa_slant_m": 5845,
+    "cpa_t_s": 510.3
+   },
+   {
+    "flight": "AAL2256",
+    "hex": "a58873",
+    "type": "A21N",
+    "rms_hz": 190.44,
+    "L_s": 20.0,
+    "f0_hz": 1826.3,
+    "coverage": 1.0,
+    "cpa_slant_m": 4310,
+    "cpa_t_s": 165.8
+   }
+  ],
+  "no_track_during_tone": [
+   {
+    "flight": "SWA3372",
+    "hex": "abd90c",
+    "type": "B738",
+    "cpa_t_s": 211.6
+   },
+   {
+    "flight": "SWA3370",
+    "hex": "abc7e9",
+    "type": "B738",
+    "cpa_t_s": -236.7
+   },
+   {
+    "flight": "AAL1682",
+    "hex": "a58fdf",
+    "type": "A21N",
+    "cpa_t_s": 710.2
+   },
+   {
+    "flight": "SWA3671",
+    "hex": "ac28be",
+    "type": "B38M",
+    "cpa_t_s": 71.4
+   },
+   {
+    "flight": "SWA3053",
+    "hex": "ac3731",
+    "type": "B38M",
+    "cpa_t_s": -12.4
+   },
+   {
+    "flight": "AAL2279",
+    "hex": "add793",
+    "type": "B738",
+    "cpa_t_s": -121.2
+   },
+   {
+    "flight": "EDV4712",
+    "hex": "a399b9",
+    "type": "CRJ7",
+    "cpa_t_s": -143.7
+   },
+   {
+    "flight": "SWA3854",
+    "hex": "ac3751",
+    "type": "B38M",
+    "cpa_t_s": -228.8
+   },
+   {
+    "flight": "ENY4096",
+    "hex": "a22003",
+    "type": "E75L",
+    "cpa_t_s": -217.4
+   },
+   {
+    "flight": "N90CG",
+    "hex": "ac6d0c",
+    "type": "G280",
+    "cpa_t_s": -155.7
+   },
+   {
+    "flight": "LXJ437",
+    "hex": "a53db2",
+    "type": "E545",
+    "cpa_t_s": -183.6
+   },
+   {
+    "flight": "ENY3750",
+    "hex": "a28b5b",
+    "type": "E75L",
+    "cpa_t_s": 843.5
+   },
+   {
+    "flight": "SWA2340",
+    "hex": "accf07",
+    "type": "B737",
+    "cpa_t_s": 489.3
+   },
+   {
+    "flight": "SWA2177",
+    "hex": "abdd91",
+    "type": "B738",
+    "cpa_t_s": 526.9
+   },
+   {
+    "flight": "EJA881",
+    "hex": "ac22fb",
+    "type": "C700",
+    "cpa_t_s": 834.6
+   },
+   {
+    "flight": "SWA1129",
+    "hex": "aa72f5",
+    "type": "B737",
+    "cpa_t_s": 635.7
+   },
+   {
+    "flight": "N404LR",
+    "hex": "a4bc87",
+    "type": "BE40",
+    "cpa_t_s": 767.3
+   },
+   {
+    "flight": "SKW6326",
+    "hex": "aa4e47",
+    "type": "CRJ7",
+    "cpa_t_s": 1077.8
+   },
+   {
+    "flight": "SWA218",
+    "hex": "abfdaf",
+    "type": "B38M",
+    "cpa_t_s": 871.7
+   }
+  ]
+ },
+ "best": {
+  "flight": "SWA4113",
+  "hex": "ac33a3",
+  "type": "B38M",
+  "rms_hz": 16.115855498456845,
+  "L_s": 27.5,
+  "f0_hz": 1131.5462938414494,
+  "coverage": 0.825136612021858,
+  "gs_kt": 142.9,
+  "cpa_slant_m": 144.27966662125064,
+  "cpa_agl_m": 145.33687683329345,
+  "climb_m_s": 12.762012276931838,
+  "alt_baro_ft": 1050.0
+ },
+ "second": {
+  "flight": "SWA323",
+  "type": "B38M",
+  "rms_hz": 159.94935159471473,
+  "L_s": 53.75
+ },
+ "separation_second_over_best": 9.924968091829223,
+ "history_note": "Changed after looking at earlier runs, applied to every aircraft alike: (1) the tone span follows the monotonic pass from the most confident frame, since per-frame z alone cut the tail under the broadband roar or joined other lines; (2) tracks must cover >= 80 % of the tone frames, since at 60 % a nearly flat, partly covered curve (AAL2658) won on the flat part; (3) the height uses one source per aircraft (baro + local geom-baro offset) and a smoothing spline, since geom/baro mixing and 25 ft steps put spikes into dr/dt. The best flight was SWA4113 in every run after (1); the second best stayed above 150 Hz.",
+ "separation": "clear: second-best RMS is 9.92x the best"
+}
