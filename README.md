@@ -45,12 +45,26 @@ How a blind run works, so you don't have to trust us:
 3. The solver code was committed before the case was opened. Its answer is the computed best point, committed before the truth was revealed.
 4. Then the truth file was committed. Its hash matches the seal, and the commit order is seal → answer → truth.
 
-| Case | Camera (revealed after the answers) | Engine version | Result | Error |
-|---|---|---|---|---|
-| E: 8.4-min screen recording of the public StreamTime LIVE Midway (Chicago) stream, AI voice mixed in | owner-published coordinates, Pro Auto at the SE corner of runways 31 | detector-first (doppler-locate based) | no flyover detected | miss |
-| E | | ridge v1 | point near O'Hare, fooled by taxiing aircraft | 27.6 km, miss |
-| E | | ridge v1.1 (ground traffic removed) | point near O'Hare | 21.7 km, miss |
-| A, B, C (Miami, Brighton, Southampton webcams), F, G (second Midway recording) | sealed | | runs in progress | |
+| Case | Camera (owner-published, revealed after the answers) | Audio | Engine | Result | Error |
+|---|---|---|---|---|---|
+| **A** | Miami airport webcam (PTZtv), 94th Aero Squadron restaurant by runway 9/27 | 66 min, mostly jets | detector-first (doppler-locate based) | no flyover detected | miss |
+| A | | | ridge v1 | 69 aircraft used | 1,872 m |
+| **A** | | | **ridge v1.1** | **74 aircraft used; top: ENY3714 (Embraer 175), AAL1901, AAL2883** | **749 m** |
+| B | Brighton City Airport apron cam (ATC tower) | 59 min, light aircraft and helicopters | detector-first | no flyover detected | miss |
+| B | | | ridge v1.1 | | 6,956 m |
+| B | | | ridge v1.2 | | 17,607 m |
+| C | Southampton Town Quay ferry cam | 70 min, very little traffic | ridge v1.1 | one aircraft carried most of the score | 20,565 m |
+| E | StreamTime LIVE Midway (Chicago), our 8.4-min screen recording with an AI voice mixed in | jets just after takeoff | detector-first | no flyover detected | miss |
+| E | | | ridge v1 | fooled by taxiing aircraft at O'Hare | 27,620 m |
+| E | | | ridge v1.1 | | 21,679 m |
+| F | Midway again, second recording (part before a YouTube ad), voice at the start | jets | ridge v1.3 | | 23,400 m |
+| G | Midway again, part after the ad | jets | ridge v1.3 | | 27,500 m |
+| D | Waupaca (WI) airport cam | | | rejected before solving: silent audio | |
+
+- Every box is 40 × 40 km, with its centre offset at random. Per-case details are in `results/case_X_evaluation.json`.
+- The ridge solver is in [`solver_ridge/ridge.py`](solver_ridge/ridge.py). It scores each aircraft's predicted Doppler curve against the whitened spectrogram on a grid, and has no detector.
+- v1.1 was written after the first case E miss. It is a generic change: drop aircraft on the ground, and drop curves with no pitch change. A's truth stayed sealed until all of A's runs were committed.
+- So far 1 of 6 cameras was found within 1 km: Miami, from busy airliner traffic. The others missed. Light traffic (Southampton) and jets passing right over the camera just after takeoff (Midway) are where it failed.
 
 Why E missed: in that clip the departing jets pass right over the camera only 90-150 m up. The loudest thing is broadband roar, and the clean tonal "slide" the method needs is short and weak. Propeller aircraft (as in colsto's clip) are where the method works best. A run with the camera already known ([`results/paras_setup_E`](results/paras_setup_E/summary.json), the same setup as the public replication on X) was not convincing either: the best spot was only 3% above a spot 4.5 km away.
 
