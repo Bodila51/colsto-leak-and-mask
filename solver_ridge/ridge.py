@@ -7,6 +7,10 @@ curve, minus the same aircraft scored with ratio == 1 (a flat line over the same
 Positive excess over the per-aircraft grid median is summed over aircraft; the answer is the
 argmax over (g, L). Inputs are only cases/<case>/case.json and adsb.jsonl.
 
+v1.1: track samples count only when airborne (not "ground", gs >= 50 kt, >= 30 m above the DEM
+ground), and a (g, a, L) curve is scored only if its predicted Doppler ratio swings by at least
+~0.5 % across the scored frames, so flat curves carry no weight.
+
     python solver_ridge/ridge.py cases/case_E --out results/case_E_ridge
 """
 
@@ -174,8 +178,19 @@ def track_heights(tr, terrain, geoid_n, global_off):
     return h
 
 
-def interp_track(tr, h, te, lat0, lon0, max_gap=45.0):
-    """Cubic Hermite x/y with the reported ground velocity, linear height; NaN across gaps."""
+def airborne_reports(tr, h, terrain, min_gs_kt=50.0, min_agl=30.0):
+    """v1.1: a report counts as airborne only if not 'ground', gs >= 50 kt (finite-difference speed
+    when gs is missing) and >= 30 m above the local DEM ground."""
+    x, y = to_xy(tr["lat"], tr["lon"], tr["lat"][0], tr["lon"][0])
+    fd = np.hypot(np.gradient(x, tr["t"]), np.gradient(y, tr["t"])) / KT
+    gs = np.where(np.isfinite(tr["gs"]), tr["gs"], fd)
+    agl = h - terrain.elevation(tr["lat"], tr["lon"])
+    return ~tr["ground"] & (gs >= min_gs_kt) & np.isfinite(h) & (agl >= min_agl)
+
+
+def interp_track(tr, h, te, lat0, lon0, max_gap=45.0, air=None):
+    """Cubic Hermite x/y with the reported ground velocity, linear height; NaN across gaps
+    and (v1.1) on any segment that touches a non-airborne report."""
     x, y = to_xy(tr["lat"], tr["lon"], lat0, lon0)
     t = tr["t"]
     vx = tr["gs"] * KT * np.sin(np.radians(tr["trk"]))
@@ -191,6 +206,8 @@ def interp_track(tr, h, te, lat0, lon0, max_gap=45.0):
     ok = (seg >= 0) & (seg < len(t) - 1)
     segc = np.clip(seg, 0, len(t) - 2)
     ok &= (t[segc + 1] - t[segc]) <= max_gap
+    if air is not None:
+        ok &= air[segc] & air[segc + 1]
     X[~ok] = np.nan
     Y[~ok] = np.nan
     Z[~ok] = np.nan
@@ -258,7 +275,7 @@ def curves_kernel(gx, gy, gz, te, ax, ay, az, c, tj0, hop, nj, dlog, rmax, pad,
 
 
 @nb.njit(parallel=True, cache=True)
-def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, flat,
+def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, flat, min_swing,
                  exc_out, cur_out, k0_out):
     G = d.shape[0]
     T = Wp.shape[0]
@@ -281,6 +298,8 @@ def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, fla
             n = 0
             rlo = T
             rhi = -1
+            dlo = 1 << 20
+            dhi = -(1 << 20)
             for j in range(j0, j1 + 1):
                 row = j + o
                 if row < 0 or row >= T:
@@ -288,6 +307,10 @@ def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, fla
                 dj = d[g, j]
                 if dj == SENT:
                     continue
+                if dj < dlo:
+                    dlo = dj
+                if dj > dhi:
+                    dhi = dj
                 if flat:
                     dj = 0
                 n += 1
@@ -299,6 +322,8 @@ def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, fla
                 for k in range(K):
                     S[k] += Wp[row, b + k]
             if n < nmin:
+                continue
+            if dhi - dlo < min_swing:  # v1.1: flat curves (no Doppler swing in the scored frames) carry no weight
                 continue
             nn = rhi - rlo + 1
             for k in range(K):
@@ -392,14 +417,15 @@ class Problem:
             if not inwin.any():
                 continue
             h = track_heights(tr, self.terrain, self.geoid_n, goff)
-            X, Y, Z = interp_track(tr, h, self.te, self.lat0, self.lon0)
+            air = airborne_reports(tr, h, self.terrain)
+            X, Y, Z = interp_track(tr, h, self.te, self.lat0, self.lon0, air=air)
             sel = (self.te >= w_lo) & (self.te <= w_hi) & np.isfinite(X)
             if not sel.any():
                 continue
             near = ((X[sel] > xb[0] - a.near_km * 1e3) & (X[sel] < xb[1] + a.near_km * 1e3)
                     & (Y[sel] > yb[0] - a.near_km * 1e3) & (Y[sel] < yb[1] + a.near_km * 1e3))
             pts = (tr["t"] >= w_lo) & (tr["t"] <= w_hi)
-            airborne = pts & ~tr["ground"] & np.isfinite(h)
+            airborne = pts & air
             if not near.any() or not airborne.any():
                 continue
             terr = float(np.median(self.terrain.elevation(tr["lat"][airborne], tr["lon"][airborne])))
@@ -426,6 +452,7 @@ class Problem:
         j0 = np.empty(G, np.int64)
         j1 = np.empty(G, np.int64)
         nmin = int(round(self.a.min_window / self.hop_s))
+        self.min_swing_bins = max(1, int(round(math.log(1 + self.a.min_swing) / self.a.dlog)))
         for i, ac in enumerate(self.ac):
             rm = np.empty(G)
             tm = np.empty(G)
@@ -436,7 +463,7 @@ class Problem:
             c = np.empty((G, nL), np.float32)
             kk = np.empty((G, nL), np.int32)
             score_kernel(self.Wp, self.Cc, self.pad, d, j0, j1, rowofs, self.h2, self.h3,
-                         self.k0lo, self.k0hi, nmin, flat, e, c, kk)
+                         self.k0lo, self.k0hi, nmin, flat, self.min_swing_bins, e, c, kk)
             exc[i], cur[i], k0[i] = e, c, kk
         return exc, cur, k0, rmin, temin
 
@@ -498,6 +525,7 @@ def main():
     ap.add_argument("--near_km", type=float, default=8.0)
     ap.add_argument("--max_alt", type=float, default=4000.0)
     ap.add_argument("--min_window", type=float, default=10.0)
+    ap.add_argument("--min_swing", type=float, default=0.005, help="v1.1: min Doppler ratio swing in the scored frames")
     ap.add_argument("--peaks", type=int, default=4)
     a = ap.parse_args()
     t_start = time.time()
@@ -565,12 +593,13 @@ def main():
 
     # ---- mirror across the main track (top aircraft, at its closest approach)
     mirror = None
-    two_band = False
+    two_band = None  # None = mirror could not be evaluated
     if top:
         ac = P.ac[top[0]]
         tcpa = R["temin"][top[0], bi]
         n = int(np.argmin(np.abs(P.te - tcpa)))
-        n0, n1 = max(0, n - 8), min(len(P.te) - 1, n + 8)
+        fin = [k for k in range(max(0, n - 8), min(len(P.te), n + 9)) if np.isfinite(ac["X"][k])]
+        n0, n1 = (fin[0], fin[-1]) if fin else (n, n)
         px, py = ac["X"][n], ac["Y"][n]
         ux, uy = ac["X"][n1] - ac["X"][n0], ac["Y"][n1] - ac["Y"][n0]
         nrm = math.hypot(ux, uy)
@@ -667,8 +696,8 @@ def main():
 
     runtime = time.time() - t_start
     ans = dict(
-        case=P.name, method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
-        "max over f0 (x1,x2,x3), minus flat-line null, positive excess over per-aircraft grid median, "
+        case=P.name, version="1.1", method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
+        "max over f0 (x1,x2,x3), minus flat-line null, airborne track segments only, min Doppler swing, positive excess over per-aircraft grid median, "
         "summed over aircraft, argmax over grid and shared latency",
         lat=round(float(blat), 6), lon=round(float(blon), 6), score=round(best_score, 4),
         null_grid_median=round(null, 4), score_over_null=round(best_score / null, 2) if null > 0 else None,
