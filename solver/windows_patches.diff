@@ -1,0 +1,244 @@
+diff --git a/src/dopploc/adsb.py b/src/dopploc/adsb.py
+index ead8a10..f443331 100644
+--- a/src/dopploc/adsb.py
++++ b/src/dopploc/adsb.py
+@@ -59,12 +59,37 @@ def release_tag(day: str) -> tuple[str, str]:
+     return f"adsblol/globe_history_{y}", f"v{y}.{m}.{d}-planes-readsb-prod-0"
+ 
+ 
++def _http_download(url: str, dest: Path, size: int | None = None) -> None:
++    """Resumable download with requests (Windows port: no GitHub CLI on this PC)."""
++    have = dest.stat().st_size if dest.exists() else 0
++    if size is not None and have == size:
++        return
++    hdr = {"Range": f"bytes={have}-"} if have else {}
++    with requests.get(url, headers=hdr, stream=True, timeout=120, allow_redirects=True) as r:
++        if r.status_code == 416:
++            return
++        r.raise_for_status()
++        mode = "ab" if (have and r.status_code == 206) else "wb"
++        with open(dest, mode) as f:
++            for chunk in r.iter_content(1 << 22):
++                f.write(chunk)
++
++
+ def fetch_day(day: str, out_dir: Path) -> list[Path]:
+-    """Download the split tar for one UTC day with the GitHub CLI (``gh``)."""
++    """Download the split tar for one UTC day (``gh`` if installed, else the GitHub REST API)."""
++    import shutil
+     repo, tag = release_tag(day)
+     out_dir.mkdir(parents=True, exist_ok=True)
+-    subprocess.run(["gh", "release", "download", tag, "-R", repo, "-D", str(out_dir),
+-                    "--skip-existing", "-p", "*.tar.*"], check=True)
++    if shutil.which("gh"):
++        subprocess.run(["gh", "release", "download", tag, "-R", repo, "-D", str(out_dir),
++                        "--skip-existing", "-p", "*.tar.*"], check=True)
++    else:
++        r = requests.get(f"https://api.github.com/repos/{repo}/releases/tags/{tag}", timeout=60)
++        r.raise_for_status()
++        for a in r.json()["assets"]:
++            if ".tar." in a["name"]:
++                print(f"downloading {a['name']} ({a['size'] / 1e9:.2f} GB)", flush=True)
++                _http_download(a["browser_download_url"], out_dir / a["name"], a["size"])
+     return sorted(out_dir.glob(f"{tag}.tar.*"))
+ 
+ 
+@@ -193,7 +218,7 @@ def _parse_trace(args):
+ 
+ 
+ def ingest(parts: list[Path], out_dir: Path, types_path: Path, bbox=CONUS_BBOX,
+-           workers: int | None = None, rows_per_file: int = 20_000_000) -> dict:
++           workers: int | None = None, rows_per_file: int = 4_000_000) -> dict:
+     """Stream a readsb history tar into parquet. Returns summary counts."""
+     out_dir.mkdir(parents=True, exist_ok=True)
+     for old in out_dir.glob("points-*.parquet"):
+@@ -217,9 +242,18 @@ def ingest(parts: list[Path], out_dir: Path, types_path: Path, bbox=CONUS_BBOX,
+         file_no += 1
+         pending, npending = [], 0
+ 
++    import threading
++    inflight = threading.BoundedSemaphore(2048)  # RAM-limited PC: do not queue the whole tar in memory
++
++    def _jobs():
++        for raw in _iter_traces(parts):
++            inflight.acquire()
++            yield raw, bbox
++
+     with mp.Pool(workers) as pool:
+-        it = pool.imap_unordered(_parse_trace, ((raw, bbox) for raw in _iter_traces(parts)), chunksize=64)
++        it = pool.imap_unordered(_parse_trace, _jobs(), chunksize=16)
+         for tbl, meta in it:
++            inflight.release()
+             n_traces += 1
+             if tbl is None:
+                 continue
+diff --git a/src/dopploc/dem.py b/src/dopploc/dem.py
+index bebfa2c..98cb098 100644
+--- a/src/dopploc/dem.py
++++ b/src/dopploc/dem.py
+@@ -128,6 +128,7 @@ class ElevationLattice:
+     def __init__(self, path: Path):
+         meta = np.load(Path(path).with_suffix(".meta.npy"))
+         self.gx0, self.gy0, self.g = int(meta[0]), int(meta[1]), float(meta[2])
++        self.path = Path(path)
+         self.a = np.load(path, mmap_mode="r")  # (nx, ny): [x index, y index]
+ 
+     @staticmethod
+diff --git a/src/dopploc/detect.py b/src/dopploc/detect.py
+index 121915f..809c1a9 100644
+--- a/src/dopploc/detect.py
++++ b/src/dopploc/detect.py
+@@ -336,7 +336,12 @@ def _pool():
+     import multiprocessing as mp
+     import os
+     from concurrent.futures import ProcessPoolExecutor
+-    return ProcessPoolExecutor(max_workers=min(16, os.cpu_count() or 2), mp_context=mp.get_context("spawn"))
++    # RAM-limited Windows PC: every spawned worker re-imports numpy / scipy / numba (~0.5-1 GB), and 16
++    # of them were OOM-killed with ~4 GB free. Size the pool by free RAM (env DOPPLOC_WORKERS overrides).
++    from . import search
++    a = search._avail_gb()
++    n = int(os.environ.get("DOPPLOC_WORKERS", 0)) or max(1, min(16, os.cpu_count() or 2, int((a or 16) / 1.2)))
++    return ProcessPoolExecutor(max_workers=min(n, 6), mp_context=mp.get_context("spawn"))
+ 
+ 
+ def _refine_all(found: list[Flyover], sp: audio.Spectrogram, p: Params, ex):
+diff --git a/src/dopploc/search.py b/src/dopploc/search.py
+index c2213b2..ff297bf 100644
+--- a/src/dopploc/search.py
++++ b/src/dopploc/search.py
+@@ -19,6 +19,7 @@ The lattice is tiled; each tile is processed independently with a numba kernel.
+ from __future__ import annotations
+ 
+ import multiprocessing as mp
++import sys
+ import time
+ from dataclasses import dataclass
+ 
+@@ -500,17 +501,94 @@ def _process_tile(key):
+     return stats, res
+ 
+ 
+-def _default_workers(gb_per_worker: float = 1.5) -> int:
+-    """CPU count minus two, capped so workers fit in currently available memory."""
++def _avail_gb() -> float | None:
++    """Available RAM in GB (Linux /proc/meminfo; Windows GlobalMemoryStatusEx)."""
+     try:
+         with open("/proc/meminfo") as f:
+-            avail_kb = next(int(l.split()[1]) for l in f if l.startswith("MemAvailable:"))
+-        by_mem = int(avail_kb / 1e6 / gb_per_worker)
++            return next(int(l.split()[1]) for l in f if l.startswith("MemAvailable:")) / 1e6
+     except (OSError, StopIteration):
+-        by_mem = 8
++        pass
++    try:  # Windows port
++        import ctypes
++
++        class _MS(ctypes.Structure):
++            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
++                        ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
++                        ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
++                        ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
++                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
++        ms = _MS()
++        ms.dwLength = ctypes.sizeof(_MS)
++        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(ms))
++        return ms.ullAvailPhys / 1e9
++    except Exception:
++        return None
++
++
++def _default_workers(gb_per_worker: float = 1.5) -> int:
++    """CPU count minus two, capped so workers fit in currently available memory."""
++    a = _avail_gb()
++    by_mem = 8 if a is None else int(a / gb_per_worker)
+     return max(1, min(mp.cpu_count() - 2, by_mem))
+ 
+ 
++# --------------------------------------------------------------------------- Windows: spawn workers
++# Windows port: there is no fork(), so the workers cannot inherit ``_G``. The parent dumps the big
++# arrays as .npy files and every spawned worker memory-maps them (the OS page cache is shared
++# between processes, so N workers do not hold N copies of the sample table).
++
++def _dump_state(d):
++    import pickle
++    d.mkdir(parents=True, exist_ok=True)
++    S: Samples = _G["S"]
++    for name in ("fi", "t", "x", "y", "h", "gs"):
++        np.save(d / f"S_{name}.npy", getattr(S, name))
++
++    def ti(name, t):
++        np.save(d / f"{name}_keys.npy", t.keys)
++        np.save(d / f"{name}_idx.npy", t.idx)
++        return t.tile
++
++    small = {"fid": S.fid, "dt": S.dt, "case": _G["case"], "tile": _G["tile"], "nc": _G["nc"],
++             "rmax": _G["rmax"], "rsil": _G["rsil"],
++             "SI": [ti(f"SI{k}", t) for k, t in enumerate(_G["SI"])],
++             "SA": ti("SA", _G["SA"]) if "SA" in _G else None,
++             "lattice": str(_G["lattice"].path) if _G.get("lattice") is not None else None}
++    # non-"cpa" silence mode (rarely used): plain pickles
++    extra = {k: _G[k] for k in ("A", "AI", "J", "JI") if k in _G}
++    with open(d / "small.pkl", "wb") as f:
++        pickle.dump((small, extra), f)
++
++
++def _win_init(d, threads=1):
++    import os
++    import pickle
++    from pathlib import Path
++    d = Path(d)
++    with open(d / "small.pkl", "rb") as f:
++        small, extra = pickle.load(f)
++    L = lambda n: np.load(d / n, mmap_mode="r")
++    S = Samples(small["fid"], L("S_fi.npy"), L("S_t.npy"), L("S_x.npy"), L("S_y.npy"), L("S_h.npy"),
++                L("S_gs.npy"), small["dt"])
++
++    def ti(name, tile):
++        t = object.__new__(_TileIndex)
++        t.keys, t.idx, t.tile = L(f"{name}_keys.npy"), L(f"{name}_idx.npy"), tile
++        return t
++
++    case = small["case"]
++    _G.clear()
++    _G.update(S=S, SI=[ti(f"SI{k}", t) for k, t in enumerate(small["SI"])], case=case, tile=small["tile"],
++              nc=small["nc"], rmax=small["rmax"], rsil=small["rsil"],
++              dem=DEM(case.cache / "dem", res=90))
++    if small["SA"] is not None:
++        _G["SA"] = ti("SA", small["SA"])
++    if small["lattice"]:
++        from .dem import ElevationLattice
++        _G["lattice"] = ElevationLattice(Path(small["lattice"]))
++    _G.update(extra)
++
++
+ def run(case: Case, log=print) -> pl.DataFrame:
+     """Run the coarse search and write ``<out>/candidates.parquet``."""
+     s = case.search
+@@ -591,8 +669,16 @@ def run(case: Case, log=print) -> pl.DataFrame:
+     totals: dict[str, int] = {}
+     results = []
+     log(f"  scanning tiles on {nproc} processes")
+-    ctx = mp.get_context("fork")
+-    with ctx.Pool(nproc) as pool:
++    if sys.platform == "win32":  # Windows port: spawn workers + memory-mapped state
++        import shutil
++        sd = case.out / "_shared"
++        _dump_state(sd)
++        ctx = mp.get_context("spawn")
++        pool = ctx.Pool(nproc, initializer=_win_init, initargs=(str(sd),))
++    else:
++        ctx = mp.get_context("fork")
++        pool = ctx.Pool(nproc)
++    with pool:
+         for out in pool.imap_unordered(_process_tile, work, chunksize=4):
+             if out is None:
+                 continue
+@@ -602,6 +688,8 @@ def run(case: Case, log=print) -> pl.DataFrame:
+             if res is not None:
+                 results.append(res)
+     _G.clear()
++    if sys.platform == "win32":
++        shutil.rmtree(case.out / "_shared", ignore_errors=True)
+     log("  counts: " + ", ".join(f"{k}={v:,}" for k, v in totals.items()))
+     if not results:
+         log("no candidates")
