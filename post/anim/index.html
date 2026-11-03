@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>flyover analysis</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  html,body{margin:0;background:#05070a;overflow:hidden}
+  canvas{display:block}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+/* Post animation: one pure function of time, window.renderAt(t), t in clip seconds (0..20).
+   No requestAnimationFrame, no Date, no Math.random. Everything drawn comes from build/ (spectrogram PNGs,
+   map vectors, data.json). ?layout=landscape (1920x1080) | vertical (1080x742). */
+"use strict";
+const Q = new URLSearchParams(location.search);
+const LAYOUT = Q.get('layout') === 'vertical' ? 'vertical' : 'landscape';
+const DUR = 20;
+
+// ------------------------------------------------------------------------------------------ design tokens
+const C = {
+  bg: '#05070a', panel: '#080c11', line: 'rgba(255,255,255,0.11)', text: '#f3f6f9',
+  dim: 'rgba(243,246,249,0.62)', dimmer: 'rgba(243,246,249,0.38)', cyan: '#19e3ff', cyanDim: 'rgba(25,227,255,0.55)'
+};
+const SANS = "'Inter','Segoe UI',system-ui,sans-serif";
+const MONO = "'JetBrains Mono','Cascadia Mono',Consolas,monospace";
+
+// ------------------------------------------------------------------------------------------ layouts
+const LAYOUTS = {
+  landscape: {
+    W: 1920, H: 1080, pad: 70,
+    stepY: 52, stepSz: 24, headY: 112, headSz: 60, clockSz: 26, creditY: 1048, creditSz: 21,
+    spec: { big: { x: 210, y: 196, w: 1640, h: 724 }, mini: { x: 1010, y: 190, w: 840, h: 250 }, s5: { x: 210, y: 196, w: 1010, h: 724 } },
+    map: { big: { x: 70, y: 170, w: 800, h: 800 }, card: { x: 1290, y: 196, w: 560, h: 560 } },
+    col: { x: 1010, y: 500, w: 840 },
+    axisSz: 23, tipSz: 30, tipSub: 22, lw: 3.2, pill: 22,
+    badge: { w: 640, pad: 28, s1: 24, s2: 40, s3: 28 },
+    big: 92, mid: 64, found: 132, foundSub: 48, note: 26, mapLab: 20, wm: 100,
+    scaleSz: 20, ph: 14, trackLab: 20
+  },
+  vertical: {
+    W: 1080, H: 742, pad: 24,
+    stepY: 26, stepSz: 17, headY: 66, headSz: 38, clockSz: 17, creditY: 727, creditSz: 18,
+    spec: { big: { x: 100, y: 98, w: 956, h: 530 }, mini: { x: 646, y: 94, w: 414, h: 150 }, s5: { x: 100, y: 98, w: 560, h: 530 } },
+    map: { big: { x: 20, y: 88, w: 590, h: 590 }, card: { x: 700, y: 98, w: 356, h: 356 } },
+    col: { x: 646, y: 290, w: 414 },
+    axisSz: 17, tipSz: 22, tipSub: 17, lw: 2.6, pill: 16,
+    badge: { w: 470, pad: 20, s1: 17, s2: 30, s3: 21 },
+    big: 58, mid: 38, found: 80, foundSub: 28, note: 19, mapLab: 15, wm: 62,
+    scaleSz: 15, ph: 10, trackLab: 15
+  }
+}[LAYOUT];
+const L = LAYOUTS;
+
+const cv = document.getElementById('c');
+cv.width = L.W; cv.height = L.H;
+const ctx = cv.getContext('2d');
+
+// ------------------------------------------------------------------------------------------ small helpers
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ramp = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const EZ = {
+  cub: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  out: x => 1 - Math.pow(1 - x, 3),
+  back: x => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  bounce: x => { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) return n * (x -= 1.5 / d) * x + .75; if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + .9375; return n * (x -= 2.625 / d) * x + .984375; }
+};
+const lrect = (a, b, k) => ({ x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k), w: lerp(a.w, b.w, k), h: lerp(a.h, b.h, k) });
+const fmtM = m => Math.round(m).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const pad2 = n => String(n).padStart(2, '0');
+
+function rrect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function text(s, x, y, o = {}) {
+  ctx.save();
+  ctx.font = `${o.weight || 500} ${o.size || 24}px ${o.mono ? MONO : SANS}`;
+  ctx.textAlign = o.align || 'left'; ctx.textBaseline = o.base || 'alphabetic';
+  ctx.globalAlpha = (o.alpha ?? 1) * ctx.globalAlpha;
+  if (o.track) ctx.letterSpacing = o.track + 'px';
+  if (o.shadow) { ctx.shadowColor = o.shadow; ctx.shadowBlur = o.shadowBlur || 18; }
+  ctx.fillStyle = o.color || C.text;
+  ctx.fillText(s, x, y);
+  ctx.restore();
+}
+function measure(s, o = {}) {
+  ctx.save(); ctx.font = `${o.weight || 500} ${o.size || 24}px ${o.mono ? MONO : SANS}`;
+  if (o.track) ctx.letterSpacing = o.track + 'px';
+  const w = ctx.measureText(s).width; ctx.restore(); return w;
+}
+
+// ------------------------------------------------------------------------------------------ assets
+let DATA, META, IMG_B, IMG_A, VEC, HEAT1, HEAT2, HEATS;
+const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => i.decode().then(() => res(i)); i.onerror = () => rej(new Error('img ' + src)); i.src = src; });
+
+window.ready = (async () => {
+  const font = (fam, url) => new FontFace(fam, `url(${url})`, { weight: '100 900' }).load().then(f => document.fonts.add(f));
+  await Promise.all([font('Inter', 'fonts/Inter-var.woff2'), font('JetBrains Mono', 'fonts/JetBrainsMono-var.woff2')]);
+  const j = u => fetch(u).then(r => r.json());
+  [DATA, META, VEC] = await Promise.all([j('build/data.json'), j('build/spec_meta.json'), j('build/map_vectors.json')]);
+  [IMG_B, IMG_A] = await Promise.all([loadImg('build/spec_before.png'), loadImg('build/spec_after.png')]);
+  const M = DATA.map;
+  HEAT1 = buildHeat(M.heat_1, M.lat, M.lon, M.gamma_1 ?? 2.2);
+  HEAT2 = buildHeat(M.heat_2 ?? M.heat_all, M.lat, M.lon, M.gamma_2 ?? 3.0);
+  HEATS = M.safe && M.safe.heat ? buildHeat(M.safe.heat, M.lat, M.lon, 1.6, true) : null;
+  { const m = /T(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(DATA.clip.utc_start); DATA._sod = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]); }   // UTC time of day of t = 0, no Date
+  for (const l of VEC.lines) if (l.k === 'runway') l.long = pathLenM(l.p) > 700;
+  window.__ok = true;
+})();
+
+// heat grid -> a small RGBA canvas (north up), upsampled with smoothing
+function buildHeat(grid, lat, lon, gamma, grey) {
+  const nr = grid.length, nc = grid[0].length;
+  let vmin = Infinity, vmax = -Infinity;
+  for (const row of grid) for (const v of row) if (v != null && isFinite(v)) { if (v < vmin) vmin = v; if (v > vmax) vmax = v; }
+  const flip = lat[0] < lat[lat.length - 1];       // rows run south to north -> flip for the canvas
+  const c0 = document.createElement('canvas'); c0.width = nc; c0.height = nr;
+  const c0x = c0.getContext('2d'); const im = c0x.createImageData(nc, nr);
+  for (let r = 0; r < nr; r++) for (let q = 0; q < nc; q++) {
+    let v = grid[flip ? nr - 1 - r : r][q]; v = (v == null || !isFinite(v)) ? 0 : (v - vmin) / (vmax - vmin || 1);
+    const b = Math.pow(cl(v), gamma), o = (r * nc + q) * 4;
+    if (grey) { im.data[o] = im.data[o + 1] = im.data[o + 2] = 200; im.data[o + 3] = 255 * b * .5; continue; }
+    const w = cl((b - .82) / .18) * .75;
+    im.data[o] = lerp(lerp(8, 25, b), 255, w); im.data[o + 1] = lerp(lerp(110, 227, b), 255, w); im.data[o + 2] = lerp(lerp(140, 255, b), 255, w);
+    im.data[o + 3] = 255 * cl(b * 1.2);
+  }
+  c0x.putImageData(im, 0, 0);
+  const k = Math.max(1, Math.ceil(720 / Math.max(nc, nr)));
+  const c1 = document.createElement('canvas'); c1.width = nc * k; c1.height = nr * k;
+  const x1 = c1.getContext('2d'); x1.imageSmoothingEnabled = true; x1.imageSmoothingQuality = 'high';
+  x1.filter = `blur(${k * .6}px)`; x1.drawImage(c0, 0, 0, nc * k, nr * k);
+  const dlat = Math.abs(lat[1] - lat[0]), dlon = Math.abs(lon[1] - lon[0]);
+  const la0 = Math.min(lat[0], lat[lat.length - 1]) - dlat / 2, la1 = Math.max(lat[0], lat[lat.length - 1]) + dlat / 2;
+  const lo0 = Math.min(lon[0], lon[lon.length - 1]) - dlon / 2, lo1 = Math.max(lon[0], lon[lon.length - 1]) + dlon / 2;
+  return { c: c1, la0, la1, lo0, lo1 };
+}
+
+// ------------------------------------------------------------------------------------------ scene timeline
+const T = { s2: 8.0, s3: 11.0, s4: 15.0, s5: 18.0, zoomOut: [7.8, 8.7], toMini: [10.45, 11.15], wipe: [18.4, 19.25] };
+const STEPS = [
+  ['01 / LISTEN', () => 'Look at the sound'],
+  ['02 / MATCH', () => 'The pitch slide matches a real aircraft'],
+  ['03 / ONE AIRCRAFT', () => 'Where could the microphone be?'],
+  ['04 / MORE AIRCRAFT', () => (DATA.map.planes_used ?? 2) === 2 ? 'Add a second aircraft' : 'Add more aircraft'],
+  ['05 / SAFE COPY', () => 'Safe copy: tone removed']
+];
+const sceneOf = t => t < T.s2 ? 0 : t < T.s3 ? 1 : t < T.s4 ? 2 : t < T.s5 ? 3 : 4;
+const SCENE_T = [0, T.s2, T.s3, T.s4, T.s5];
+
+// ------------------------------------------------------------------------------------------ spectrogram panel
+function viewWindow(t) {
+  const Wsec = DATA.spectrogram?.view_s ?? 12, php = 0.36, ts = Wsec * php;
+  if (Wsec >= DUR) return [0, DUR];
+  let v0 = t <= ts ? 0 : t - ts, v1 = v0 + Wsec;
+  const k = EZ.cub(ramp(t, T.zoomOut[0], T.zoomOut[1]));
+  return [lerp(v0, 0, k), lerp(v1, DUR, k)];
+}
+function specRect(t) {          // scene 5 is a hard re-layout hidden behind a short fade
+  if (t >= T.s5) return L.spec.s5;
+  return lrect(L.spec.big, L.spec.mini, EZ.cub(ramp(t, T.toMini[0], T.toMini[1])));
+}
+const specAlpha = t => t < T.s5 ? 1 - ramp(t, T.s5 - .25, T.s5 - .02) : ramp(t, T.s5 + .02, T.s5 + .3);
+
+function drawSpecImg(img, R, v0, v1, alpha, x0, x1) {
+  const c0 = Math.max(v0, 0), c1 = Math.min(v1, DUR);
+  if (c1 <= c0 || alpha <= 0) return;
+  const dx = R.x + (c0 - v0) / (v1 - v0) * R.w, dw = (c1 - c0) / (v1 - v0) * R.w;
+  const cx0 = Math.max(x0, dx, R.x), cx1 = Math.min(x1, dx + dw, R.x + R.w);
+  if (cx1 <= cx0) return;
+  ctx.save(); ctx.beginPath(); ctx.rect(cx0, R.y, cx1 - cx0, R.h); ctx.clip();
+  ctx.globalAlpha *= alpha; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  const hop = META.hop_s, sx = Math.max(0, c0 / hop + .5);
+  ctx.drawImage(img, sx, 0, Math.min(img.width - sx, (c1 - c0) / hop), img.height, dx, R.y, dw, R.h);
+  ctx.restore();
+}
+
+const xOfT = (R, v0, v1, tt) => R.x + (tt - v0) / (v1 - v0) * R.w;
+const yOfF = (R, f) => R.y + R.h * (1 - (f - META.f_min_hz) / (META.f_max_hz - META.f_min_hz));
+function freqTicks() {
+  const span = META.f_max_hz - META.f_min_hz, raw = span / 4.5, p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * p).find(v => v >= raw) || raw, out = [];
+  for (let f = Math.ceil(META.f_min_hz / step) * step; f <= META.f_max_hz + 1e-6; f += step) out.push(Math.round(f));
+  return out;
+}
+function curveAt(c, tt) {           // clamped linear interpolation of a curve
+  const a = c.t_s, f = c.f_hz; if (tt <= a[0]) return f[0]; if (tt >= a[a.length - 1]) return f[f.length - 1];
+  let lo = 0, hi = a.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (a[m] <= tt) lo = m; else hi = m; }
+  return lerp(f[lo], f[hi], (tt - a[lo]) / (a[hi] - a[lo]));
+}
+
+function drawSpecPanel(t) {
+  const R = specRect(t), [v0, v1] = viewWindow(t);
+  const big = cl((R.h - L.spec.mini.h - .35 * (L.spec.big.h - L.spec.mini.h)) / (.5 * (L.spec.big.h - L.spec.mini.h)));
+  const sc = sceneOf(t);
+  // frame
+  ctx.save(); rrect(R.x, R.y, R.w, R.h, 10); ctx.fillStyle = C.panel; ctx.fill(); ctx.restore();
+  const xph = xOfT(R, v0, v1, t);
+  ctx.save(); rrect(R.x, R.y, R.w, R.h, 10); ctx.clip();
+  // wipe: before -> after during scene 5 (a cleaned copy replaces the original from left to right)
+  const wk = EZ.cub(ramp(t, T.wipe[0], T.wipe[1])), xw = R.x + R.w * wk;
+  const fut = lerp(.55, .85, EZ.cub(ramp(t, T.zoomOut[0], T.zoomOut[1])));
+  const past = (img, x0, x1) => { drawSpecImg(img, R, v0, v1, fut, x0, x1); drawSpecImg(img, R, v0, v1, 1, x0, Math.min(x1, xph)); };
+  past(IMG_B, xw, R.x + R.w + 2);
+  if (wk > 0) past(IMG_A, R.x - 2, xw);
+  // gridlines (hairlines at 100 Hz steps)
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  for (const f of freqTicks()) { if (f <= META.f_min_hz + 1e-6) continue; const y = Math.round(yOfF(R, f)) + .5; ctx.beginPath(); ctx.moveTo(R.x, y); ctx.lineTo(R.x + R.w, y); ctx.stroke(); }
+  // wipe edge
+  if (wk > 0 && wk < 1) {
+    const g = ctx.createLinearGradient(xw - 90, 0, xw, 0); g.addColorStop(0, 'rgba(25,227,255,0)'); g.addColorStop(1, 'rgba(25,227,255,0.22)');
+    ctx.fillStyle = g; ctx.fillRect(xw - 90, R.y, 90, R.h);
+    ctx.fillStyle = C.cyan; ctx.fillRect(xw - 1.5, R.y, 3, R.h);
+  }
+  drawCurves(t, R, v0, v1, wk > 0 ? xw : -1);
+  ctx.restore();
+  rrect(R.x + .5, R.y + .5, R.w - 1, R.h - 1, 10); ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.stroke();
+
+  // axes (big layout only)
+  const ax = ctx.globalAlpha;
+  if (big > 0.01) {
+    ctx.globalAlpha = ax * big;
+    const fts = freqTicks();
+    fts.forEach((f, i) => text(i === fts.length - 1 ? f + ' Hz' : String(f), R.x - 14, yOfF(R, f) + (f <= META.f_min_hz + 1e-6 ? -2 : 8), { size: L.axisSz, mono: true, align: 'right', color: C.dimmer }));
+    const span = v1 - v0, step = span > 14 ? 2 : 1;
+    for (let s = Math.ceil(Math.max(v0, 0) / step) * step; s <= Math.min(v1, DUR) + 1e-6; s += step) {
+      const x = xOfT(R, v0, v1, s); if (x < R.x + 6 || x > R.x + R.w - 6) continue;
+      ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x, R.y + R.h, 1, 8);
+      text(s + ' s', x, R.y + R.h + 8 + L.axisSz + 2, { size: L.axisSz, mono: true, align: 'center', color: C.dimmer });
+    }
+    ctx.globalAlpha = ax;
+  } else {
+    text(`audio  ·  ${META.f_min_hz} – ${META.f_max_hz} Hz`, R.x, R.y + R.h + L.axisSz + 8, { size: L.axisSz, mono: true, color: C.dimmer });
+  }
+  // playhead
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,255,255,0.55)'; ctx.shadowBlur = 12;
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fillRect(xph - 1.5, R.y - 4, 3, R.h + 8);
+  ctx.beginPath(); ctx.moveTo(xph - L.ph * .7, R.y - 4 - L.ph); ctx.lineTo(xph + L.ph * .7, R.y - 4 - L.ph); ctx.lineTo(xph, R.y - 4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // scene 1: callout "aircraft engine tone" (data.callout can move it, time it or switch it off with false)
+  const CO = DATA.callout, c3 = DATA.curves[Math.min(2, DATA.curves.length - 1)];
+  if (CO !== false) {
+    const from = CO?.from_s ?? 0.35, to = CO?.to_s ?? 7.5;
+    const a1 = Math.min(ramp(t, from, from + .45), 1 - ramp(t, to, to + .45));
+    const tt = CO?.tip_t_s ?? Math.max(0, t - 1.6), tf = CO?.tip_f_hz ?? curveAt(c3, tt);
+    const tipx = CO?.tip_t_s != null ? xOfT(R, v0, v1, tt) : Math.max(R.x + 70, xOfT(R, v0, v1, tt)), tipy = yOfF(R, tf);
+    if (a1 > 0 && tipx > R.x + 60 && tipx < R.x + R.w - 60) {
+      ctx.save(); ctx.globalAlpha = ax * a1;
+      const lw2 = Math.max(measure('aircraft engine tone', { size: L.tipSz, weight: 600 }), measure('steady hum + harmonics', { size: L.tipSub, mono: true })), bh = L.tipSz + L.tipSub + 34;
+      const lx = clamp2(tipx - 44, R.x + 20, R.x + R.w - lw2 - 34), ly = clamp2(tipy - (R.h * .26), R.y + L.tipSz + 20, R.y + R.h - bh - 20) ;
+      rrect(lx - 14, ly - L.tipSz - 8, lw2 + 28, bh, 8); ctx.fillStyle = 'rgba(5,7,10,0.86)'; ctx.fill();
+      ctx.strokeStyle = C.cyan; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tipx, ly - L.tipSz - 8 + bh); ctx.lineTo(tipx, tipy - 10); ctx.stroke();
+      ctx.beginPath(); ctx.arc(tipx, tipy, 9, 0, 7); ctx.stroke();
+      text('aircraft engine tone', lx, ly, { size: L.tipSz, weight: 600, color: C.cyan });
+      text(CO?.sub ?? 'steady hum + harmonics', lx, ly + L.tipSub + 10, { size: L.tipSub, mono: true, color: C.dim });
+      ctx.restore();
+    }
+  }
+  // scene 2: badge
+  drawBadge(t, R);
+  // scene 5: label
+  const a5 = ramp(t, T.wipe[0], T.wipe[0] + .4);
+  if (a5 > 0) {
+    ctx.save(); ctx.globalAlpha = ax * a5;
+    const s = 'SAFE COPY · TONE REMOVED', w = measure(s, { size: L.axisSz, mono: true, track: 1 });
+    rrect(R.x + 16, R.y + 16, w + 28, L.axisSz + 22, 7); ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fill();
+    text(s, R.x + 30, R.y + 16 + L.axisSz + 5, { size: L.axisSz, mono: true, color: C.cyan, track: 1 });
+    ctx.restore();
+  }
+}
+
+function drawCurves(t, R, v0, v1, xw) {
+  const fade = 1;
+  if (t < 8.6) return;
+  ctx.save();
+  if (xw >= 0) { ctx.beginPath(); ctx.rect(xw, R.y, R.x + R.w - xw, R.h); ctx.clip(); }
+  const n = DATA.curves.length;
+  DATA.curves.forEach((c, i) => {
+    const ts = 8.7 + 0.16 * i, a = ramp(t, ts, ts + 0.85);
+    if (a <= 0) return;
+    const prog = EZ.out(a), tc0 = c.t_s[0], tc1 = c.t_s[c.t_s.length - 1], tEnd = lerp(tc0, tc1, prog);
+    const snap = EZ.back(ramp(t, ts + 0.2, ts + 0.85)), dy = -(1 - snap) * R.h * .055;
+    ctx.save(); ctx.globalAlpha *= fade;
+    const mini = R.h < 300 ? .6 : 1;
+    ctx.strokeStyle = C.cyan; ctx.lineWidth = L.lw * mini; ctx.setLineDash([L.lw * 3.6 * mini, L.lw * 2.8 * mini]); ctx.lineCap = 'butt';
+    ctx.shadowColor = 'rgba(25,227,255,0.8)'; ctx.shadowBlur = 10;
+    ctx.beginPath();
+    let first = true, lastp = null;
+    for (let k = 0; k < c.t_s.length; k++) {
+      if (c.t_s[k] > tEnd) break;
+      const x = xOfT(R, v0, v1, c.t_s[k]), y = yOfF(R, c.f_hz[k]) + dy;
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y); lastp = [x, y];
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    if (lastp && prog < 1) { ctx.beginPath(); ctx.arc(lastp[0], lastp[1], L.lw * 1.8, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); }
+    ctx.restore();
+    // harmonic tag at the right end (inside the panel)
+    const pa = ramp(t, ts + 0.7, ts + 1.1) * fade;
+    if (pa > 0 && R.h > 300) {
+      const tx = Math.min(R.x + R.w - 14, xOfT(R, v0, v1, tc1) - 14), ty = yOfF(R, curveAt(c, Math.min(v1, tc1))) - 12;
+      const lab = c.harmonic + '×', w = measure(lab, { size: L.pill, mono: true, weight: 600 });
+      ctx.save(); ctx.globalAlpha *= pa; rrect(tx - w - 12, ty - L.pill - 2, w + 14, L.pill + 10, 5); ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fill();
+      text(lab, tx - 5, ty + 3, { size: L.pill, mono: true, weight: 600, color: C.cyan, align: 'right' }); ctx.restore();
+    }
+  });
+  ctx.restore();
+}
+
+function drawBadge(t, R) {
+  const a = ramp(t, 9.55, 9.95) * (1 - ramp(t, 10.3, 10.65));
+  if (a <= 0) return;
+  const A = DATA.aircraft[0], B = L.badge, sc = .86 + .14 * EZ.back(ramp(t, 9.55, 10.0));
+  const maxW = R.w - 44; let s2 = B.s2;
+  while (s2 > 18 && measure(A.label, { size: s2, weight: 700 }) + B.pad * 2 > maxW) s2 -= 1;
+  const w = clamp2(Math.max(B.w, measure(A.label, { size: s2, weight: 700 }) + B.pad * 2), 0, maxW);
+  const h = B.pad * 2 + B.s1 + s2 + B.s3 + 30;
+  const cx = R.x + R.w - w / 2 - 22, cy = R.y + h / 2 + 22;
+  ctx.save(); ctx.globalAlpha *= a; ctx.translate(cx, cy); ctx.scale(sc, sc);
+  rrect(-w / 2, -h / 2, w, h, 14); ctx.fillStyle = 'rgba(8,12,17,0.94)'; ctx.fill();
+  ctx.strokeStyle = C.cyan; ctx.lineWidth = 2; ctx.stroke();
+  const x = -w / 2 + B.pad; let y = -h / 2 + B.pad + B.s1 - 3;
+  text('MATCHED AIRCRAFT', x, y, { size: B.s1, mono: true, color: C.cyan, track: 1.5 }); y += s2 + 8;
+  text(A.label, x, y, { size: s2, weight: 700 }); y += B.s3 + 14;
+  text('closest approach  ' + fmtM(A.closest_m) + ' m', x, y, { size: B.s3, mono: true, color: C.dim });
+  ctx.restore();
+}
+
+// ------------------------------------------------------------------------------------------ map
+function projFor(R, view) {
+  const kx = Math.cos(view.clat * Math.PI / 180) * 111320, ky = 111320, pxm = Math.min(R.w, R.h) / (2 * view.half);
+  const cx = R.x + R.w / 2, cy = R.y + R.h / 2;
+  return { pxm, p: (la, lo) => [cx + (lo - view.clon) * kx * pxm, cy - (la - view.clat) * ky * pxm] };
+}
+function mapView(t) {
+  const b = DATA.map.bbox, clat = (b[0] + b[2]) / 2, clon = (b[1] + b[3]) / 2, kx = Math.cos(clat * Math.PI / 180) * 111320;
+  const full = { clat, clon, half: Math.max((b[3] - b[1]) * kx, (b[2] - b[0]) * 111320) / 2 };
+  const M = DATA.map, em = M.error_m ?? 0;
+  const half = clamp2(em * 2.6, 450, 1e9);
+  if (half > 12000) return full;
+  const tg = { lat: (M.found.lat + M.true.lat) / 2, lon: (M.found.lon + M.true.lon) / 2 };
+  const k = t >= T.s5 ? 0 : EZ.cub(ramp(t, 16.9, 17.7)), e = t >= T.s5 ? 0 : EZ.cub(ramp(t, 17.1, 17.7));
+  const h = Math.exp(lerp(Math.log(full.half), Math.log(half), k)), r = (1 - e) * h / full.half;   // target slides from where it was to the centre
+  return { clat: tg.lat - (tg.lat - full.clat) * r, clon: tg.lon - (tg.lon - full.clon) * r, half: h };
+}
+const clamp2 = (x, a, b) => Math.min(b, Math.max(a, x));
+function niceLen(maxM) { const c = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]; let r = c[0]; for (const v of c) if (v <= maxM) r = v; return r; }
+function pathLenM(p) { let s = 0; for (let i = 1; i < p.length; i++) s += Math.hypot((p[i][0] - p[i - 1][0]) * 111320, (p[i][1] - p[i - 1][1]) * 111320 * Math.cos(p[i][0] * Math.PI / 180)); return s; }
+
+function drawHeat(H, pr, alpha) {
+  if (!H || alpha <= 0) return;
+  const [x0, y0] = pr.p(H.la1, H.lo0), [x1, y1] = pr.p(H.la0, H.lo1);
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.globalCompositeOperation = 'lighter';
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(H.c, x0, y0, x1 - x0, y1 - y0); ctx.restore();
+}
+
+function drawMap(t, R, alpha, mk) {
+  const inCard = mk > .5, fo = 1 - mk;
+  if (alpha <= 0) return;
+  const M = DATA.map, view = mapView(t), pr = projFor(R, view), p = pr.p;
+  ctx.save(); ctx.globalAlpha *= alpha;
+  rrect(R.x, R.y, R.w, R.h, 10); ctx.fillStyle = '#070b10'; ctx.fill();
+  ctx.save(); rrect(R.x, R.y, R.w, R.h, 10); ctx.clip();
+  const path = (pts) => { ctx.beginPath(); pts.forEach((q, i) => { const [x, y] = p(q[0], q[1]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); };
+  // faint metric grid (nice step for the current zoom), centred on the view
+  { const kx = Math.cos(view.clat * Math.PI / 180) * 111320, step = niceLen(view.half / 3.5), cxm = view.clon * kx, cym = view.clat * 111320;
+    ctx.strokeStyle = 'rgba(255,255,255,0.045)'; ctx.lineWidth = 1; ctx.beginPath();
+    const hw = R.w / 2 / pr.pxm + step, hh = R.h / 2 / pr.pxm + step;
+    for (let gx = Math.floor((cxm - hw) / step) * step; gx <= cxm + hw; gx += step) { const x = R.x + R.w / 2 + (gx - cxm) * pr.pxm; ctx.moveTo(Math.round(x) + .5, R.y); ctx.lineTo(Math.round(x) + .5, R.y + R.h); }
+    for (let gy = Math.floor((cym - hh) / step) * step; gy <= cym + hh; gy += step) { const y = R.y + R.h / 2 - (gy - cym) * pr.pxm; ctx.moveTo(R.x, Math.round(y) + .5); ctx.lineTo(R.x + R.w, Math.round(y) + .5); }
+    ctx.stroke(); }
+  // water
+  ctx.fillStyle = '#0b1722'; ctx.strokeStyle = '#143042'; ctx.lineWidth = 1;
+  for (const w of VEC.polys) { path(w.p); ctx.fill(); ctx.stroke(); }
+  // lines
+  const sty = { coast: ['#2c5a76', 1.6], primary: ['rgba(255,255,255,0.13)', 1.2], major: ['rgba(255,255,255,0.24)', 2], runway: ['rgba(255,255,255,0.55)', 2.6] };
+  const lw = Math.max(1, R.w / 800);
+  for (const k of ['primary', 'major', 'coast', 'runway']) {
+    ctx.strokeStyle = sty[k][0]; ctx.lineWidth = sty[k][1] * lw; ctx.lineJoin = 'round';
+    for (const l of VEC.lines) if (l.k === k && (k !== 'runway' || l.long)) { path(l.p); ctx.stroke(); }
+  }
+  // places
+  if (!inCard) for (const q of VEC.places) {
+    const [x, y] = p(q.lat, q.lon); if (x < R.x + 30 || x > R.x + R.w - 120 || y < R.y + 30 || y > R.y + R.h - 30) continue;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill();
+    text(q.name.toUpperCase(), x + 10, y + 5, { size: L.mapLab, mono: true, color: C.dimmer, track: 1 });
+  }
+  // heat maps
+  const live = t - 11.7;
+  const bands = ramp(t, 11.9, 12.9), breathe = .94 + .06 * Math.sin(t * 2.4);
+  const h1 = bands * (1 - .8 * ramp(t, 15.5, 16.3)) * breathe;
+  drawHeat(HEAT1, pr, h1 * fo);
+  drawHeat(HEAT2, pr, ramp(t, 15.5, 16.4) * fo * breathe);
+  if (HEATS) drawHeat(HEATS, pr, mk);
+  // tracks (white, drawn on)
+  const trackLab = (A, pts, a) => {
+    const [x, y] = pts[pts.length - 1];
+    const lab = A.label.split('·')[0].trim(), w = measure(lab, { size: L.trackLab, mono: true });
+    const px = clamp2(x - w - 10, R.x + 10, R.x + R.w - w - 10), py = clamp2(y - 12, R.y + 24, R.y + R.h - 12);
+    ctx.save(); ctx.globalAlpha *= a; text(lab, px, py, { size: L.trackLab, mono: true, color: C.dim }); ctx.restore();
+  };
+  const drawTrack = (A, a0, a1, a) => {
+    const pr1 = EZ.cub(ramp(t, a0, a1)); if (pr1 <= 0 || a <= 0 || !A.track) return;
+    const pts = A.track.lat.map((la, i) => p(la, A.track.lon[i])), n = Math.max(1, Math.floor((pts.length - 1) * pr1));
+    const part = pts.slice(0, n + 1); const f = (pts.length - 1) * pr1 - n;
+    if (n < pts.length - 1) part.push([lerp(pts[n][0], pts[n + 1][0], f), lerp(pts[n][1], pts[n + 1][1], f)]);
+    ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = L.lw * .9 * lw + .6; ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(255,255,255,0.4)'; ctx.shadowBlur = 6;
+    ctx.beginPath(); part.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.stroke();
+    const e = part[part.length - 1]; ctx.beginPath(); ctx.arc(e[0], e[1], L.lw * 1.7 * lw, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+    if (pr1 >= 1) trackLab(A, pts, 1 - ramp(t, 16.9, 17.3));
+  };
+  const ta = fo;
+  drawTrack(DATA.aircraft[0], 11.2, 12.2, ta * (1 - .45 * ramp(t, 15.5, 16.3)));
+  if (DATA.aircraft[1]) drawTrack(DATA.aircraft[1], 15.0, 15.8, ta);
+  // box outline + corner ticks, label, scale bar
+  const bb = M.bbox, [bx0, by0] = p(bb[2], bb[1]), [bx1, by1] = p(bb[0], bb[3]);
+  if (view.half > 8000 || true) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.2; ctx.setLineDash([6, 6]); ctx.strokeRect(bx0, by0, bx1 - bx0, by1 - by0); ctx.setLineDash([]);
+  }
+  ctx.restore();   // clip
+  rrect(R.x + .5, R.y + .5, R.w - 1, R.h - 1, 10); ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.stroke();
+  // scale bar + search-area label
+  const kmW = Math.round((bb[3] - bb[1]) * Math.cos(((bb[0] + bb[2]) / 2) * Math.PI / 180) * 111.32), kmH = Math.round((bb[2] - bb[0]) * 111.32);
+  if (!inCard) text(`SEARCH AREA ${kmW} × ${kmH} km`, R.x + R.w - 16, R.y + R.h - 14, { size: L.mapLab, mono: true, color: C.dimmer, track: 1, align: 'right' });
+  const nl = niceLen(pr.pxm > 0 ? (R.w * .26) / pr.pxm : 1000), bw = nl * pr.pxm, sx = R.x + 18, sy = R.y + R.h - 18;
+  ctx.strokeStyle = C.dim; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, sy - 7); ctx.lineTo(sx, sy); ctx.lineTo(sx + bw, sy); ctx.lineTo(sx + bw, sy - 7); ctx.stroke();
+  text(nl >= 1000 ? (nl / 1000) + ' km' : nl + ' m', sx + bw + 10, sy + 1, { size: L.scaleSz, mono: true, color: C.dim });
+  // found / true markers
+  if (fo > 0) { ctx.save(); ctx.globalAlpha *= fo; rrect(R.x, R.y, R.w, R.h, 10); ctx.clip(); drawMarkers(t, R, pr); ctx.restore(); }
+  ctx.restore();
+}
+
+function drawStar(x, y, r, a) {
+  ctx.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * .45 : r, an = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); } ctx.closePath();
+}
+function drawPin(x, y, s) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.shadowColor = 'rgba(25,227,255,0.9)'; ctx.shadowBlur = 16;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.bezierCurveTo(-6, -14, -17, -22, -17, -35); ctx.arc(0, -35, 17, Math.PI, 0); ctx.bezierCurveTo(17, -22, 6, -14, 0, 0); ctx.closePath();
+  ctx.fillStyle = C.cyan; ctx.fill(); ctx.shadowBlur = 0; ctx.lineWidth = 3; ctx.strokeStyle = '#05070a'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, -35, 6.5, 0, 7); ctx.fillStyle = '#05070a'; ctx.fill(); ctx.restore();
+}
+function drawMarkers(t, R, pr) {
+  const M = DATA.map, S = L.W > 1500 ? 1.15 : .8;
+  const [fx, fy] = pr.p(M.found.lat, M.found.lon), [tx, ty] = pr.p(M.true.lat, M.true.lon);
+  const pin0 = 15.75, star0 = 16.25, side = tx >= fx ? 1 : -1;
+  // true camera: star
+  const sa = ramp(t, star0, star0 + .45);
+  if (sa > 0) {
+    const sc = EZ.back(sa) * S; ctx.save(); ctx.globalAlpha *= sa;
+    if (Math.hypot(tx - fx, ty - fy) > 18 * S) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.shadowColor = 'rgba(255,255,255,0.8)'; ctx.shadowBlur = 14;
+    drawStar(tx, ty, 24 * sc); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#05070a'; ctx.stroke();
+    ctx.restore();
+    const lab = 'real camera', w = measure(lab, { size: L.trackLab + 2, mono: true, weight: 600 });
+    const lx = clamp2(side > 0 ? tx + 30 * S : tx - 30 * S - w, R.x + 14, R.x + R.w - w - 14), ly = clamp2(ty + 7, R.y + 40, R.y + R.h - 24);
+    ctx.save(); ctx.globalAlpha *= sa; rrect(lx - 8, ly - L.trackLab - 4, w + 16, L.trackLab + 14, 5); ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fill();
+    text(lab, lx, ly, { size: L.trackLab + 2, mono: true, weight: 600 }); ctx.restore();
+  }
+  // found: pin drop
+  const pa = ramp(t, pin0, pin0 + .6);
+  if (pa > 0) {
+    const drop = (1 - EZ.bounce(pa)) * -230 * S;
+    ctx.save(); ctx.globalAlpha *= ramp(t, pin0, pin0 + .15);
+    const rp = ramp(t, pin0 + .42, pin0 + 1.3);
+    if (rp > 0) { ctx.strokeStyle = C.cyan; ctx.globalAlpha *= (1 - rp); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(fx, fy, 8 + rp * 70 * S, 0, 7); ctx.stroke(); }
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha *= ramp(t, pin0, pin0 + .15); drawPin(fx, fy + drop, S); ctx.restore();
+    const la = ramp(t, pin0 + .5, pin0 + .85);
+    if (la > 0) {
+      const lab = 'found', w = measure(lab, { size: L.trackLab + 2, mono: true, weight: 600 });
+      const lx = clamp2(side > 0 ? fx - 22 * S - w : fx + 22 * S, R.x + 14, R.x + R.w - w - 14), ly = clamp2(fy - 26 * S, R.y + 40, R.y + R.h - 24);
+      ctx.save(); ctx.globalAlpha *= la; rrect(lx - 8, ly - L.trackLab - 4, w + 16, L.trackLab + 14, 5); ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fill();
+      text(lab, lx, ly, { size: L.trackLab + 2, mono: true, weight: 600, color: C.cyan }); ctx.restore();
+    }
+  }
+}
+
+// ------------------------------------------------------------------------------------------ text column + header
+function drawColumn(t) {
+  const K = L.col, M = DATA.map, A = DATA.aircraft[0];
+  const vis = ramp(t, T.s3 + .1, T.s3 + .5) * (1 - ramp(t, T.s5 - .25, T.s5 - .02));
+  if (vis <= 0) return;
+  ctx.save(); ctx.globalAlpha *= vis;
+  const sceneA = (1 - ramp(t, T.s4 - .25, T.s4)), sceneB = ramp(t, T.s4, T.s4 + .3);
+  const y0 = K.y + L.big;
+  const rise = (t0, d = 14) => (1 - EZ.out(ramp(t, t0, t0 + .45))) * d;
+  const n = M.planes_used ?? 2;
+  // scene 3
+  if (sceneA > 0) {
+    ctx.save(); ctx.globalAlpha *= sceneA;
+    const a1 = ramp(t, 11.3, 11.7), a2 = ramp(t, 12.0, 12.45), a3 = ramp(t, 12.6, 13.0);
+    text('1 aircraft', K.x, y0 + rise(11.3), { size: L.big, weight: 700, alpha: a1 });
+    text('→ 2 possible places', K.x, y0 + L.mid + 22 + rise(12.0), { size: L.mid, weight: 700, color: C.cyan, alpha: a2 });
+    text('distance known · side unknown', K.x, y0 + L.mid + 22 + L.note + 34 + rise(12.6), { size: L.note, mono: true, color: C.dim, alpha: a3 });
+    text('closest approach ' + fmtM(A.closest_m) + ' m', K.x, y0 + L.mid + 22 + L.note * 2 + 48 + rise(12.6), { size: L.note, mono: true, color: C.dim, alpha: a3 });
+    ctx.restore();
+  }
+  // scene 4
+  if (sceneB > 0) {
+    ctx.save(); ctx.globalAlpha *= sceneB;
+    text(n + ' aircraft', K.x, y0 + rise(15.0), { size: L.big, weight: 700, alpha: ramp(t, 15.0, 15.4) });
+    text('→ 1 place', K.x, y0 + L.mid + 22 + rise(15.6), { size: L.mid, weight: 700, color: C.cyan, alpha: ramp(t, 15.6, 16.0) });
+    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40);
+    text('found:', K.x, fy - L.found - 4 + rise(16.3, 12), { size: L.note + 2, mono: true, color: C.cyan, alpha: fa, track: 1.5 });
+    text(fmtM(M.error_m) + ' m', K.x, fy + rise(16.3, 18), { size: L.found, weight: 700, alpha: fa, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 30 });
+    text('from the real camera', K.x, fy + L.foundSub + 14 + rise(16.5, 12), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.95) });
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawScene5(t) {
+  const a = ramp(t, T.wipe[1] - .1, T.wipe[1] + .3);
+  if (a <= 0) return;
+  const R = L.map.card;
+  const S = DATA.map.safe || {}; const found = !!S.found;
+  const cx = R.x + R.w / 2, cy = R.y + R.h / 2;
+  ctx.save(); ctx.globalAlpha *= a;
+  rrect(R.x + 24, cy - L.big * .9, R.w - 48, L.big * 1.4, 12); ctx.fillStyle = 'rgba(5,7,10,0.86)'; ctx.fill();
+  text(found ? 'still found' : 'not found', cx, cy + L.mid * .35, { size: L.mid + (LAYOUT === 'landscape' ? 8 : 4), weight: 700, align: 'center' });
+  if (found && S.error_m != null) text(fmtM(S.error_m) + ' m from the real camera', cx, cy + L.mid * .35 + L.note + 14, { size: L.note, mono: true, align: 'center', color: C.dim });
+  ctx.restore();
+  // note under the map card
+  const lab = found ? 'same search, safe copy' : 'same search, safe copy';
+  text(lab, R.x, R.y + R.h + L.note + 18, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, T.s5 + .3, T.s5 + .6) });
+}
+
+function drawHeader(t) {
+  const sc = sceneOf(t);
+  const draw = (i, a, dy) => {
+    ctx.save(); ctx.globalAlpha *= a;
+    text(STEPS[i][0], L.pad, L.stepY + dy, { size: L.stepSz, mono: true, color: C.cyan, track: 2 });
+    text(STEPS[i][1](), L.pad, L.headY + dy, { size: L.headSz, weight: 700, track: -0.5 });
+    ctx.restore();
+  };
+  const tb = SCENE_T[sc], k = sc > 0 ? ramp(t, tb, tb + .35) : 1;
+  if (sc > 0 && k < 1) draw(sc - 1, 1 - ramp(t, tb, tb + .15), -8 * k);
+  draw(sc, sc > 0 ? ramp(t, tb + .08, tb + .38) : 1, sc > 0 ? (1 - EZ.out(k)) * 10 : 0);
+  // clock
+  const u = (DATA._sod + t + 86400) % 86400, s = `${pad2(Math.floor(u / 3600))}:${pad2(Math.floor(u / 60) % 60)}:${pad2(Math.floor(u) % 60)}.${Math.floor((u % 1) * 10 + 1e-6)} UTC`;
+  text(s, L.W - L.pad, L.stepY, { size: L.clockSz, mono: true, color: C.dim, align: 'right' });
+  text('t = ' + t.toFixed(1).padStart(4, '0') + ' s', L.W - L.pad, L.stepY + L.clockSz + 10, { size: L.clockSz - 4, mono: true, color: C.dimmer, align: 'right' });
+}
+
+function drawCredits() {
+  const mapCr = VEC.source.startsWith('OpenStreetMap') ? 'map: © OpenStreetMap contributors' : 'map: Natural Earth (public domain)';
+  const s = `method: colsto  ·  data: adsb.lol (ODbL)  ·  ${mapCr}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(L.pad, L.creditY - L.creditSz - 14, L.W - 2 * L.pad, 1);
+  text(s, L.pad, L.creditY, { size: L.creditSz, mono: true, color: C.dimmer });
+}
+
+function drawWatermark() {
+  if (!DATA.preview) return;
+  ctx.save(); ctx.translate(L.W / 2, L.H / 2 + 10); ctx.rotate(-0.2);
+  ctx.font = `800 ${L.wm}px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const s = 'PREVIEW — not real data', w = ctx.measureText(s).width;
+  ctx.fillStyle = 'rgba(5,7,10,0.5)'; ctx.fillRect(-w / 2 - 36, -L.wm * .75, w + 72, L.wm * 1.5);
+  ctx.lineWidth = L.wm * .06; ctx.strokeStyle = 'rgba(5,7,10,0.9)'; ctx.strokeText(s, 0, 0);
+  ctx.fillStyle = 'rgba(255,255,255,0.74)'; ctx.fillText(s, 0, 0);
+  ctx.restore();
+}
+
+// ------------------------------------------------------------------------------------------ frame
+window.renderAt = function (t) {
+  t = cl(t, 0, DUR - 1e-6);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.shadowBlur = 0; ctx.setLineDash([]);
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, L.W, L.H);
+  // map panel: slides in during the move to the mini spectrogram, becomes the card in scene 5
+  const s5 = t >= T.s5;
+  const mapA = s5 ? ramp(t, T.s5 + .1, T.s5 + .4) : ramp(t, T.toMini[0] + .1, T.toMini[1] + .3) * (1 - ramp(t, T.s5 - .25, T.s5 - .02));
+  if (mapA > 0) drawMap(t, s5 ? L.map.card : L.map.big, mapA, s5 ? 1 : 0);
+  drawHeader(t);
+  const sa = specAlpha(t);
+  if (sa > 0) { ctx.save(); ctx.globalAlpha = sa; drawSpecPanel(t); ctx.restore(); }
+  drawColumn(t);
+  drawScene5(t);
+  drawCredits();
+  drawWatermark();
+};
+</script>
+</body>
+</html>

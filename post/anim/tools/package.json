@@ -1,0 +1,6 @@
+{
+  "name": "flyover-anim-tools",
+  "private": true,
+  "description": "frame capture for the post animation",
+  "dependencies": { "playwright": "1.56.1" }
+}
