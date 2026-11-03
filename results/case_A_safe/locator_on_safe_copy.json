@@ -1,0 +1,20 @@
+{
+ "what": "ridge v1.1 (6891c89) re-run on the flyover-check safe copy of case_A audio, same box and ADS-B, after truth reveal",
+ "original": {
+  "found": [
+   25.785745,
+   -80.29499
+  ],
+  "score": 34.5827
+ },
+ "safe_copy": {
+  "found": [
+   25.785745,
+   -80.29499
+  ],
+  "score": 34.459
+ },
+ "error_m_safe_copy": 749,
+ "moved_m": 0,
+ "verdict": "safe copy did NOT hide the location from the locator: same point, score 34.459 vs 34.583"
+}
