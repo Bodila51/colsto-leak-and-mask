@@ -1,0 +1,20 @@
+{
+ "case": "case_F",
+ "audio": "cases/case_F/audio.flac",
+ "sample_rate": 16000,
+ "utc_start": "2026-11-03T15:35:34Z",
+ "duration_s": 313.0,
+ "gaps_s": [],
+ "bbox": [
+  41.67727,
+  -87.91558,
+  42.03659,
+  -87.43315
+ ],
+ "bbox_note": "40x40 km search box; contains the microphone; its centre was offset at random",
+ "adsb": "cases/case_F/adsb.jsonl",
+ "adsb_polls": 15374,
+ "adsb_sources": "live adsb.lol /v2/point polls around the box centre (src=adsblol) plus each polled aircraft's full-day trace from globe.adsb.lol (src=adsblol-trace, seen_pos=0)",
+ "clock": "utc_start is the wall-clock start of the file; the stream's delay behind real time is unknown",
+ "note": "test clip: screen recording of a public live stream (part before a YouTube ad), synthetic voice at the start"
+}
