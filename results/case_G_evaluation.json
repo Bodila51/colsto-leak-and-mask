@@ -1,0 +1,29 @@
+{
+ "case": "case_G",
+ "camera": "Midway Airport | Chicago, IL USA | StreamTime LIVE 4K",
+ "truth_hash_ok": true,
+ "truth": [
+  41.77844,
+  -87.74278
+ ],
+ "truth_uncertainty_m": 30,
+ "runs": [
+  {
+   "run": "ridge v1.3",
+   "answer": "results/case_G_ridge_v13/answer.json",
+   "found": [
+    42.003274,
+    -87.881168
+   ],
+   "error_m": 27500,
+   "status": "point",
+   "score_over_null": 8.2,
+   "latency_s": 74.8,
+   "top_aircraft": [
+    "UAL344",
+    "UAL2802",
+    "UAL958"
+   ]
+  }
+ ]
+}

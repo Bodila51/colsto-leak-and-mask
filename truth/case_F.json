@@ -1,0 +1,16 @@
+{
+ "case": "case_F",
+ "camera_name": "Midway Airport | Chicago, IL USA | StreamTime LIVE 4K",
+ "stream_url": "https://www.youtube.com/watch?v=67BCsiW-1Io",
+ "owner_location_text": "We are grateful for our host, PRO AUTO, located at the southeast corner of Runways 31L, 31C and 31R. ... Coordinates: 41.77844250226028, -87.74277810405209",
+ "owner_location_source_url": "https://www.youtube.com/watch?v=67BCsiW-1Io",
+ "lat": 41.77844,
+ "lon": -87.74278,
+ "uncertainty_m": 30,
+ "coord_method": "owner-published coordinates in the stream description (copied from the live page by the repo owner on 2026-11-03, because yt-dlp was blocked by a YouTube bot check)",
+ "coord_source_url": "https://www.youtube.com/watch?v=67BCsiW-1Io",
+ "cross_check": "Bortlesboat/aircraft-doppler-realworld-test README gives 41.77834, -87.74265 (about 15 m away)",
+ "written_by": "main session (truth-writer agent slots were full); the solver never sees this file",
+ "written_utc": "2026-11-03T15:48:26.683757+00:00",
+ "note": "second screen recording 15:35:34Z, 0-313 s, voice at 1 s"
+}

@@ -1,0 +1,56 @@
+{
+ "case": "case_B",
+ "camera": "Brighton City Airport apron cam",
+ "truth_hash_ok": true,
+ "truth": [
+  50.8335,
+  -0.29075
+ ],
+ "truth_uncertainty_m": 40,
+ "runs": [
+  {
+   "run": "solver v1 (detector-first)",
+   "answer": "results/case_B/answer.json",
+   "found": null,
+   "error_m": null,
+   "status": "no_flyovers",
+   "score_over_null": null,
+   "latency_s": null,
+   "top_aircraft": []
+  },
+  {
+   "run": "ridge v1.1",
+   "answer": "results/case_B_ridge_v11/answer.json",
+   "found": [
+    50.856475,
+    -0.382895
+   ],
+   "error_m": 6956,
+   "status": "point",
+   "score_over_null": 8.25,
+   "latency_s": 2.0,
+   "top_aircraft": [
+    "GCODA",
+    "BAW81",
+    "OXF14"
+   ]
+  },
+  {
+   "run": "ridge v1.2",
+   "answer": "results/case_B_ridge_v12/answer.json",
+   "found": [
+    50.886827,
+    -0.526958
+   ],
+   "error_m": 17607,
+   "status": "point",
+   "score_over_null": 10.33,
+   "latency_s": -5.0,
+   "top_aircraft": [
+    "GBMUO",
+    "EFW61U",
+    "GEIMS"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+  "case": "case_B",
+  "camera_name": "Brighton City Airport apron cam",
+  "stream_url": "https://www.youtube.com/watch?v=mKRJrkz8H8k",
+  "owner_location_text": "This stream resembles the views from the Air Traffic Control Tower, looking northeast across our main apron.",
+  "owner_location_source_url": "https://www.youtube.com/watch?v=mKRJrkz8H8k",
+  "lat": 50.8335,
+  "lon": -0.29075,
+  "uncertainty_m": 40,
+  "coord_method": "Nominatim result for \"Shoreham Airport terminal building\": OSM way 1221575196 \"Shoreham Airport Control Tower / Terminal Building\" (centroid); tower assumed on the terminal building",
+  "coord_source_url": "https://nominatim.openstreetmap.org/search?format=json&q=Shoreham+Airport+terminal+building",
+  "written_utc": "2026-11-03T13:32:42Z"
+}
