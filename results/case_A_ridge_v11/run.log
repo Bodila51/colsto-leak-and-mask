@@ -1,0 +1,11 @@
+spectrogram (15899, 600) hop 0.250s  (8.9s)
+163 candidate aircraft (geoid N -27.5 m, geom-baro 150 ft)  (12.7s)
+coarse grid 89x89 = 7921 pts, 71 latencies
+coarse done (1542.4s)
+  peak coarse 34.206 -> fine 34.583 at L=38.50s
+  peak coarse 33.750 -> fine 34.377 at L=34.00s
+  peak coarse 28.295 -> fine 28.977 at L=32.50s
+  peak coarse 25.958 -> fine 32.314 at L=-6.25s
+best 25.78575,-80.29499 score 34.583 L 38.50s top ['ENY3714', 'AAL1901', 'AAL2883', 'AAL2767', 'LTG8411']
+{"lat": 25.785745, "lon": -80.29499, "score": 34.5827, "null_grid_median": 2.1811, "latency_s": 38.5, "two_band": false}
+done in 2683.4s
