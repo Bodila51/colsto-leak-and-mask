@@ -116,6 +116,12 @@ Why E missed: in that clip the departing jets pass right over the camera only 90
 npx skills add Bodila51/colsto-leak-and-mask --skill flyover-check
 ```
 
+The same skill is also available as `/colsto` (unofficial; colsto did not make or endorse it):
+
+```bash
+npx skills add Bodila51/colsto-leak-and-mask --skill colsto
+```
+
 Then, in Claude Code:
 
 - "check my video `clip.mp4`": tells you in plain words whether planes, mains hum or file metadata could place the recording.
