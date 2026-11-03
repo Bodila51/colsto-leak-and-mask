@@ -1,0 +1,19 @@
+{
+ "what": "control runs of ridge v1.1 (6891c89) on case_A with the audio broken, same ADS-B and box",
+ "real_audio": {
+  "error_m": 749,
+  "score": 34.5827,
+  "file": "results/case_A_ridge_v11/answer.json"
+ },
+ "audio_shifted_1800s": {
+  "error_m": 1014,
+  "score": 35.6756,
+  "file": "results/case_A_ctrl_shift/answer.json"
+ },
+ "white_noise": {
+  "error_m": 3758,
+  "score": 3.7653,
+  "file": "results/case_A_ctrl_noise/answer.json"
+ },
+ "verdict": "FAILS the control: with the audio shifted by 30 min (sound no longer matches the flights) the solver lands 1,014 m from the camera with a HIGHER score than the real audio. The 749 m result is not evidence of locating by sound; it comes from where the aircraft fly (a busy airport) plus steady tones in the audio."
+}

@@ -8,7 +8,7 @@ The method is colsto's ([video](https://www.youtube.com/watch?v=UytYrhYLOKI)). T
 
 <p align="center"><img src="post/miami_still_02_match.png" width="45%"> <img src="post/miami_still_04_found.png" width="45%"></p>
 
-<p align="center"><i>Blind run on a public Miami airport webcam: the solver got only the audio, the UTC time and a 40×40 km box. It put the microphone 749 m from the real camera.</i></p>
+<p align="center"><i>Miami blind run (749 m). <b>Not valid</b>: a control with the audio shifted by 30 min lands in nearly the same place, so the sound was not what found it. Kept here as a warning, see Results.</i></p>
 
 ## What leaks, and why
 
@@ -56,7 +56,7 @@ How a blind run works, so you don't have to trust us:
 |---|---|---|---|---|---|
 | **A** | Miami airport webcam (PTZtv); the owner names the 94th Aero Squadron restaurant by runway 9/27 (OSM position of that building, ±40 m) | 66 min, mostly jets | detector-first (doppler-locate based) | no flyover detected | miss |
 | A | | | ridge v1 | 69 aircraft used | 1,872 m |
-| **A** | | | **ridge v1.1** | **74 aircraft used; top: ENY3714 (Embraer 175), AAL1901, AAL2883. Near tie: the runner-up peak, 2.9 km away, scored only 0.6% lower** | **749 m** |
+| A | | | ridge v1.1 | 74 aircraft used. **Fails the control**: the same run on the audio shifted by 30 min (sound no longer matches the flights) lands 1,014 m from the camera with a *higher* score ([`results/case_A_controls.json`](results/case_A_controls.json)) | 749 m, **not valid** |
 | B | Brighton City Airport apron cam (ATC tower) | 59 min, light aircraft and helicopters | detector-first | no flyover detected | miss |
 | B | | | ridge v1.1 | | 6,956 m |
 | B | | | ridge v1.2 | | 17,607 m |
@@ -71,7 +71,7 @@ How a blind run works, so you don't have to trust us:
 - Every box is 40 × 40 km, with its centre offset at random. Per-case details are in `results/case_X_evaluation.json`.
 - The ridge solver is in [`solver_ridge/ridge.py`](solver_ridge/ridge.py). It scores each aircraft's predicted Doppler curve against the whitened spectrogram on a grid, and has no detector.
 - v1.1 was written after the first case E miss. It is a generic change: drop aircraft on the ground, and drop curves with no pitch change. A's truth stayed sealed until all of A's runs were committed.
-- So far 1 of 6 blind recordings (4 cameras) was found within 1 km: Miami, from busy airliner traffic. The others missed. Light traffic (Southampton) and jets passing right over the camera just after takeoff (Midway) are where it failed.
+- So far **no blind recording was located by its sound**. Miami's 749 m looked like a hit, but a control run with the audio shifted by 30 min gives almost the same point, so the answer comes from where the aircraft fly (a busy airport), not from the sound. The others missed. Light traffic (Southampton) and jets passing right over the camera just after takeoff (Midway) are where it failed.
 
 Why E missed: in that clip the departing jets pass right over the camera only 90-150 m up. The loudest thing is broadband roar, and the clean tonal "slide" the method needs is short and weak. Propeller aircraft (as in colsto's clip) are where the method works best. A run with the camera already known ([`results/paras_setup_E`](results/paras_setup_E/summary.json), the same setup as the public replication on X) was not convincing either: the best spot was only 3% above a spot 4.5 km away.
 
