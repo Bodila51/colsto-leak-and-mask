@@ -1,0 +1,15 @@
+{
+ "case": "case_E_known",
+ "audio": "cases/case_E/audio.flac",
+ "sample_rate": 16000,
+ "utc_start": "2026-11-03T14:25:17Z",
+ "duration_s": 502.49,
+ "bbox": [
+  41.72454,
+  -87.81506,
+  41.83234,
+  -87.6705
+ ],
+ "adsb": "cases/case_E/adsb.jsonl",
+ "note": "NOT BLIND: same setup as the viral replication, a +-6 km grid around the known camera, run after case_E's truth was revealed"
+}
