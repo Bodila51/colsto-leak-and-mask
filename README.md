@@ -4,7 +4,7 @@ A plane flying past a microphone can give away where the recording was made. Thi
 
 The method is colsto's ([video](https://www.youtube.com/watch?v=UytYrhYLOKI)). This repo is an independent replication and is not affiliated with colsto, who released no code.
 
-> Status: work in progress. Results are added as runs finish. Every number below comes from a run in this repo, with the file it came from.
+> Status: first public version. Results are added as runs finish. Every number below comes from a run in this repo, with the file it came from.
 
 ## What leaks, and why
 
@@ -24,16 +24,35 @@ The method is colsto's ([video](https://www.youtube.com/watch?v=UytYrhYLOKI)). T
 
 ## Results
 
-| Case | Search area | Planes used | True location | Found | Error | Flights |
-|---|---|---|---|---|---|---|
-| _runs in progress_ | | | | | | |
+Every row comes from a run in this repo on one Windows PC (Ryzen 7 5700X, 16 GB RAM, CPU only). Misses are listed too.
 
-How the blind runs work, so you don't have to trust us:
+### colsto's challenge (1 hour of raw audio, Long Island)
 
-1. Before any solving, a separate agent wrote each camera's location, from the owner's own public page, into a sealed file. Only its SHA-256 was committed ([`truth/SEALED.sha256`](truth/SEALED.sha256)).
-2. The solver got only anonymous audio, the UTC start time from the stream and a 40×40 km box. The box contains the camera but its centre was offset at random. ADS-B was logged around the box centre, not the camera.
-3. The solver code was committed before any case was opened. Its answer is the computed best point, committed before the truth was revealed.
-4. Then the truth file was committed. Anyone can check that its hash matches the seal, and that the commit order is seal → answer → truth.
+| Search area | Engine | Flyovers | Rank 1 | Town match | Flights it picked |
+|---|---|---|---|---|---|
+| 300 × 300 km box centred on New York City | [doppler-locate](https://github.com/digitalis-p/doppler-locate) search + score | the two events measured in doppler-locate's `cases/oyster.toml` | 40.8764, -73.5258 (best of 48 flight pairs, score 3.662 vs 3.483 for rank 2) | **inside the Oyster Bay hamlet**, 925 m from its centre | Pilatus PC-12 N22NY (CST1219) and King Air 350 N93CQ (EGE93) |
+
+Plainly:
+- colsto published only the town (Oyster Bay, NY), not the camera's coordinates. So this is a town match, not an error in metres.
+- The box was chosen knowing that the answer is on Long Island, so this run is not blind. Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json). Runtime: 23 min.
+
+### Blind webcam runs
+
+How a blind run works, so you don't have to trust us:
+
+1. Before any solving, the camera's location from the owner's own public page was written into a sealed file. Only its SHA-256 was committed ([`truth/SEALED.sha256`](truth/SEALED.sha256)).
+2. The solver got only the audio, the UTC start time and a 40×40 km box. The box contains the camera, but its centre was offset at random. ADS-B was logged around the box centre, never around the camera.
+3. The solver code was committed before the case was opened. Its answer is the computed best point, committed before the truth was revealed.
+4. Then the truth file was committed. Its hash matches the seal, and the commit order is seal → answer → truth.
+
+| Case | Camera (revealed after the answers) | Engine version | Result | Error |
+|---|---|---|---|---|
+| E: 8.4-min screen recording of the public StreamTime LIVE Midway (Chicago) stream, AI voice mixed in | owner-published coordinates, Pro Auto at the SE corner of runways 31 | detector-first (doppler-locate based) | no flyover detected | miss |
+| E | | ridge v1 | point near O'Hare, fooled by taxiing aircraft | 27.6 km, miss |
+| E | | ridge v1.1 (ground traffic removed) | point near O'Hare | 21.7 km, miss |
+| A, B, C (Miami, Brighton, Southampton webcams), F, G (second Midway recording) | sealed | | runs in progress | |
+
+Why E missed: in that clip the departing jets pass right over the camera only 90-150 m up. The loudest thing is broadband roar, and the clean tonal "slide" the method needs is short and weak. Propeller aircraft (as in colsto's clip) are where the method works best. A run with the camera already known ([`results/paras_setup_E`](results/paras_setup_E/summary.json), the same setup as the public replication on X) was not convincing either: the best spot was only 3% above a spot 4.5 km away.
 
 ## Try it on your own video
 
