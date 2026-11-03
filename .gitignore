@@ -5,9 +5,11 @@ data/
 *.flac
 *.m4a
 *.mp4
-!post/*.mp4
 __pycache__/
 .venv/
 *.tar
 *.tar.*
 cases/*/adsb.jsonl
+# third-party webcam footage (StreamTime LIVE forbids duplication without permission): never commit
+post/monitor1_recording.mp4
+post/post_vertical.mp4
