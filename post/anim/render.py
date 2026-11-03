@@ -5,6 +5,7 @@
     python post/anim/render.py --preview       # force post/anim/preview_data.json
     python post/anim/render.py --data PATH     # any data file (see post/anim/DATA.md)
     python post/anim/render.py --stills-only   # only the five stills (fast check)
+    python post/anim/render.py --data post/anim_data_colsto.json --name colsto   # no stream footage at all (see below)
 
 Writes
   post/monitor2_analysis.mp4   1920x1080, 20 s, 30 fps, no audio (second monitor; our visuals only)
@@ -13,12 +14,16 @@ Writes
   post/still_01_spectrogram.png .. still_05_safe.png   1080x1350, our visuals only (publishable)
   data/post_local/still_0N_*_with_footage.png          the same with a stream frame on top. LOCAL ONLY (data/ is git-ignored).
 Never commit an mp4 that contains the stream footage (see the root .gitignore).
+With --name NAME (for a case without stream footage, e.g. the colsto challenge) only our visuals are written:
+  post/NAME_monitor2.mp4 (1920x1080), post/NAME_vertical.mp4 (1080x1350, the tall layout, silent), post/NAME_still_0N_*.png.
+  Without a safe copy (safe_audio null) there is no scene 5 and the last still is the result.
 Needs: python 3.12 with numpy, pillow, matplotlib; node with playwright (post/anim/tools, or the shared copy at
 ~/Downloads/legends-video/tools); ffmpeg on PATH; the chromium that Playwright installed.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -34,6 +39,7 @@ BUILD = ANIM / "build"
 MON1 = POST / "monitor1_recording.mp4"
 FPS, NFRAMES = 30, 600
 STILLS = [("01_spectrogram", 6.5), ("02_match", 10.1), ("03_two_places", 13.8), ("04_found", 17.5), ("05_safe", 19.6)]
+STILLS_NO_SAFE = [("01_spectrogram", 6.5), ("02_match", 10.1), ("03_one_aircraft", 13.8), ("04_found", 19.5)]
 
 
 def run(cmd, **kw):
@@ -54,6 +60,14 @@ def ffmpeg(*args):
 ENC = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "-colorspace", "bt709",
        "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart"]
 TV = "scale=out_range=tv:out_color_matrix=bt709,format=yuv420p"
+
+
+def stills_only_ours(data_name: str, name: str, todo):
+    tall = BUILD / "stills_t"
+    cap("tall", tall, "--times", ",".join(str(t) for _, t in todo), "--workers", str(len(todo)))
+    for sn, t in todo:
+        Image.open(tall / f"t{str(t).replace('.', '_')}.png").convert("RGB").save(POST / f"{name}_still_{sn}.png")
+        print(f"[render] {name}_still_{sn}.png  (t = {t} s, {data_name})")
 
 
 def stills(data_name: str):
@@ -82,6 +96,7 @@ def main():
     ap.add_argument("--stills-only", action="store_true")
     ap.add_argument("--keep-frames", action="store_true")
     ap.add_argument("--workers", default="8")
+    ap.add_argument("--name", help="no stream footage: write post/NAME_monitor2.mp4, NAME_vertical.mp4, NAME_still_*.png")
     a = ap.parse_args()
     t0 = time.time()
 
@@ -96,6 +111,24 @@ def main():
     print(f"[render] data: {name}", flush=True)
     run([sys.executable, ANIM / "build.py", *build_args])
     t1 = time.time()
+    if a.name:
+        todo = STILLS if json.loads((BUILD / "data.json").read_text(encoding="utf-8")).get("safe_audio") else STILLS_NO_SAFE
+        if not a.stills_only:
+            fl, ft = BUILD / "frames_l", BUILD / "frames_t"
+            for d in (fl, ft):
+                shutil.rmtree(d, ignore_errors=True)
+            procs = [subprocess.Popen(["node", str(ANIM / "tools" / "cap.js"), "--layout", lay, "--out", str(out), "--from", "0",
+                                       "--to", str(NFRAMES), "--workers", a.workers]) for lay, out in (("landscape", fl), ("tall", ft))]
+            if any(p.wait() for p in procs):
+                sys.exit("frame capture failed")
+            for d, out in ((fl, f"{a.name}_monitor2.mp4"), (ft, f"{a.name}_vertical.mp4")):
+                ffmpeg("-framerate", str(FPS), "-start_number", "0", "-i", d / "f%04d.jpg", "-vf", TV, "-r", str(FPS), *ENC, "-an", POST / out)
+            if not a.keep_frames:
+                for d in (fl, ft):
+                    shutil.rmtree(d, ignore_errors=True)
+        stills_only_ours(name, a.name, todo)
+        print(f"[render] done: build {t1 - t0:.0f}s, video+stills {time.time() - t1:.0f}s, total {time.time() - t0:.0f}s  ({name})")
+        return
 
     if not a.stills_only:
         fl, fv, ft = BUILD / "frames_l", BUILD / "frames_v", BUILD / "frames_t"

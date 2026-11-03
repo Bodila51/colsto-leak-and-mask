@@ -120,6 +120,7 @@ window.ready = (async () => {
   HEATS = M.safe && M.safe.heat ? buildHeat(M.safe.heat, M.lat, M.lon, 1.6, true) : null;
   { const m = /T(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(DATA.clip.utc_start); DATA._sod = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]) - (DATA.clip.latency_s || 0); }   // UTC time of day of t = 0, no Date
   for (const l of VEC.lines) if (l.k === 'runway') l.long = pathLenM(l.p) > 700;
+  if (!DATA.safe_audio) { T.s5 = SCENE_T[4] = 1e3; T.wipe = [1e3, 1e3]; }   // no safe copy: scene 4 holds to the end
   window.__ok = true;
 })();
 
@@ -254,7 +255,7 @@ function drawSpecPanel(t) {
   ctx.restore();
 
   // scene 1: callout "aircraft engine tone" (data.callout can move it, time it or switch it off with false)
-  const CO = DATA.callout, c3 = DATA.curves[Math.min(2, DATA.curves.length - 1)];
+  const CO = DATA.callout, c3 = DATA.curves[Math.min(CO?.curve ?? 2, DATA.curves.length - 1)];
   if (CO !== false) {
     const from = CO?.from_s ?? 0.35, to = CO?.to_s ?? 7.5;
     const a1 = Math.min(ramp(t, from, from + .45), 1 - ramp(t, to, to + .45));
@@ -351,9 +352,10 @@ function mapView(t) {
   const b = DATA.map.bbox, clat = (b[0] + b[2]) / 2, clon = (b[1] + b[3]) / 2, kx = Math.cos(clat * Math.PI / 180) * 111320;
   const full = { clat, clon, half: Math.max((b[3] - b[1]) * kx, (b[2] - b[0]) * 111320) / 2 };
   const M = DATA.map, em = M.error_m ?? 0;
-  const half = clamp2(em * 2.6, 450, 1e9);
+  const half = M.zoom_half_m ?? clamp2(em * 2.6, 450, 1e9);
   if (half > 12000) return full;
-  const tg = { lat: (M.found.lat + M.true.lat) / 2, lon: (M.found.lon + M.true.lon) / 2 };
+  const ref = M.true ?? M.area?.center ?? M.found;       // area answer (no camera point): frame the pin and the area centre
+  const tg = { lat: (M.found.lat + ref.lat) / 2, lon: (M.found.lon + ref.lon) / 2 };
   const k = t >= T.s5 ? 0 : EZ.cub(ramp(t, 16.9, 17.7)), e = t >= T.s5 ? 0 : EZ.cub(ramp(t, 17.1, 17.7));
   const h = Math.exp(lerp(Math.log(full.half), Math.log(half), k)), r = (1 - e) * h / full.half;   // target slides from where it was to the centre
   return { clat: tg.lat - (tg.lat - full.clat) * r, clon: tg.lon - (tg.lon - full.clon) * r, half: h };
@@ -457,13 +459,32 @@ function drawPin(x, y, s) {
   ctx.fillStyle = C.cyan; ctx.fill(); ctx.shadowBlur = 0; ctx.lineWidth = 3; ctx.strokeStyle = '#05070a'; ctx.stroke();
   ctx.beginPath(); ctx.arc(0, -35, 6.5, 0, 7); ctx.fillStyle = '#05070a'; ctx.fill(); ctx.restore();
 }
+function drawArea(t, R, pr, a) {
+  const A = DATA.map.area;
+  ctx.save(); ctx.globalAlpha *= a;
+  ctx.beginPath();
+  for (const ring of A.rings) ring.forEach((q, i) => { const [x, y] = pr.p(q[0], q[1]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  ctx.closePath(); ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fill('evenodd');
+  ctx.shadowColor = 'rgba(255,255,255,0.6)'; ctx.shadowBlur = 10;
+  ctx.strokeStyle = 'rgba(255,255,255,0.92)'; ctx.lineWidth = 2.4; ctx.setLineDash([9, 6]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+  // label under the polygon
+  let ymax = -Infinity, xs = 0, n = 0;
+  for (const ring of A.rings) for (const q of ring) { const [x, y] = pr.p(q[0], q[1]); ymax = Math.max(ymax, y); xs += x; n++; }
+  const lab = A.map_label ?? A.name, o = { size: L.trackLab + 2, mono: true, weight: 600 }, w = measure(lab, o);
+  const lx = clamp2(xs / n - w / 2, R.x + 14, R.x + R.w - w - 14), ly = clamp2(ymax + L.trackLab + 18, R.y + 40, R.y + R.h - 44);
+  ctx.save(); ctx.globalAlpha *= a; rrect(lx - 8, ly - L.trackLab - 4, w + 16, L.trackLab + 14, 5); ctx.fillStyle = 'rgba(5,7,10,0.85)'; ctx.fill();
+  text(lab, lx, ly, o); ctx.restore();
+}
 function drawMarkers(t, R, pr) {
   const M = DATA.map, S = L.W > 1500 ? 1.15 : .8;
-  const [fx, fy] = pr.p(M.found.lat, M.found.lon), [tx, ty] = pr.p(M.true.lat, M.true.lon);
+  const [fx, fy] = pr.p(M.found.lat, M.found.lon), [tx, ty] = M.true ? pr.p(M.true.lat, M.true.lon) : pr.p(M.area.center.lat, M.area.center.lon);
   const pin0 = 15.75, star0 = 16.25, side = tx >= fx ? 1 : -1;
-  // true camera: star
+  // area answer (camera coordinates not published): the town polygon, drawn under the pin
   const sa = ramp(t, star0, star0 + .45);
-  if (sa > 0) {
+  if (sa > 0 && !M.true) drawArea(t, R, pr, sa);
+  // true camera: star
+  if (sa > 0 && M.true) {
     const sc = EZ.back(sa) * S; ctx.save(); ctx.globalAlpha *= sa;
     if (Math.hypot(tx - fx, ty - fy) > 18 * S) {
       ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke(); ctx.setLineDash([]);
@@ -521,10 +542,20 @@ function drawColumn(t) {
     ctx.save(); ctx.globalAlpha *= sceneB;
     text(n + ' aircraft', K.x, y0 + rise(15.0), { size: L.big, weight: 700, alpha: ramp(t, 15.0, 15.4) });
     text('→ 1 place', K.x, y0 + L.mid + 22 + rise(15.6), { size: L.mid, weight: 700, color: C.cyan, alpha: ramp(t, 15.6, 16.0) });
-    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40);
+    const area = M.area && !M.true;   // town match: no distance to show, a shorter block
+    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40) - (area ? 40 : 0);
+    if (DATA.second_event_note) text(DATA.second_event_note, K.x, y0 + L.mid + 22 + L.note + 34, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 15.8, 16.1) * (1 - ramp(t, 16.0, 16.3)) });
     text('found:', K.x, fy - L.found - 4 + rise(16.3, 12), { size: L.note + 2, mono: true, color: C.cyan, alpha: fa, track: 1.5 });
-    text(fmtM(M.error_m) + ' m', K.x, fy + rise(16.3, 18), { size: L.found, weight: 700, alpha: fa, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 30 });
-    text('from the real camera', K.x, fy + L.foundSub + 14 + rise(16.5, 12), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.95) });
+    if (area) {
+      const o = { size: L.found, weight: 700 };
+      while (o.size > 40 && measure(M.area.found_text, o) > K.w) o.size -= 2;
+      text(M.area.found_text, K.x, fy + rise(16.3, 18), { ...o, alpha: fa, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 30 });
+      text(M.area.sub, K.x, fy + L.foundSub + 14 + rise(16.5, 12), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.95) });
+      if (M.note) text(M.note, K.x, fy + L.foundSub + L.note + 36 + rise(16.8, 12), { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
+    } else {
+      text(fmtM(M.error_m) + ' m', K.x, fy + rise(16.3, 18), { size: L.found, weight: 700, alpha: fa, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 30 });
+      text('from the real camera', K.x, fy + L.foundSub + 14 + rise(16.5, 12), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.95) });
+    }
     ctx.restore();
   }
   ctx.restore();
@@ -549,7 +580,18 @@ function drawColumnTall(t) {         // one big line under the stage: scene 3, 4
     text('distance known · side unknown · closest approach ' + fmtM(A.closest_m) + ' m', K.x, ys, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 12.6, 13.0) * s3 });
   }
   if (s4a > 0) two(n + ' aircraft', '→ 1 place', 15.0, 15.6, s4a);
-  if (s4b > 0) {
+  if (s4a > 0 && DATA.second_event_note) text(DATA.second_event_note, K.x, ys, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 15.8, 16.1) * s4a });
+  if (s4b > 0 && M.area && !M.true) {     // town match: no distance to show
+    ctx.save(); ctx.globalAlpha *= s4b;
+    const fo = { size: L.found, weight: 700 };
+    while (fo.size > 36 && measure('found: ' + M.area.found_text, fo) > K.w) fo.size -= 2;
+    text('found:', K.x, y + rise(16.3), { ...fo, color: C.cyan });
+    text(M.area.found_text, K.x + measure('found: ', fo), y + rise(16.3), { ...fo, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 26 });
+    const note = [M.area.sub, M.note].filter(Boolean).join('  ·  '), no = { size: L.note, mono: true };
+    while (no.size > 14 && measure(note, no) > K.w) no.size -= 1;
+    text(note, K.x, ys, { ...no, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
+    ctx.restore();
+  } else if (s4b > 0) {
     ctx.save(); ctx.globalAlpha *= s4b;
     const a = 'found: ' + fmtM(M.error_m) + ' m', fo = { size: L.found, weight: 700 }, w = measure(a + '  ', fo);
     text('found:', K.x, y + rise(16.3), { ...fo, color: C.cyan });
@@ -598,9 +640,10 @@ function drawHeader(t) {
 
 function drawCredits() {
   const mapCr = VEC.source.startsWith('OpenStreetMap') ? 'map: © OpenStreetMap contributors' : 'map: Natural Earth (public domain)';
-  const s = `method: colsto  ·  data: adsb.lol (ODbL)  ·  ${mapCr}`;
+  const s = DATA.credits ?? `method: colsto  ·  data: adsb.lol (ODbL)  ·  ${mapCr}`;
+  let sz = L.creditSz; while (sz > 12 && measure(s, { size: sz, mono: true }) > L.W - 2 * L.pad) sz -= 1;
   ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(L.pad, L.creditY - L.creditSz - 14, L.W - 2 * L.pad, 1);
-  text(s, L.pad, L.creditY, { size: L.creditSz, mono: true, color: C.dimmer });
+  text(s, L.pad, L.creditY, { size: sz, mono: true, color: C.dimmer });
 }
 
 function drawWatermark() {

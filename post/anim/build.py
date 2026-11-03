@@ -36,6 +36,7 @@ ANIM = Path(__file__).resolve().parent
 POST = ANIM.parent
 ROOT = POST.parent
 BUILD = ANIM / "build"
+MON1 = POST / "monitor1_recording.mp4"
 
 SR = 16000
 CLIP_S = 20.0
@@ -50,7 +51,8 @@ def log(*a):
 
 # ------------------------------------------------------------------------------------------ audio
 def decode(path: Path, ss: float | None = None) -> np.ndarray:
-    cmd = ["ffmpeg", "-v", "error", "-i", str(path), "-vn", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
+    seek = ["-ss", f"{ss:.3f}"] if ss else []
+    cmd = ["ffmpeg", "-v", "error", *seek, "-i", str(path), "-vn", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
     x = np.frombuffer(subprocess.run(cmd, capture_output=True, check=True).stdout, dtype="<f4").astype(np.float64)
     n = int(CLIP_S * SR)
     if len(x) < n:
@@ -106,9 +108,9 @@ def blur(a: np.ndarray, sigma: float, axis: int) -> np.ndarray:
     return np.tensordot(sliding_window_view(pad, len(k), axis=axis), k, axes=([-1], [0]))
 
 
-def spectrogram(path: Path, spec: dict | None = None, ref=None):
+def spectrogram(path: Path, spec: dict | None = None, ref=None, ss: float | None = None):
     c = dict(DEFAULT_SPEC, **(spec or {}))
-    x = decode(path)
+    x = decode(path, ss)
     D, fr = stft_db(x, c)
     E = line_enhance(D, fr[1] - fr[0], max(30.0, (c["f_max_hz"] - c["f_min_hz"]) / 30))
     if ref is None:  # constants come from the "before" audio; the "after" image reuses them
@@ -431,7 +433,7 @@ def validate(d: dict):
         if not cond:
             sys.exit(f"data error: {msg} (see post/anim/DATA.md)")
     need(isinstance(d.get("clip", {}).get("utc_start"), str), "clip.utc_start missing")
-    need(d.get("safe_audio"), "safe_audio missing")
+    need("safe_audio" in d, "safe_audio missing (null = no safe-copy scene)")
     need(d.get("curves"), "curves missing")
     for c in d["curves"]:
         need(len(c["t_s"]) == len(c["f_hz"]) >= 2, f"curve {c.get('harmonic')}: t_s and f_hz must have the same length >= 2")
@@ -440,8 +442,10 @@ def validate(d: dict):
         need(a.get("label") and a.get("closest_m") is not None, f"aircraft[{i}] needs label and closest_m")
         need(len(a["track"]["lat"]) == len(a["track"]["lon"]) >= 2, f"aircraft[{i}].track.lat/lon")
     m = d.get("map", {})
-    for k in ("bbox", "lat", "lon", "found", "true", "error_m"):
+    for k in ("bbox", "lat", "lon", "found") + (() if "area" in m else ("true", "error_m")):
         need(k in m, f"map.{k} missing")
+    if "area" in m:
+        need(m["area"].get("rings") and all(len(r) >= 3 for r in m["area"]["rings"]), "map.area.rings: [[[lat, lon], ...]]")
     need("heat_1" in m and ("heat_2" in m or "heat_all" in m), "map.heat_1 and map.heat_2 (or heat_all) needed")
     nr, nc = len(m["lat"]), len(m["lon"])
     for k in ("heat_1", "heat_2", "heat_all"):
@@ -449,6 +453,8 @@ def validate(d: dict):
             need(len(m[k]) == nr and all(len(r) == nc for r in m[k]), f"map.{k} must be len(lat) x len(lon) = {nr} x {nc}")
     if m.get("safe", {}).get("heat") is not None:
         need(len(m["safe"]["heat"]) == nr, "map.safe.heat must be len(lat) x len(lon)")
+    if "true" not in m:
+        return
     la1, lo1, la2, lo2 = m["found"]["lat"], m["found"]["lon"], m["true"]["lat"], m["true"]["lon"]
     h = 2 * 6371000 * math.asin(math.sqrt(math.sin(math.radians(la2 - la1) / 2) ** 2 + math.cos(math.radians(la1)) * math.cos(math.radians(la2)) * math.sin(math.radians(lo2 - lo1) / 2) ** 2))
     if abs(h - m["error_m"]) > max(25, 0.05 * m["error_m"]):
@@ -477,17 +483,21 @@ def main():
     # spectrograms
     t0 = time.time()
     sp = spec_cfg(data)
-    img_b, ref, fr = spectrogram(POST / "monitor1_recording.mp4", sp)
+    au = data.get("audio") or {}                     # default: the monitor-1 recording from t = 0
+    img_b, ref, fr = spectrogram(resolve(au["path"]) if au.get("path") else MON1, sp, ss=au.get("start_s"))
     Image.fromarray(img_b).save(BUILD / "spec_before.png", optimize=False)
-    safe = resolve(data["safe_audio"])
+    safe = resolve(data["safe_audio"]) if data["safe_audio"] else None
     if data.get("preview"):
-        x = decode(POST / "monitor1_recording.mp4")
+        x = decode(MON1)
         wide = sp["f_max_hz"] > 600
         write_wav(safe, notch_curves(x, data["curves"], half_hz=34.0 if wide else 3.4, n=4096 if wide else 16384))
         log("preview safe copy ->", safe)
-    if not safe.exists():
+    if safe is None:                                 # no safe copy: the page skips scene 5; keep a copy so the image loads
+        img_a = img_b
+    elif not safe.exists():
         sys.exit(f"safe-copy audio not found: {safe}")
-    img_a, _, _ = spectrogram(safe, sp, ref)
+    else:
+        img_a, _, _ = spectrogram(safe, sp, ref)
     Image.fromarray(img_a).save(BUILD / "spec_after.png", optimize=False)
     meta = dict(n_cols=img_b.shape[1], n_rows=img_b.shape[0], hop_s=HOP / SR, t_start_s=0.0, f_max_hz=sp["f_max_hz"], f_min_hz=sp["f_min_hz"],
                 window_s=sp["window_s"], e_range_db=ref["e"],

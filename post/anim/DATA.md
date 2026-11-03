@@ -56,9 +56,43 @@ and from the safe-copy audio. Nothing is typed into the page.
                    "e_range_db": [6, 26] },          // brightness range (dB above the local median). default 6-26 for <= 600 Hz, else percentiles
   "callout": { "tip_t_s": 3.0, "tip_f_hz": 210,      // where the "aircraft engine tone" label points (clip s, Hz). default: the 3rd
                "from_s": 0.35, "to_s": 7.5,          //   curve, 1.6 s behind the playhead. window in which it is shown
-               "sub": "steady hum + harmonics" }     //   small line under it. `"callout": false` hides it
+               "sub": "steady hum + harmonics",      //   small line under it. `"callout": false` hides it
+               "curve": 2 }                          //   index into curves that the moving tip follows (default 2 = the 3rd)
 }
 ```
+
+### Cases without stream footage or camera point (the colsto challenge: `post/anim_data_colsto.json`)
+
+```jsonc
+{
+  "audio": { "path": "data/colsto/recording_4CxVxuMVkMc.webm", "start_s": 2145.1 },  // spectrogram source and its clip t = 0
+                                           //   (default: post/monitor1_recording.mp4 from 0). Only the picture is shown, never the sound.
+  "safe_audio": null,                      // no safe copy: no scene 5, scene 4 holds to 20 s, 4 stills instead of 5
+  "map": {
+    // "true" and "error_m" may be left out when "area" is given: the town polygon replaces the star and the distance
+    "area": { "name": "Oyster Bay", "rings": [[[lat, lon], ...]], "center": { "lat": .., "lon": .. },
+              "found_text": "inside Oyster Bay", "sub": "(colsto's answer)", "map_label": "Oyster Bay (colsto's answer)" },
+    "zoom_half_m": 3000,                   // half width of the final zoom (default: 2.6 x error_m)
+    "note": "camera coordinates not published: town match"   // shown under the result
+  },
+  "second_event_note": "...",              // optional line under "2 aircraft -> 1 place"
+  "credits": "..."                         // replaces the credit line
+}
+```
+
+`post/anim/colsto_data.py` writes it (run it with doppler-locate's venv python). What it is made of:
+
+| Field | Source |
+|---|---|
+| spectrogram | colsto's challenge audio, 2145.1-2165.1 s (event 1, fitted CPA at clip 10 s), 50-450 Hz. Silent outputs: his audio is never in the video. |
+| `curves` | doppler-locate `report.overlay_data` at the rank-1 point: its own forward model (ADS-B track, GFS atmosphere, fitted f0 and clock shift), the same curves as `rank1.png`. Harmonics 1-3 of event 1. |
+| `clip.utc_start` | the engine's fit: event-1 delayed CPA `t1m` at audio `audio_cpa + delta`. Not a stream clock. |
+| `aircraft` | the two flights of rank 1 (PC-12 N22NY for event 1, King Air 350 N93CQ for event 2) as the engine reconstructs them from adsb.lol; `closest_m` = modelled slant distance `d1m` / `d2m`. |
+| `heat_1`, `heat_2` | `dopploc heatmap out/colsto_dopploc/case.toml --rank 1 --half 6000 --step 200`: the rank-1 flight pair re-scored on a 61 x 61 grid (12 x 12 km) around rank 1. `heat_1` = S1 (event 1 alone), `heat_2` = S1 + S2. Resampled linearly onto 81 x 81 lat/lon. Outside that 12 km square there is no score, not a low score. |
+| `found` | rank 1 of `best_per_pair.csv` (= `results/colsto_dopploc/answer.json`). |
+| `area` | `results/colsto_dopploc/oyster_bay_hamlet.geojson` (OSM relation 174432). There is no camera point: colsto did not publish coordinates, so there is no distance, only the town match. |
+
+Event 2 (3072 s) is 917 s after event 1 and is not in the 20 s spectrogram; the map in scene 4 uses it, the picture does not show it.
 
 ## What each picture is made of
 
