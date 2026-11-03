@@ -183,7 +183,7 @@ def main():
                    camera=dict(lat=camera[0], lon=camera[1], z_m=S.cam_z),
                    params=dict(vars(a), event=list(a.event) if a.event else None),
                    paras_py_sha256=hashlib.sha256(PARAS_SRC).hexdigest(), git_head=head,
-                   paras_py_is_head=PARAS_SRC.replace(b"\r\n", b"\n") == git("show", "HEAD:solver_paras/paras.py"),
+                   paras_py_is_head=PARAS_SRC == git("show", "HEAD:solver_paras/paras.py"),
                    passes_picked=[ac["pick"] for ac in S.ac],
                    aircraft=[], skipped=[])
     grid = dict(lat0=S.lat0, lon0=S.lon0, x_m=xs.tolist(), y_m=ys.tolist(), shape=list(GX.shape),

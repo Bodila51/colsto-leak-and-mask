@@ -5,7 +5,7 @@ auto: 407063 GCODA   H500  stretch   329.2-  433.8 s (24 reports)  local min 127
 auto: 407063 GCODA   H500  stretch   988.1- 1113.5 s (40 reports)  local min 1747 m at 1012 s, 234 m AGL
 auto: 407063 GCODA   H500  stretch   988.1- 1113.5 s (40 reports)  local min 1203 m at 1114 s, 105 m AGL
 auto: 402b2f GBONT   RF6   stretch  2608.2- 2620.0 s (3 reports)  local min 2467 m at 2620 s, 181 m AGL
-spectrogram (28353, 272), 7 passes  (31.7s)
+spectrogram (28353, 272), 7 passes  (27.5s)
 GTJPK_1331  A109  CPA  145.5s  1439 m slant  track 298  lateral 253 m  reports -0.0..+862.8s rel CPA  scan max 0.24 at L 42.75
 GCODA_1335  H500  CPA  354.3s  1753 m slant  track 180  lateral 1742 m  reports -19.9..+764.4s rel CPA  scan max 0.21 at L 55.00
 GBONT_1335  RF6   CPA  391.8s  2532 m slant  track 76  lateral 1210 m  reports -0.0..+2235.6s rel CPA  scan max 0.30 at L 42.00
@@ -20,4 +20,4 @@ GCODA_1336 L 24.00  fit 0.236 flat 0.209  z 2.6  swing 15.5 bins  peak 3672 m (c
 GCODA_1346 L 17.25  fit 0.471 flat 0.403  z 5.1  swing 22.0 bins  peak 4243 m (camera 0.88 of peak)  -> does not fit ['camera scores 0.88 of the heat-map peak', "no ridge: fit 0.47 is 0.26 of the clear stack's 1.83"]
 GCODA_1348 L 31.50  fit 0.188 flat 0.140  z 2.2  swing 1.8 bins  peak 3920 m (camera 0.97 of peak)  -> does not fit ['latency scan has no distinct peak (z = 2.2)', 'predicted Doppler swing is only 1.8 log bins (shape untestable)', "no ridge: fit 0.19 is 0.10 of the clear stack's 1.83"]
 combined: not made: 0 aircraft fit (needs 2)
-done  (43.7s)
+done  (36.3s)

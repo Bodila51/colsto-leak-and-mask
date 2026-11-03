@@ -26,8 +26,7 @@
    "One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it).",
    "Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum.",
    "G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session).",
-   "paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py.",
-   "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+   "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away, 0.9 km from the west mirror point). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
   ],
   "fmin": 40.0,
   "fmax": 600.0,
@@ -46,9 +45,9 @@
   "extent": 6000.0,
   "step": 100.0
  },
- "paras_py_sha256": "88bf0d7ce2ab10389b70e249613250a81ce98c5a7fd31ef7cc4bef258e0a7dcb",
- "git_head": "65b8ead",
- "paras_py_is_head": false,
+ "paras_py_sha256": "e7629243fbc31cd497d7d0af0844970ce4fb12c24b91fbb7663dded2c44702b1",
+ "git_head": "fb215e2",
+ "paras_py_is_head": true,
  "passes_picked": [
   {
    "hex": "407ee4",
@@ -728,8 +727,7 @@
   "One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it).",
   "Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum.",
   "G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session).",
-  "paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py.",
-  "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+  "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away, 0.9 km from the west mirror point). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
  ],
- "command": "python solver_paras/paras_passes.py cases/case_B --out results/paras_setup_B2 --camera 50.8335,-0.29075 --auto 3000:600 --fmin 40 --fmax 600 --f0min 40 --f0max 200 --harmonics 6 --event 38:130 --overview 0:300 --note Passes picked by ADS-B geometry only: within 3 km horizontal of the camera, below 600 m AGL, inside the audio; one pass per local distance minimum (+-30 s). The brief named G-BONT ~13:36 (~3.2 km) and G-CODA ~13:48 (~1.2 km); both are in this set (G-BONT is 2.49 km at its first report, receding, 3.2 km at ~416 s). --note One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it). --note Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum. --note G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session). --note paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py. --note GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+ "command": "python solver_paras/paras_passes.py cases/case_B --out results/paras_setup_B2 --camera 50.8335,-0.29075 --auto 3000:600 --fmin 40 --fmax 600 --f0min 40 --f0max 200 --harmonics 6 --event 38:130 --overview 0:300 --note Passes picked by ADS-B geometry only: within 3 km horizontal of the camera, below 600 m AGL, inside the audio; one pass per local distance minimum (+-30 s). The brief named G-BONT ~13:36 (~3.2 km) and G-CODA ~13:48 (~1.2 km); both are in this set (G-BONT is 2.49 km at its first report, receding, 3.2 km at ~416 s). --note One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it). --note Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum. --note G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session). --note GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away, 0.9 km from the west mirror point). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
 }
