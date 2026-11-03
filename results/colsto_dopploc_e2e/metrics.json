@@ -1,0 +1,278 @@
+{
+ "case": "colsto-dopploc-e2e-NYC300",
+ "pipeline": "doppler-locate (MIT) end to end: dopploc detect (own run on the recording) -> case from detected events -> dopploc search -> dopploc score; cases/oyster.toml is used only for the side-by-side comparison",
+ "regional_box_note": "300 x 300 km regional box centred on New York City (40.71, -74.01); not the continental US and not blind: the box was chosen knowing the answer is on Long Island.",
+ "camera_coordinates": "camera coordinates not published; only the town (hamlet Oyster Bay, NY) is known",
+ "rank1_point": {
+  "lat": 41.9211721542124,
+  "lon": -72.68557851841591
+ },
+ "town_match_inside_osm_hamlet_boundary": false,
+ "distance_to_hamlet_centroid_m": 136573.8,
+ "distance_to_hamlet_boundary_m": 133920.4,
+ "inside_town_of_oyster_bay_municipality": false,
+ "hamlet": {
+  "name": "Oyster Bay, NY (hamlet / census place)",
+  "osm": "relation 174432 (Nominatim polygon_geojson=1)",
+  "centroid_lat": 40.869293,
+  "centroid_lon": -73.531534,
+  "polygon_file": "oyster_bay_hamlet.geojson"
+ },
+ "rank1_score": 5.1345,
+ "rank2_score": 5.0101,
+ "flights_used": {
+  "event1": {
+   "fid": "a1d3d1:1788874327",
+   "icao": "a1d3d1",
+   "type": "TBM9",
+   "reg": "N217DC",
+   "callsign": "N217DC"
+  },
+  "event2": {
+   "fid": "a88f95:1788873766",
+   "icao": "a88f95",
+   "type": "COL3",
+   "reg": "N65031",
+   "callsign": "N65031"
+  }
+ },
+ "n_flight_pairs": 517,
+ "n_scored_points": 157732,
+ "search_counts": {
+  "cpa_records_e1": 36493165,
+  "e1": 33099696,
+  "e1_cells": 2171453,
+  "cpa_records_e2": 49308721,
+  "e2": 36825855,
+  "e2_cells": 1836891,
+  "offset": 247334,
+  "offset_cells": 203514,
+  "silent": 39433,
+  "silent_cells": 38112
+ },
+ "runtime_s": {
+  "detect": 1468.1,
+  "search": 534.6,
+  "score": 650.3,
+  "total": 2653.0
+ },
+ "peak_private_gb": {
+  "detect": 5.32,
+  "search": 5.59,
+  "score": 3.28
+ },
+ "settings": "[search] bbox -75.789,39.361,-72.231,42.059, gpu=false, workers=3, offset_tol_s=8; [score] dt_sweep -8..8 step 0.1; atmosphere gfs (default); numba CPU backend; BelowNormal priority; another solver was running at the same time",
+ "osm_attribution": "Hamlet and town polygons (c) OpenStreetMap contributors, ODbL, via Nominatim.",
+ "detect_summary": {
+  "n_aircraft_high_medium": 8,
+  "n_aircraft_low": 30,
+  "n_close_range": 16,
+  "high_medium": [
+   {
+    "name": "D1",
+    "audio_cpa_s": 128.9,
+    "f0_hz": 105.5,
+    "speed_ms": 114,
+    "slant_m": 1910,
+    "detect_score": 13.8,
+    "confidence": "high"
+   },
+   {
+    "name": "D2",
+    "audio_cpa_s": 139.5,
+    "f0_hz": 288.8,
+    "speed_ms": 157,
+    "slant_m": 3751,
+    "detect_score": 10.9,
+    "confidence": "medium"
+   },
+   {
+    "name": "D3",
+    "audio_cpa_s": 748.7,
+    "f0_hz": 100.6,
+    "speed_ms": 57,
+    "slant_m": 1045,
+    "detect_score": 14.7,
+    "confidence": "high"
+   },
+   {
+    "name": "D4",
+    "audio_cpa_s": 960.7,
+    "f0_hz": 501.5,
+    "speed_ms": 85,
+    "slant_m": 1487,
+    "detect_score": 14.5,
+    "confidence": "high"
+   },
+   {
+    "name": "D5",
+    "audio_cpa_s": 1278.4,
+    "f0_hz": 401.7,
+    "speed_ms": 70,
+    "slant_m": 683,
+    "detect_score": 14.7,
+    "confidence": "high"
+   },
+   {
+    "name": "D6",
+    "audio_cpa_s": 1408.5,
+    "f0_hz": 83.6,
+    "speed_ms": 41,
+    "slant_m": 308,
+    "detect_score": 24.7,
+    "confidence": "high"
+   },
+   {
+    "name": "D7",
+    "audio_cpa_s": 2155.3,
+    "f0_hz": 113.2,
+    "speed_ms": 137,
+    "slant_m": 6017,
+    "detect_score": 36.8,
+    "confidence": "high"
+   },
+   {
+    "name": "D8",
+    "audio_cpa_s": 3068.1,
+    "f0_hz": 140.7,
+    "speed_ms": 76,
+    "slant_m": 1450,
+    "detect_score": 31.3,
+    "confidence": "high"
+   }
+  ],
+  "rule_used": "README gives no rule for >2 events; the case's two events are the two highest matched-filter scores among the high/medium detections (36.8 and 31.3; the third is 24.7), fixed before search/score were run. Note this was not blind in effect: the same two times had already been seen as E1/E2 in cases/oyster.toml."
+ },
+ "detected_vs_oyster_toml": [
+  {
+   "event": "E1",
+   "detected": {
+    "audio_cpa_s": 2155.35,
+    "f0_hz": 113.151,
+    "harmonics": [
+     1
+    ],
+    "fit_speed_ms": 137.0,
+    "fit_slant_m": 6017,
+    "speed_range_ms": [
+     113.0,
+     177.0
+    ],
+    "slant_range_m": [
+     3704,
+     11228
+    ],
+    "f0_range_hz": [
+     110.0,
+     115.1
+    ],
+    "detect_score": 36.8,
+    "fit_rms_hz": 0.27,
+    "confidence": "high"
+   },
+   "oyster_toml": {
+    "name": "E1",
+    "audio_cpa_s": 2155.8,
+    "f0_hz": 112.735,
+    "harmonics": [
+     1,
+     2,
+     3
+    ],
+    "fit_speed_ms": 140.7,
+    "fit_slant_m": 6428,
+    "speed_range_ms": [
+     129.7,
+     151.7
+    ],
+    "slant_range_m": [
+     4757,
+     8492
+    ]
+   },
+   "difference": {
+    "audio_cpa_s": -0.45,
+    "f0_hz": 0.416,
+    "fit_speed_ms": -3.7,
+    "fit_slant_m": -411
+   }
+  },
+  {
+   "event": "E2",
+   "detected": {
+    "audio_cpa_s": 3068.09,
+    "f0_hz": 140.691,
+    "harmonics": [
+     1
+    ],
+    "fit_speed_ms": 76.0,
+    "fit_slant_m": 1450,
+    "speed_range_ms": [
+     60.0,
+     116.0
+    ],
+    "slant_range_m": [
+     833,
+     3570
+    ],
+    "f0_range_hz": [
+     125.0,
+     146.0
+    ],
+    "detect_score": 31.3,
+    "fit_rms_hz": 0.46,
+    "confidence": "high"
+   },
+   "oyster_toml": {
+    "name": "E2",
+    "audio_cpa_s": 3072.36,
+    "f0_hz": 134.415,
+    "harmonics": [
+     1,
+     2
+    ],
+    "fit_speed_ms": 92.9,
+    "fit_slant_m": 2242,
+    "speed_range_ms": [
+     75.9,
+     119.9
+    ],
+    "slant_range_m": [
+     1257,
+     4489
+    ]
+   },
+   "difference": {
+    "audio_cpa_s": -4.27,
+    "f0_hz": 6.276,
+    "fit_speed_ms": -16.9,
+    "fit_slant_m": -792
+   }
+  }
+ ],
+ "event_offset_s": {
+  "detected_s": 912.74,
+  "oyster_toml_s": 916.56
+ },
+ "outcome": "MISS: rank 1 is not in Oyster Bay. Rank 1 is 136.6 km from the hamlet centroid (Connecticut), with a TBM9 (N217DC) and a COL3 (N65031).",
+ "pair_that_ranked_1_in_the_oyster_toml_run": {
+  "event1": "CST1219 PC12 (a1dfeb)",
+  "event2": "EGE93 B350 (ace391)",
+  "rank_here": 5,
+  "score_here": 4.8813,
+  "lat": 40.87919886436445,
+  "lon": -73.52609620550682,
+  "inside_osm_hamlet_boundary": true,
+  "distance_to_hamlet_centroid_m": 1191.7,
+  "rank1_minus_this_score": 0.2532
+ },
+ "why_note": "Hypothesis from NOTES.md, not tested here: detect fits only harmonic 1 for both events, and E2's detected f0 is 140.69 Hz (oyster.toml: 134.4 Hz); with the default +-8 % f0 sweep the search starts from 140.69 Hz, and NOTES.md says the true geometry needs about 126 Hz for the King Air. Only 1 harmonic per event also gives the score less to separate flight pairs with. The score margin at the top is small: 5.135 vs 5.010 (rank 2) vs 4.881 (the Oyster Bay pair).",
+ "events_choice": "README gives no rule for >2 events; the case's two events are the two highest matched-filter scores among the high/medium detections (36.8 and 31.3; the third is 24.7), fixed before search/score were run. Note this was not blind in effect: the same two times had already been seen as E1/E2 in cases/oyster.toml.",
+ "candidates": {
+  "search_candidate_rows": 247334,
+  "scored_points": 157732,
+  "event1_flights": 296,
+  "flights_reconstructed": 702,
+  "note": "13x more candidates than the oyster.toml run (18,180 rows) because detect's ranges are wider (E1 slant to 12.9 km, speed 93-197 m/s; E2 speed 40-136 m/s)"
+ }
+}

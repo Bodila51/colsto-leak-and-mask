@@ -1,0 +1,79 @@
+[[event]]
+name = "D1"
+audio_cpa = 128.86
+f0 = 105.481
+harmonics = [1, 6]
+speed_ms = [77.0, 159.0]
+slant_m = [707.0, 4709.0]
+half_width_s = 60.0
+# detected: score 13.8, fit rms 0.47 Hz, high confidence
+
+[[event]]
+name = "D2"
+audio_cpa = 139.48
+f0 = 288.763
+harmonics = [1]
+speed_ms = [111.8, 201.8]
+slant_m = [1594.0, 8049.0]
+half_width_s = 60.0
+# detected: score 10.9, fit rms 1.26 Hz, medium confidence
+
+[[event]]
+name = "D3"
+audio_cpa = 748.68
+f0 = 100.621
+harmonics = [1]
+speed_ms = [27.5, 101.5]
+slant_m = [222.0, 4483.0]
+half_width_s = 60.0
+# detected: score 14.7, fit rms 0.51 Hz, high confidence
+
+[[event]]
+name = "D4"
+audio_cpa = 960.67
+f0 = 501.465
+harmonics = [1]
+speed_ms = [43.7, 129.7]
+slant_m = [447.0, 3666.0]
+half_width_s = 60.0
+# detected: score 14.5, fit rms 1.22 Hz, high confidence
+
+[[event]]
+name = "D5"
+audio_cpa = 1278.44
+f0 = 401.665
+harmonics = [1]
+speed_ms = [55.5, 95.5]
+slant_m = [411.0, 1276.0]
+half_width_s = 60.0
+# detected: score 14.7, fit rms 1.21 Hz, high confidence
+
+[[event]]
+name = "D6"
+audio_cpa = 1408.54
+f0 = 83.552
+harmonics = [1, 2]
+speed_ms = [27.0, 75.0]
+slant_m = [114.0, 1415.0]
+half_width_s = 60.0
+# detected: score 24.7, fit rms 0.26 Hz, high confidence
+
+[[event]]
+name = "D7"
+audio_cpa = 2155.35
+f0 = 113.151
+harmonics = [1]
+speed_ms = [108.0, 182.0]
+slant_m = [3148.0, 12912.0]
+half_width_s = 60.0
+# detected: score 36.8, fit rms 0.27 Hz, high confidence
+
+[[event]]
+name = "D8"
+audio_cpa = 3068.09
+f0 = 140.691
+harmonics = [1]
+speed_ms = [55.0, 121.0]
+slant_m = [708.0, 4106.0]
+half_width_s = 60.0
+# detected: score 31.3, fit rms 0.46 Hz, high confidence

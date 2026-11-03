@@ -1,0 +1,49 @@
+# The video's challenge recording (https://youtu.be/4CxVxuMVkMc, 60 min, "Unknown location - raw audio").
+# "Filmed 9/8/26". END-TO-END: events come from `dopploc detect` on the audio (out/detect/colsto_e2e), not from cases/oyster.toml.
+# Events E1/E2 = detections D7/D8: the two highest matched-filter scores among the 8 high/medium detections.
+name = "colsto-dopploc-e2e-NYC300"
+root = "."
+day = "2026-09-08"
+adsb = "data/adsb/2026-09-08"
+cache = "data/cache"
+audio = "../../colsto/recording_4CxVxuMVkMc.webm"
+out = "out/colsto_dopploc_e2e"
+c = 343.0
+
+[search]
+# REGIONAL box (lon0, lat0, lon1, lat1): 300 x 300 km centred on New York City (40.71, -74.01), NOT the continental US:
+# the Windows PC has too little RAM for the CONUS search (47.9 M samples, ~6 GB in the parent alone).
+bbox = [-75.789, 39.361, -72.231, 42.059]
+gpu = false
+workers = 3
+offset_tol_s = 8.0   # straight-line midpoints carry a few s of wind / manoeuvre bias (w*d/v^2)
+
+[score]
+# event-1 clock sweep: absorbs the bias of the straight-line midpoint estimate (manoeuvres, wind);
+# event 2 stays locked to flight geometry. The video's own slider shows shifts up to ~7 s.
+dt_sweep = [-8.0, 8.0, 0.1]
+
+[silence]
+enabled = true
+mode = "cpa"     # video rule: other non-jet CPA between the events, nearer than max(d1, d2)
+ratio = 1.0
+
+[[event]]
+name = "E1"  # detect D7
+audio_cpa = 2155.35
+f0 = 113.151
+harmonics = [1]
+speed_ms = [108.0, 182.0]
+slant_m = [3148.0, 12912.0]
+half_width_s = 60.0
+# detected: score 36.8, fit rms 0.27 Hz, high confidence
+
+[[event]]
+name = "E2"  # detect D8
+audio_cpa = 3068.09
+f0 = 140.691
+harmonics = [1]
+speed_ms = [55.0, 121.0]
+slant_m = [708.0, 4106.0]
+half_width_s = 60.0
+# detected: score 31.3, fit rms 0.46 Hz, high confidence
