@@ -1,0 +1,170 @@
+{
+ "note": "NOT blind: known (revealed) camera, hand-picked aircraft, Paras-style setup",
+ "camera": {
+  "lat": 41.77844,
+  "lon": -87.74278,
+  "z_m": 191.07766986230024
+ },
+ "L_s": 28.0,
+ "L_clock_s": 28.0,
+ "params": {
+  "case_dir": "cases/case_E",
+  "out": "results/paras_setup_E",
+  "fmin": 800.0,
+  "fmax": 7900.0,
+  "f0min": 1000.0,
+  "f0max": 6000.0,
+  "win": 0.15,
+  "hop": 0.025,
+  "dlog": 0.005,
+  "ridge": 31,
+  "half": 10.0,
+  "min_frac": 0.6,
+  "lmin": 0.0,
+  "lmax": 60.0,
+  "lstep": 0.25,
+  "extent": 6000.0,
+  "step": 100.0
+ },
+ "aircraft": [
+  {
+   "hex": "ac13d6",
+   "flight": "SWA4565",
+   "type": "B38M",
+   "cpa_audio_s": 114.97578501701355,
+   "cpa_slant_m": 93.9098077273225,
+   "cpa_horizontal_m": 33.839148876813375,
+   "cpa_agl_m": 92.60116432260213,
+   "track_deg": 131.02197884789766,
+   "camera_track_offset_m": 29.579433413329955,
+   "first_adsb_report_rel_cpa_s": 1.3831970691680908,
+   "climb_m_s": 15.752958367313147,
+   "mirror_separation_m": 59.15886682665991,
+   "f0_hz": 1517.184703443961,
+   "fit_at_camera": 0.3525893263434549,
+   "fit_peak": 0.5635239481925964,
+   "peak": {
+    "lat": 41.779339320363725,
+    "lon": -87.73554421005197,
+    "x_m": 600.0,
+    "y_m": 100.0
+   },
+   "peak_error_m": 608.3,
+   "scan_best_L_s": 26.5
+  },
+  {
+   "hex": "abaeb2",
+   "flight": "SWA2679",
+   "type": "B738",
+   "cpa_audio_s": 211.16725158691406,
+   "cpa_slant_m": 152.28679482181317,
+   "cpa_horizontal_m": 35.29909866864415,
+   "cpa_agl_m": 153.139263904889,
+   "track_deg": 133.04368589277786,
+   "camera_track_offset_m": 17.54438407510735,
+   "first_adsb_report_rel_cpa_s": -7.801711320877075,
+   "climb_m_s": 15.362918203183202,
+   "mirror_separation_m": 35.0887681502147,
+   "f0_hz": 2027.607342094284,
+   "fit_at_camera": 0.3846951603426442,
+   "fit_peak": 0.4359162747859955,
+   "peak": {
+    "lat": 41.763151553816684,
+    "lon": -87.8151378994802,
+    "x_m": -6000.0,
+    "y_m": -1700.0
+   },
+   "peak_error_m": 6236.2,
+   "scan_best_L_s": 14.25
+  },
+  {
+   "hex": "aa9b42",
+   "flight": "SWA1508",
+   "type": "B737",
+   "cpa_audio_s": 340.5727517604828,
+   "cpa_slant_m": 140.5893470228064,
+   "cpa_horizontal_m": 47.67097376523669,
+   "cpa_agl_m": 137.26051094931245,
+   "track_deg": 132.21247462610415,
+   "camera_track_offset_m": 39.76705759332954,
+   "first_adsb_report_rel_cpa_s": -8.020587921142578,
+   "climb_m_s": 13.600208758391517,
+   "mirror_separation_m": 79.53411518665908,
+   "f0_hz": 1928.7197651337679,
+   "fit_at_camera": 0.38679608468687354,
+   "fit_peak": 0.4247311055660248,
+   "peak": {
+    "lat": 41.76045359272551,
+    "lon": -87.74760385996534,
+    "x_m": -400.0,
+    "y_m": -2000.0
+   },
+   "peak_error_m": 2039.6,
+   "scan_best_L_s": 10.5
+  },
+  {
+   "hex": "accb50",
+   "flight": "SWA1076",
+   "type": "B737",
+   "cpa_audio_s": 386.8251156806946,
+   "cpa_slant_m": 110.78402743019709,
+   "cpa_horizontal_m": 28.369989280717157,
+   "cpa_agl_m": 112.08988954082758,
+   "track_deg": 132.64348347609476,
+   "camera_track_offset_m": 17.05644106525136,
+   "first_adsb_report_rel_cpa_s": -0.8405437469482422,
+   "climb_m_s": 18.2572745409779,
+   "mirror_separation_m": 34.11288213050272,
+   "f0_hz": 1816.3998700259249,
+   "fit_at_camera": 0.502776084838545,
+   "fit_peak": 0.5093249678611755,
+   "peak": {
+    "lat": 41.79732572763822,
+    "lon": -87.75001578994802,
+    "x_m": -600.0,
+    "y_m": 2100.0
+   },
+   "peak_error_m": 2184.0,
+   "scan_best_L_s": 56.5
+  }
+ ],
+ "skipped": [
+  {
+   "hex": "ac33a3",
+   "flight": "SWA4113",
+   "reason": "window 442-462 s falls in the voice (430-474 s)"
+  },
+  {
+   "hex": "accf07",
+   "flight": "SWA2340",
+   "reason": "window 508-528 s is past the end of the audio (502 s)"
+  }
+ ],
+ "combined": {
+  "peak": {
+   "lat": 41.77844,
+   "lon": -87.74278,
+   "x_m": 0.0,
+   "y_m": 0.0
+  },
+  "peak_error_m": 0.0,
+  "aircraft": [
+   "SWA4565",
+   "SWA2679",
+   "SWA1508",
+   "SWA1076"
+  ],
+  "fit_peak": 1.626856803894043,
+  "fit_median": 1.3418855667114258,
+  "runner_up_beyond_1km": {
+   "x_m": -2600.0,
+   "y_m": 3700.0,
+   "fit": 1.5832161903381348,
+   "dist_m": 4522.2,
+   "ratio_to_peak": 0.973
+  }
+ },
+ "track_note": "ADS-B coverage of each departure starts 0-9 s before the camera; earlier the track is extrapolated back along the first 6 s of reports (ground velocity and climb), clamped to the runway (DEM + 3 m). Takeoff-roll acceleration is ignored.",
+ "history_note": "A first run without the ridge filter (--ridge 0) gave L = 33.75 s and peaks 0.1-8.5 km off (combined 3.6 km): broadband pass noise outscored the tones. The filter was added after looking at that run; L is still chosen only by the Doppler fit.",
+ "mirror_note": "Overhead passes: the camera is within tens of metres of each track line, so the left/right mirror bands nearly merge on the track line and cannot be told apart."
+}
