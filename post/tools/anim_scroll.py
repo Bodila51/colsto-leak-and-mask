@@ -26,6 +26,7 @@ def main():
     ap.add_argument("--start", type=float, default=441.0); ap.add_argument("--dur", type=float, default=20.0)
     ap.add_argument("--view", type=float, default=8.0, help="seconds visible on screen")
     ap.add_argument("--fps", type=int, default=30); ap.add_argument("--out", required=True)
+    ap.add_argument("--w", type=int, default=1920); ap.add_argument("--h", type=int, default=1080)
     a = ap.parse_args()
 
     x, sr = FI.read_audio(a.audio)
@@ -50,20 +51,22 @@ def main():
     keep = FI.pass_span(t, fz, z, 1.5, 1.0)
     tt_tone, ff_tone = t[keep], fz[keep]
 
-    fig = plt.figure(figsize=(19.2, 10.8), dpi=100, facecolor=BG)
-    ax = fig.add_axes([0.0, 0.22, 1.0, 0.78]); ax.set_facecolor(BG); ax.axis("off")
+    fig = plt.figure(figsize=(a.w / 100, a.h / 100), dpi=100, facecolor=BG)
+    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0]); ax.set_facecolor(BG); ax.axis("off")
     nv = int(a.view * a.fps)
     im = ax.imshow(np.full((sel.sum(), nv), vmin), origin="lower", aspect="auto", cmap="magma", vmin=vmin, vmax=vmax,
                    extent=[-a.view, 0, f[sel][0], f[sel][-1]], interpolation="bilinear")
     dots = [ax.plot([], [], "o", color=ACC, ms=3.2, alpha=a_)[0] for a_ in (1.0, 0.75, 0.6, 0.5)]
     ax.set_xlim(-a.view, 0)
-    ax.text(-a.view + 0.08, 6750, "7 kHz", color=DIM, fontsize=12, va="top")
-    ax.text(-a.view + 0.08, 650, "0.5 kHz", color=DIM, fontsize=12, va="bottom")
-    c1 = fig.text(0.03, 0.12, "", fontsize=30, color=FG, family="DejaVu Sans Mono")
-    c2 = fig.text(0.03, 0.045, "", fontsize=30, color=HI, family="DejaVu Sans Mono", weight="bold")
-    live = fig.text(0.975, 0.965, "● LIVE", fontsize=16, color="#ff4d4d", ha="right", va="top", family="DejaVu Sans Mono")
+    import matplotlib.patheffects as pe
+    sh = [pe.withStroke(linewidth=4, foreground="black")]
+    fs_ = max(14, int(a.h / 22))
+    c1 = fig.text(0.012, 0.17, "", fontsize=fs_, color=FG, family="DejaVu Sans Mono", path_effects=sh)
+    c2 = fig.text(0.012, 0.05, "", fontsize=fs_, color=HI, family="DejaVu Sans Mono", weight="bold", path_effects=sh)
+    live = fig.text(0.992, 0.93, "● LIVE", fontsize=max(12, int(a.h / 30)), color="#ff4d4d", ha="right", va="top",
+                    family="DejaVu Sans Mono", path_effects=sh)
 
-    enc = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", "1920x1080",
+    enc = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{a.w}x{a.h}",
                             "-r", str(a.fps), "-i", "-", "-c:v", "libx264", "-crf", "17", "-preset", "veryfast",
                             "-pix_fmt", "yuv420p", "-vf", "scale=out_range=tv", a.out], stdin=subprocess.PIPE)
     for k in range(int(a.dur * a.fps)):

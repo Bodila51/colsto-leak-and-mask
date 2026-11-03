@@ -56,18 +56,18 @@ def main():
     x, sr = FI.read_audio(a.audio)
     say(f"read {len(x)} samples at {sr} Hz ({len(x)/sr:.0f} s of audio)")
     say(f"STFT: window {cfg.win*1000:.0f} ms, FFT {cfg.nfft}, hop {cfg.hop*1000:.0f} ms, harmonic sum x1..x{cfg.harmonics}", 0.3)
-    say(f"{Y}tracking the jet fan tone (900-1800 Hz fundamental) frame by frame{R}", 0.3)
+    say(f"{Y}tracking the jet fan tone, frame by frame{R}", 0.3)
     t, fz, z, P, df = FI.tone_track(x, sr, a.t1, a.t2, cfg)
     keep = FI.pass_span(t, fz, z, 1.5, 1.0)
     for i in range(len(t)):
         if keep[i]:
-            say(f"  t={t[i]:7.2f} s   tone {fz[i]:7.1f} Hz   confidence {z[i]:5.1f}   {G}pass{R}")
+            say(f"  t {t[i]:6.2f}s  {fz[i]:6.1f} Hz  z {z[i]:4.1f} {G}pass{R}")
         elif i % 3 == 0:
-            say(f"{D}  t={t[i]:7.2f} s   tone {fz[i]:7.1f} Hz   confidence {z[i]:5.1f}{R}")
+            say(f"{D}  t {t[i]:6.2f}s  {fz[i]:6.1f} Hz  z {z[i]:4.1f}{R}")
     ts, fs = t[keep], fz[keep]
     say(f"{G}tone found: {ts[0]:.2f}-{ts[-1]:.2f} s, {fs[0]:.0f} -> {fs[-1]:.0f} Hz, {len(ts)} frames{R}", 0.5)
 
-    say(f"{Y}fitting a straight, constant-speed pass to the tone alone (no flight data){R}", 0.3)
+    say(f"{Y}fitting the pass to the tone alone{R}", 0.3)
     best = None
     for v0 in (40.0, 70.0, 100.0):
         for d0 in (100.0, 300.0, 1000.0):
@@ -75,18 +75,18 @@ def main():
             r = least_squares(lambda p: FI.pass_model(p, ts) - fs, p0,
                               bounds=([500, 5, 10, ts.min() - 60], [3000, 250, 8000, ts.max() + 60]))
             rr = float(np.sqrt(np.mean(r.fun ** 2)))
-            say(f"  start speed {v0*1.94384:5.0f} kt, closest {d0:5.0f} m  ->  {r.x[1]*1.94384:5.0f} kt, {r.x[2]:6.0f} m, rms {rr:6.2f} Hz")
+            say(f"  fit from {v0*1.94384:3.0f}kt/{d0:4.0f}m -> {r.x[1]*1.94384:3.0f}kt {r.x[2]:5.0f}m rms {rr:6.2f}")
             if best is None or r.cost < best.cost:
                 best = r
     f0, v, d, tce = best.x
     tc = tce + d / C
     rms = float(np.sqrt(np.mean(best.fun ** 2)))
-    say(f"{G}from the sound alone: speed {v*1.94384:.0f} kt, closest pass {d:.0f} m, at recording t = {tc:.1f} s (rms {rms:.1f} Hz){R}", 0.6)
+    say(f"{G}sound only: {v*1.94384:.0f} kt, closest {d:.0f} m, t={tc:.1f}s{R}", 0.6)
     cpa_utc = T0 + tc - LATENCY
-    say(f"{D}stream delay {LATENCY:.0f} s (from the clock burned into the video) -> real time of closest pass "
-        f"{datetime.fromtimestamp(cpa_utc, timezone.utc).strftime('%H:%M:%S')} UTC{R}", 0.5)
+    say(f"{D}stream delay {LATENCY:.0f}s (clock in the video){R}")
+    say(f"{G}closest pass at {datetime.fromtimestamp(cpa_utc, timezone.utc).strftime('%H:%M:%S')} UTC{R}", 0.5)
 
-    say(f"{Y}reading public ADS-B (adsb.lol) for every aircraft within 10 km, +-10 min{R}", 0.3)
+    say(f"{Y}ADS-B: every aircraft within 10 km{R}", 0.3)
     pts = {}
     n = 0
     with open(a.adsb) as fh:
@@ -115,19 +115,19 @@ def main():
         dt = best[1] - cpa_utc
         mism = abs(dt) / 10 + abs(best[0] - d) / 500 + abs((best[3] or 0) - v * 1.94384) / 30
         rows.append((mism, fl, best[5], best[0], best[2], best[3], dt))
-        say(f"  {fl:8s} {best[5]:5s}  closest {best[0]/1000:5.2f} km  alt {best[2]!s:>5} ft  {best[3] or 0:5.0f} kt  "
-            f"dt {dt:+7.1f} s   mismatch {mism:6.2f}")
+        say(f"  {fl:8s}{best[5]:5s}{best[0]/1000:5.2f}km {best[3] or 0:3.0f}kt dt{dt:+7.1f}s m{mism:6.2f}")
     rows.sort()
     say("", 0.3)
-    say(f"{B}ranking (lower = closer match to the sound){R}", 0.3)
+    say(f"{B}ranking (lower = better match){R}", 0.3)
     for k, (m, fl, ty, r, alt, gs, dt) in enumerate(rows[:8]):
         col = G if k == 0 else ""
-        say(f"{col}  {k+1}. {fl:8s} {ty:5s}  closest {r:5.0f} m  {gs or 0:4.0f} kt  dt {dt:+6.1f} s  mismatch {m:5.2f}{R}", 0.08)
+        say(f"{col} {k+1}. {fl:8s}{ty:5s}{r:5.0f}m {gs or 0:3.0f}kt dt{dt:+6.1f}s m{m:5.2f}{R}", 0.08)
     m1, m2 = rows[0][0], rows[1][0]
     say("", 0.3)
-    say(f"{G}{B}match: {rows[0][1]} ({rows[0][2]}) passed {rows[0][3]:.0f} m from the camera, {rows[0][6]:+.1f} s from the moment the sound says."
-        f" next best is {m2/m1:.0f}x worse.{R}", 0.5)
-    say(f"{D}known location; what the sound identified is the flight.{R}", 0)
+    say(f"{G}{B}MATCH: {rows[0][1]} ({rows[0][2]}){R}", 0.2)
+    say(f"{G}{B}  {rows[0][3]:.0f} m from the camera, {rows[0][6]:+.1f} s off{R}", 0.2)
+    say(f"{G}{B}  next best is {m2/m1:.0f}x worse{R}", 0.5)
+    say(f"{D}known location; the sound identified the flight{R}", 0)
 
 
 if __name__ == "__main__":
