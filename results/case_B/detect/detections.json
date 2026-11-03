@@ -1,0 +1,543 @@
+{
+ "source": "C:\\Users\\Asus\\flyover-leak\\cases\\case_B\\audio.flac",
+ "start": 0.0,
+ "end": 3545.0,
+ "meta": {},
+ "found": false,
+ "flyovers": [
+  {
+   "t_cpa": 42.5,
+   "f0": 144.92,
+   "v": 20.0,
+   "d": 71.0,
+   "z": 10.268416404724121,
+   "contrast": 1.3476365506649017,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    144.92
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 144.92224854328325,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 117.0,
+   "f0": 32.86,
+   "v": 123.4,
+   "d": 308.5,
+   "z": 42.962318420410156,
+   "contrast": 1.9757670164108276,
+   "harmonics": [
+    1,
+    6
+   ],
+   "freqs": [
+    32.86,
+    51.02,
+    200.78
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 32.85807015775364,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 289.07634988946415,
+   "f0": 137.84513285903003,
+   "v": 16.35898740991498,
+   "d": 116.62124670335504,
+   "z": 21.736305236816406,
+   "contrast": 2.1753774881362915,
+   "harmonics": [
+    1,
+    2,
+    3
+   ],
+   "freqs": [
+    137.84513285903003,
+    275.69026571806006,
+    413.53539857709006
+   ],
+   "refined": true,
+   "rms": 0.3771918573447114,
+   "points": 55,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 136.75587222029287,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 560.75,
+   "f0": 102.12,
+   "v": 20.0,
+   "d": 204.4,
+   "z": 12.462047576904297,
+   "contrast": 1.002384901046753,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    102.12
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 102.1249824837109,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 581.75,
+   "f0": 91.67,
+   "v": 73.4,
+   "d": 183.5,
+   "z": 12.844888687133789,
+   "contrast": 3.2091152369976044,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    91.67,
+    157.31
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 91.67020256235476,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 765.0,
+   "f0": 54.11,
+   "v": 43.6,
+   "d": 154.78,
+   "z": 15.429191589355469,
+   "contrast": 2.053861230611801,
+   "harmonics": [
+    2,
+    3
+   ],
+   "freqs": [
+    85.3,
+    93.34,
+    108.22,
+    162.42
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 108.2233753746381,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 968.770102075681,
+   "f0": 84.39409943039334,
+   "v": 13.894003508604728,
+   "d": 74.68972716392005,
+   "z": 12.129044532775879,
+   "contrast": 1.0505237579345703,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    43.22,
+    84.39409943039334
+   ],
+   "refined": true,
+   "rms": 1.4554970191533685,
+   "points": 118,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 83.11268866005965,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1003.0,
+   "f0": 153.58,
+   "v": 33.6,
+   "d": 241.58400000000003,
+   "z": 13.798367500305176,
+   "contrast": 1.1883423924446106,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    92.96,
+    153.58,
+    199.58
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 153.57627999336978,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 1407.75,
+   "f0": 135.67,
+   "v": 20.0,
+   "d": 50.0,
+   "z": 10.351299285888672,
+   "contrast": 1.1857213973999023,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    135.67
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 135.66618978390963,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1464.5,
+   "f0": 43.425,
+   "v": 20.0,
+   "d": 71.0,
+   "z": 11.4227876663208,
+   "contrast": 2.433464288711548,
+   "harmonics": [
+    2,
+    3
+   ],
+   "freqs": [
+    86.85,
+    129.83
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 86.85129311709876,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1534.5,
+   "f0": 85.13,
+   "v": 20.0,
+   "d": 71.0,
+   "z": 10.409329414367676,
+   "contrast": 1.2147769927978516,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    85.13
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 85.13152228835652,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1544.5,
+   "f0": 186.83,
+   "v": 43.6,
+   "d": 313.48400000000004,
+   "z": 10.362715721130371,
+   "contrast": 0.8367437422275543,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    146.38,
+    186.83
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 186.82967663308656,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 1562.25,
+   "f0": 78.12,
+   "v": 43.6,
+   "d": 445.59200000000004,
+   "z": 18.198612213134766,
+   "contrast": 3.000372886657715,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    78.12
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 78.11619374678646,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 1635.25,
+   "f0": 71.25,
+   "v": 33.6,
+   "d": 84.0,
+   "z": 12.357439041137695,
+   "contrast": 0.6109495162963867,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    71.25
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 71.25018257930664,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1761.3330780478225,
+   "f0": 43.65509373670133,
+   "v": 29.92347939178166,
+   "d": 86.59545822548785,
+   "z": 26.477577209472656,
+   "contrast": 7.169737994670868,
+   "harmonics": [
+    2,
+    3,
+    4,
+    6
+   ],
+   "freqs": [
+    87.31018747340266,
+    130.965281210104,
+    174.62037494680533,
+    261.930562420208
+   ],
+   "refined": true,
+   "rms": 0.8671987041892371,
+   "points": 111,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 87.89978701600064,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 1792.5,
+   "f0": 104.82,
+   "v": 123.4,
+   "d": 308.5,
+   "z": 11.265168190002441,
+   "contrast": 1.2873335964977741,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    104.82
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 104.8150513851651,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 2022.5,
+   "f0": 84.12,
+   "v": 20.0,
+   "d": 290.59999999999997,
+   "z": 13.459800720214844,
+   "contrast": 1.3574858903884888,
+   "harmonics": [
+    1,
+    6
+   ],
+   "freqs": [
+    84.12,
+    516.05
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 84.11604904600016,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 2030.5,
+   "f0": 234.67,
+   "v": 25.9,
+   "d": 64.75,
+   "z": 11.664307594299316,
+   "contrast": 1.1936709806323051,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    234.67
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 234.67401517408427,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 2100.25,
+   "f0": 130.35,
+   "v": 20.0,
+   "d": 204.4,
+   "z": 8.554889678955078,
+   "contrast": 0.9530850350856781,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    130.35
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 130.34664239441577,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 2101.75,
+   "f0": 616.59,
+   "v": 20.0,
+   "d": 101.0,
+   "z": 10.232609748840332,
+   "contrast": 0.8989850841462612,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    482.12,
+    616.59,
+    727.92
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 616.585735869938,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 2508.0,
+   "f0": 622.78,
+   "v": 160.0,
+   "d": 568.0,
+   "z": 8.502519607543945,
+   "contrast": 0.5117044746875763,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    622.78
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 622.7825255371455,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 2989.75,
+   "f0": 188.71,
+   "v": 20.0,
+   "d": 290.59999999999997,
+   "z": 8.207284927368164,
+   "contrast": 0.6140028387308121,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    188.71
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 188.7073460995298,
+   "kind": "close"
+  },
+  {
+   "t_cpa": 3012.5,
+   "f0": 103.77,
+   "v": 123.4,
+   "d": 308.5,
+   "z": 9.957101821899414,
+   "contrast": 2.0799123644828796,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    103.77,
+    255.75,
+    402.7
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 103.77212419829343,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 3435.5,
+   "f0": 85.82,
+   "v": 20.0,
+   "d": 50.0,
+   "z": 8.259410858154297,
+   "contrast": 1.4146826267242432,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    85.82
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 85.81530595448548,
+   "kind": "close"
+  }
+ ]
+}
