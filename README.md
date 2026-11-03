@@ -43,6 +43,17 @@ Plainly:
 - The town match needs the flyover events as measured by doppler-locate's author. With our fully automatic detection, the second event's tone came out at 140.7 Hz instead of about 134 Hz, and rank 1 moved to Connecticut. So on this PC the town match depends on carefully measured events, not on detection alone.
 - Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json) (23 min) and [`results/colsto_dopploc_e2e/`](results/colsto_dopploc_e2e/) (44 min).
 
+### Which flight was it? (known location, flight unknown)
+
+The sound alone gives the pass: speed, closest distance, moment. Public flight data then says which aircraft it was.
+
+| Recording | From the sound alone | Matching flight in ADS-B | Runner-up |
+|---|---|---|---|
+| **Midway takeoff** (our screen recording, 14:32 UTC) | 139 kt, closest 120 m, closest pass at 14:32:20 UTC (stream delay of 28 s read from the clock burned into the video) | **SWA4113, Boeing 737 MAX 8**: 143 kt, 13 m from the camera horizontally and about 130 m up, 0.1 s from the moment the sound gives | SWA1076, 65 s off. Score 19× worse among 35 aircraft within 10 km |
+| **Southampton** ferry cam | 239 ± 59 kt, closest 4.8 ± 2.7 km, tone 171 → 121 Hz | **TBM 700 N850BG**: 228 kt, 5.0 km slant; Doppler fit 0.84 Hz RMS | RYR39KA at 2.13 Hz (2.5×). The gap is 1.8-2.5× across tone thresholds, so not rock-solid |
+
+Run it yourself: `python post/tools/live_flight_id.py` (Midway). Results: [`results/flight_id_E`](results/flight_id_E/live_run.txt), [`results/flight_id_C`](results/flight_id_C/summary.json).
+
 ### Same test as the public replication on X (known camera, one hand-picked aircraft, not blind)
 
 <p align="center"><img src="docs/img/southampton_paras_style.png" width="95%"></p>
