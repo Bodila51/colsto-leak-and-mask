@@ -6,9 +6,9 @@ The method is colsto's ([video](https://www.youtube.com/watch?v=UytYrhYLOKI)). T
 
 > Status: first public version. Results are added as runs finish. Every number below comes from a run in this repo, with the file it came from.
 
-<p align="center"><img src="post/miami_still_02_match.png" width="45%"> <img src="post/miami_still_04_found.png" width="45%"></p>
+<p align="center"><img src="docs/img/midway_takeoff_check.png" width="90%"></p>
 
-<p align="center"><i>Miami blind run (749 m). <b>Not valid</b>: a control with the audio shifted by 30 min lands in nearly the same place, so the sound was not what found it. Kept here as a warning, see Results.</i></p>
+<p align="center"><i>The effect, on our own screen recording of the public StreamTime LIVE Midway stream (2026-11-03, about 14:32 UTC): a Boeing 737 MAX 8 (SWA4113 in ADS-B) takes off over the camera. Its fan-tone stack (1.4 / 2.8 / 4.2 / 5.6 / 7 kHz) slides down as it passes overhead. Found by <code>flyover-check</code>; its output is in <a href="docs/img/midway_takeoff_check.txt">docs/img/midway_takeoff_check.txt</a>. Plane 1 and plane 2 are the same aircraft, before and after it passed overhead.</i></p>
 
 ## What leaks, and why
 
@@ -99,6 +99,19 @@ Then, in Claude Code:
 ## Responsible use
 
 Use this on your own recordings, on public challenges like colsto's, and on public webcams whose owners publish their location. Don't use it to find a person. The skill's "find" mode refuses other recordings. The point of publishing it is the check and the safe copy: people should know what their videos give away and be able to remove it.
+
+## Sources
+
+Public live streams used. We kept no footage in this repo; only derived plots, numbers and logs are here.
+
+| Case | Stream | Recorded (UTC) |
+|---|---|---|
+| A | Miami Airport Cam, PTZtv: https://www.youtube.com/watch?v=_GUsXnlVJmo | 2026-11-03 13:29-14:35 |
+| B | Brighton City Airport apron cam: https://www.youtube.com/watch?v=mKRJrkz8H8k | 2026-11-03 13:29-14:28 |
+| C | Solent Ships Ferry Cam, Southampton: https://www.youtube.com/watch?v=QO-hO_kwwmY | 2026-11-03 13:29-14:39 |
+| D | Waupaca Airport (KPCZ) cam: https://www.youtube.com/watch?v=L80yh_XM7bc | rejected, silent |
+| E, F, G | Midway Airport, StreamTime LIVE: https://www.youtube.com/watch?v=67BCsiW-1Io (screen recordings) | 14:25:17-14:33:40 and 15:35:34-15:44:32 |
+| colsto | colsto's challenge: https://youtu.be/4CxVxuMVkMc | filmed by colsto |
 
 ## Credits
 

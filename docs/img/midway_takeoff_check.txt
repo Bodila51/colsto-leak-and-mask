@@ -1,0 +1,20 @@
+flyover-check: midway_demo_clip.mp4
+  length 0:20, audio aac 48000 Hz x2, video h264
+
+RESULT: LEAKS FOUND
+  2 planes audible at 0:07 and 0:14. Someone with public flight data and the date could use them to find where this was filmed.
+
+Details
+  - Plane 1: 0:07-0:13, confidence medium (0.68). Tone slides from 1402 to 1211 Hz with 5 harmonics. These are high-pitched fan tones (a stack near 1385 Hz), typical of a jet.
+  - Plane 2: 0:14-0:18, confidence medium (0.57). Tone slides from 1050 to 931 Hz with 3 harmonics. These are high-pitched fan tones (a stack near 952 Hz), typical of a jet.
+
+Limits
+  - This check only hears planes that make clean tones: propeller and piston tones (50-420 Hz base tone) and jet fan tones (a base tone up to about 3 kHz, harmonics up to 7.5 kHz) that show as thin sliding lines. A jet that is only a wide-band roar, or a plane hidden under wind or traffic, will not be found.
+  - A clean result is not a guarantee: it does not look at the picture, speech, signs or anything outside the audio and file tags it reads.
+
+Spectrogram with each flyover marked: data/look/midway_check\midway_demo_clip.flyovers.png
+Machine-readable result: data/look/midway_check\midway_demo_clip.flyover-check.json
+
+To fix: run safe_copy.py on this file. It removes the plane tones and hum from the sound and strips the location/time tags, then checks its own work.
+
+(checked in 11.0 s)
