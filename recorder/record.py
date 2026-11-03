@@ -11,7 +11,11 @@ Reads data/sealed/cams.json (camera URLs, case ids, search boxes). Writes, per c
 ADS-B is polled around the box centre (never the camera), so the logs reveal nothing beyond the box.
 """
 import argparse, csv, json, os, subprocess, sys, threading, time, urllib.request
-from concurrent.futures import ThreadPoolExecutor
+
+import truststore
+
+truststore.inject_into_ssl()  # use the Windows/macOS system trust store (this PC intercepts HTTPS)
+import requests
 from datetime import datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -75,36 +79,53 @@ def record_cam(cam, minutes, backfill_min):
         w.writerow(["seq", "utc_start", "duration_s", "file"])
     end = time.time() + minutes * 60
     url, url_t, first = None, 0, True
-    pool = ThreadPoolExecutor(6)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=backfill_min)
+    # One keep-alive connection per stream, sequential: many parallel fresh HTTPS connections stalled on this PC.
+    sess = requests.Session()
+    sess.headers.update(UA)
+
+    fails = {}
 
     def fetch(seg):
         seq, t, dur, uri = seg
         path = os.path.join(segdir, f"{seq}.ts")
-        for _ in range(3):
-            try:
-                _, data = get(uri, timeout=30)
-                open(path, "wb").write(data)
-                return seg, path
-            except Exception:
-                time.sleep(2)
-        return seg, None
+        try:
+            r = sess.get(uri, timeout=15)
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                f.write(r.content)
+            return seg, path
+        except Exception:
+            fails[seq] = fails.get(seq, 0) + 1
+            return seg, None
 
     while time.time() < end and not stop.is_set():
         try:
             if url is None or time.time() - url_t > 1500:
                 url, url_t = hls_url(cam["url"]), time.time()
-            _, body = get(url)
-            segs = [s for s in parse_playlist(body.decode()) if s[0] not in have and s[1] is not None]
+            body = sess.get(url, timeout=15).text
+            segs = [s for s in parse_playlist(body)
+                    if s[0] not in have and s[1] is not None and s[1] >= cutoff and fails.get(s[0], 0) < 3]
             if first:
-                cutoff = datetime.now(timezone.utc) - timedelta(minutes=backfill_min)
-                segs = [s for s in segs if s[1] >= cutoff]
                 log(case, f"backfill {len(segs)} segments from {segs[0][1].isoformat() if segs else '-'}")
                 first = False
-            for seg, path in pool.map(fetch, segs):
+            backlog = len(segs) > 30
+            segs = segs[:30]
+            failed = 0
+            for n, (seg, path) in enumerate(map(fetch, segs)):
                 if path:
                     w.writerow([seg[0], seg[1].isoformat(), seg[2], os.path.basename(path)])
                     have.add(seg[0])
+                else:
+                    failed += 1
             idx.flush()
+            if failed:
+                log(case, f"{failed}/{len(segs)} segments failed; refreshing playlist URL")
+                url = None
+            if backlog:
+                if len(have) % 300 < 30:
+                    log(case, f"{len(have)} segments so far")
+                continue
         except Exception as e:
             log(case, "error:", repr(e)[:200])
             url = None
@@ -149,12 +170,15 @@ def main():
     ap.add_argument("--backfill-min", type=float, default=180)
     ap.add_argument("--adsb-period", type=float, default=6.0)
     ap.add_argument("--cases", nargs="*")
+    ap.add_argument("--no-adsb", action="store_true", help="record audio only (run one process per camera)")
+    ap.add_argument("--adsb-only", action="store_true")
     a = ap.parse_args()
     cams = json.load(open(os.path.join(ROOT, "data", "sealed", "cams.json")))["cams"]
     if a.cases:
         cams = [c for c in cams if c["case"] in a.cases]
-    threads = [threading.Thread(target=poll_adsb, args=(cams, a.minutes, a.adsb_period), daemon=True)]
-    threads += [threading.Thread(target=record_cam, args=(c, a.minutes, a.backfill_min), daemon=True) for c in cams]
+    threads = [] if a.no_adsb else [threading.Thread(target=poll_adsb, args=(cams, a.minutes, a.adsb_period), daemon=True)]
+    if not a.adsb_only:
+        threads += [threading.Thread(target=record_cam, args=(c, a.minutes, a.backfill_min), daemon=True) for c in cams]
     for t in threads:
         t.start()
     try:
