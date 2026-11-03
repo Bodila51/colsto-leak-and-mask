@@ -6,6 +6,10 @@ The method is colsto's ([video](https://www.youtube.com/watch?v=UytYrhYLOKI)). T
 
 > Status: first public version. Results are added as runs finish. Every number below comes from a run in this repo, with the file it came from.
 
+<p align="center"><img src="post/miami_still_02_match.png" width="45%"> <img src="post/miami_still_04_found.png" width="45%"></p>
+
+<p align="center"><i>Blind run on a public Miami airport webcam: the solver got only the audio, the UTC time and a 40×40 km box. It put the microphone 749 m from the real camera.</i></p>
+
 ## What leaks, and why
 
 1. A propeller plane makes a steady hum, roughly 70-300 Hz, plus harmonics.
