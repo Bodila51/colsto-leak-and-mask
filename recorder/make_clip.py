@@ -87,8 +87,19 @@ def main():
     t0, dur = ts(utc_start), len(audio) / SR
     n = 0
     with open(os.path.join(cdir, "adsb.jsonl"), "w") as f:
-        for line in open(os.path.join(ROOT, "data", "raw", "adsb", f"{a.case}.jsonl")):
-            if t0 - 600 <= json.loads(line)["t"] <= t0 + dur + 600:
+        for name in (f"{a.case}.jsonl", f"{a.case}.traces.jsonl"):
+            src = os.path.join(ROOT, "data", "raw", "adsb", name)
+            if not os.path.exists(src):
+                continue
+            b = bbox
+            for line in open(src):
+                d = json.loads(line)
+                if not (t0 - 600 <= d["t"] <= t0 + dur + 600):
+                    continue
+                if d["src"] == "adsblol-trace":  # full-day traces: keep only points within 30 km of the box
+                    p0 = d["ac"][0]
+                    if not (b[0] - 0.3 <= p0["lat"] <= b[2] + 0.3 and b[1] - 0.45 <= p0["lon"] <= b[3] + 0.45):
+                        continue
                 f.write(line)
                 n += 1
     case = {"case": a.clip_case, "audio": f"cases/{a.clip_case}/audio.flac", "sample_rate": SR,

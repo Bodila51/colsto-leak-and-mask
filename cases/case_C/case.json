@@ -1,0 +1,19 @@
+{
+ "case": "case_C",
+ "audio": "cases/case_C/audio.flac",
+ "sample_rate": 16000,
+ "utc_start": "2026-11-03T13:29:33.044000Z",
+ "duration_s": 4175.0,
+ "gaps_s": [],
+ "bbox": [
+  50.67718,
+  -1.60345,
+  51.03651,
+  -1.03424
+ ],
+ "bbox_note": "40x40 km search box; contains the microphone; its centre was offset at random",
+ "adsb": "cases/case_C/adsb.jsonl",
+ "adsb_polls": 16792,
+ "adsb_sources": "live adsb.lol /v2/point polls around the box centre (src=adsblol) plus each polled aircraft's full-day trace from globe.adsb.lol (src=adsblol-trace, seen_pos=0)",
+ "clock": "utc_start is #EXT-X-PROGRAM-DATE-TIME of the first HLS segment; camera-to-ingest latency unknown"
+}

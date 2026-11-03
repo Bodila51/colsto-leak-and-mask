@@ -79,8 +79,19 @@ def main():
     t_end = start + total
     n = 0
     with open(os.path.join(out, "adsb.jsonl"), "w") as f:
-        for line in open(os.path.join(ROOT, "data", "raw", "adsb", f"{a.case}.jsonl")):
-            if start - 600 <= json.loads(line)["t"] <= t_end + 600:
+        for name in (f"{a.case}.jsonl", f"{a.case}.traces.jsonl"):
+            src = os.path.join(ROOT, "data", "raw", "adsb", name)
+            if not os.path.exists(src):
+                continue
+            b = cams[a.case]["bbox"]
+            for line in open(src):
+                d = json.loads(line)
+                if not (start - 600 <= d["t"] <= t_end + 600):
+                    continue
+                if d["src"] == "adsblol-trace":  # full-day traces: keep only points within 30 km of the box
+                    p0 = d["ac"][0]
+                    if not (b[0] - 0.3 <= p0["lat"] <= b[2] + 0.3 and b[1] - 0.45 <= p0["lon"] <= b[3] + 0.45):
+                        continue
                 f.write(line)
                 n += 1
     case = {
@@ -94,6 +105,8 @@ def main():
         "bbox_note": "40x40 km search box; contains the microphone; its centre was offset at random",
         "adsb": f"cases/{a.case}/adsb.jsonl",
         "adsb_polls": n,
+        "adsb_sources": "live adsb.lol /v2/point polls around the box centre (src=adsblol) plus each polled aircraft's "
+                        "full-day trace from globe.adsb.lol (src=adsblol-trace, seen_pos=0)",
         "clock": "utc_start is #EXT-X-PROGRAM-DATE-TIME of the first HLS segment; camera-to-ingest latency unknown",
     }
     json.dump(case, open(os.path.join(out, "case.json"), "w"), indent=1)
