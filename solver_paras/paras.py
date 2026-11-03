@@ -13,7 +13,9 @@ each aircraft is picked by hand. For every aircraft:
 Per-case settings live in CASES. In case_E (jet departures, high band) one latency is shared by all
 aircraft. In case_B (low-frequency stack) each aircraft gets its own scan and a verdict, and the
 Doppler curve is compared with a flat line on the same frames. This tells a pass apart from a
-steady or throttling source (an engine running on the apron).
+steady or throttling source (an engine running on the apron). case_C (Southampton, turboprops and a
+helicopter, 50-600 Hz) runs the same per-aircraft check; summary.json also lists every pass within
+--cand-radius below --cand-agl of the camera, which is where the picks come from.
 
 Overhead passes leave the two mirror bands (left and right of the track) nearly merged on the
 track line. Along-track position trades off against L, which is fixed here from the known camera.
@@ -21,6 +23,7 @@ Geometry, terrain, ADS-B parsing and the spectrogram are reused from solver_ridg
 
     python solver_paras/paras.py cases/case_E --out results/paras_setup_E
     python solver_paras/paras.py cases/case_B --out results/paras_setup_B
+    python solver_paras/paras.py cases/case_C --out results/paras_setup_C
 """
 
 from __future__ import annotations
@@ -30,7 +33,7 @@ import json
 import math
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import matplotlib
@@ -45,6 +48,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "solver_ridge"))
 from ridge import (C_AIR, KT, MIC_AGL, Terrain, interp_track, load_tracks, to_ll, to_xy,  # noqa: E402
                    track_heights, whitened_spectrogram)
+
+NO_K0 = -9999  # no f0 (too few scored frames); k0 itself may be negative when f0 < fmin
 
 # Owner-published (revealed) cameras and the aircraft picked by hand.
 CASES = {
@@ -75,6 +80,35 @@ CASES = {
         yticks=[50, 70, 100, 140, 200, 300, 420],
         params=dict(fmin=40.0, fmax=500.0, f0min=40.0, f0max=150.0, harmonics=6, win=1.0, hop=0.125,
                     dlog=0.01, ridge=15, half=40.0, min_frac=0.3)),
+    "case_C": dict(  # Solent Ships Ferry Cam, Town Quay Southampton (La Regata), under the EGHI 02/20 axis
+        camera=(50.89677, -1.40477),
+        # the only two passes within 6 km below 1500 m AGL (DHC6 G-CEWM on final to RWY 02, a rotorcraft),
+        # then the next two by slant range: a TBM 700 (turboprop, 4 km up) and the C-17 (1.7 km up, 7 km off)
+        picks=["4012da", "4083f3", "aba778", "43c208"],
+        types={"4083f3": "rotorcraft (A7)"},  # no type in the ADS-B, only emitter category A7
+        cpa_window={"4012da": (3900.0, 4175.0), "4083f3": (3000.0, 3500.0), "aba778": (400.0, 900.0),
+                    "43c208": (900.0, 1400.0)},
+        despike=True, event=None, clock_l=None, voice=None, extend=False, shared_l=False, overview=None,
+        reading_note=(
+            "Read off spec_*.png and heat_*.png; not part of the verdict. N850BG: a falling tone ~170 -> ~120 Hz "
+            "at audio ~625-685 s, with x2 (~340 -> ~235 Hz), lies under the predicted curve. Its heat map shows "
+            "the band through the camera and the mirror band ~5.3 km east across the track (the peak; camera "
+            "0.95 of it). AUR507: a falling tone ~93 -> ~84 Hz at audio ~4108-4135 s, with x2 (~185 -> ~170 Hz), "
+            "lies under the curve on the approach half. After ~4140 s the curve flattens onto a steady ~76 Hz "
+            "line that is also present before the pass (a non-Doppler source), so the receding half is no "
+            "independent match. Its latency scan is a broad plateau, the along-track / L trade-off, so rule 1 "
+            "fails. Its heat map shows the two mirror blobs, the camera and one 2.4 km across the track (the "
+            "peak; camera 0.99 of it). Only 2 ADS-B reports fall within 30 s of its CPA; the 48 s gaps either "
+            "side are bridged (max_gap 60). The two turboprops' L ranges within 10 % of their scan maxima "
+            "(0-5 s, 6.5-12.75 s) do not overlap: no consistent L. PIPE65 and RRR6139 score about a quarter "
+            "of the turboprops (no ridge to fit). A diagnostic scan over L = -20..30 s (diag_L_-20_30/) keeps "
+            "both maxima (0.25 s, 11.5 s), so N850BG's peak is not an edge effect, but its z drops to 1.4 there: "
+            "z depends on the scan range."),
+        yticks=[50, 70, 100, 140, 200, 300, 400, 550],
+        # turboprop blade-pass tones ~70-130 Hz; f0 may sit below fmin (then only x2..x5 are in band);
+        # live polls come in pairs every ~60 s, so gaps of ~48 s are bridged (max_gap 60)
+        params=dict(fmin=50.0, fmax=600.0, f0min=40.0, f0max=250.0, harmonics=5, win=1.0, hop=0.125,
+                    dlog=0.01, ridge=15, half=30.0, min_frac=0.3, max_gap=60.0)),
 }
 
 
@@ -172,17 +206,19 @@ def fit_kernel(gx, gy, gz, te, ax, ay, az, c, tq, rows, Wp, pad, dlog, hk, k0lo,
         n_out[g] = cnt
         if cnt < nmin:
             s_out[g] = np.nan
-            k0_out[g] = -1
+            k0_out[g] = NO_K0
             continue
         best = -1e30
-        bk = -1
+        bk = NO_K0
         for k0 in range(k0lo, k0hi + 1):
-            s = S[k0]
-            m = 1
-            for hi in range(1, H):
-                if k0 + hk[hi] < K:
+            s = 0.0
+            m = 0
+            for hi in range(H):  # in-band harmonics only (f0 may sit below fmin)
+                if k0 + hk[hi] >= 0 and k0 + hk[hi] < K:
                     s += S[k0 + hk[hi]]
                     m += 1
+            if m == 0:
+                continue
             v = s / (cnt * math.sqrt(m))
             if v > best:
                 best = v
@@ -227,9 +263,10 @@ class Setup:
         offs = [np.median(tr["geom"][m] - tr["baro"][m]) for tr in tracks.values()
                 for m in [np.isfinite(tr["geom"]) & np.isfinite(tr["baro"])] if m.any()]
         goff = float(np.median(offs)) if offs else 0.0
+        self.tracks, self.goff = tracks, goff
         self.ac = []
-        for hx in cfg["picks"]:
-            tr = tracks[hx]
+        for hx in a.picks.split(",") if a.picks else cfg["picks"]:
+            tr = dict(tracks[hx], type=cfg.get("types", {}).get(hx) or tracks[hx]["type"])
             keep = (tr["t"] >= self.t0 - 60) & (tr["t"] <= self.t0 + self.dur + 60)
             if cfg["extend"]:
                 keep &= ~tr["ground"]
@@ -244,7 +281,7 @@ class Setup:
             if cfg["extend"]:
                 tr, h, climb = extend_back(tr, h, self.terrain, self.lat0, self.lon0)
             te = np.arange(self.t0 - 120, self.t0 + self.dur + 60, 0.02)
-            X, Y, Z = interp_track(tr, h, te, self.lat0, self.lon0)
+            X, Y, Z = interp_track(tr, h, te, self.lat0, self.lon0, max_gap=a.max_gap or 45.0)
             r = np.sqrt(X ** 2 + Y ** 2 + (Z - self.cam_z) ** 2)
             w = (cfg["cpa_window"] or {}).get(hx)
             rw = r if w is None else np.where((te >= self.t0 + w[0]) & (te <= self.t0 + w[1]), r, np.nan)
@@ -264,6 +301,30 @@ class Setup:
                 first_report_s=float(rt[0] - te[i]), last_report_s=float(rt[-1] - te[i]), climb=climb,
                 dropped=dropped))
 
+    def candidates(self, radius, max_agl, lmax, top=None):
+        """Every pass that comes within radius (horizontal) of the camera below max_agl (m above the
+        camera ground) at emission times t0 - lmax .. t0 + dur: closest point per pass, by slant range."""
+        te = np.arange(self.t0 - lmax, self.t0 + self.dur, 0.5)
+        gz = self.cam_z - MIC_AGL
+        out = []
+        for hx, tr in self.tracks.items():
+            h = track_heights(tr, self.terrain, self.geoid_n, self.goff)
+            X, Y, Z = interp_track(tr, h, te, self.lat0, self.lon0, max_gap=self.a.max_gap or 45.0)
+            d, agl = np.hypot(X, Y), Z - gz
+            idx = np.nonzero(np.isfinite(d) & (d < radius) & (agl < max_agl))[0]
+            for s in np.split(idx, np.nonzero(np.diff(idx) > 120)[0] + 1) if len(idx) else []:
+                i = s[np.argmin(np.hypot(d[s], agl[s]))]
+                near = np.abs(tr["t"] - te[i]) <= 30
+                out.append(dict(hex=hx, flight=tr["flight"], type=self.cfg.get("types", {}).get(hx) or tr["type"],
+                                cpa_rel_utc_start_s=round(float(te[i] - self.t0), 1),
+                                cpa_utc=datetime.fromtimestamp(te[i], timezone.utc).strftime("%H:%M:%S"),
+                                horizontal_m=round(float(d[i])), agl_m=round(float(agl[i])),
+                                slant_m=round(float(math.hypot(d[i], agl[i]))),
+                                gs_kt=round(float(np.nanmedian(tr["gs"][near])), 0) if near.any() else None,
+                                adsb_reports_within_30s=int(near.sum())))
+        out.sort(key=lambda c: c["slant_m"])
+        return out[:top] if top else out
+
     def frames(self, ac, L, keep_voice=False):
         """Audio rows and receive times for the window cpa_tr +- half at latency L (voice frames dropped)."""
         tq_all = self.tau + self.t0 - L
@@ -275,7 +336,7 @@ class Setup:
         rows, tq = self.frames(ac, L, keep_voice)
         G = len(gx)
         s = np.full(G, np.nan)
-        k0 = np.full(G, -1, np.int64)
+        k0 = np.full(G, NO_K0, np.int64)
         n = np.zeros(G, np.int64)
         nmin = int(round(self.a.min_frac * 2 * self.a.half / self.hop_s))
         if len(rows) >= nmin:
@@ -351,7 +412,7 @@ def plot_spec(S, ac, L, k0, out, extra=""):
     ax.pcolormesh(S.tau[sel], S.fk, S.W[sel].T, shading="nearest", cmap="magma", vmin=-1, vmax=3, rasterized=True)
     t_a, lr = S.curve(ac, L)
     keep = (t_a >= t_c - S.a.half) & (t_a <= t_c + S.a.half)
-    if k0 >= 0:
+    if k0 != NO_K0:  # f0 bin; negative = below fmin
         f0 = S.fk[0] * math.exp(k0 * S.a.dlog)
         styles = {1: "-", 2: "--", 3: ":"}
         for h in range(1, S.a.harmonics + 1):
@@ -364,6 +425,8 @@ def plot_spec(S, ac, L, k0, out, extra=""):
     ax.set_xlabel("audio time (s)")
     ax.set_ylabel("Hz (whitened, ridge-filtered)")
     ax.legend(fontsize=8, loc="upper right", ncol=2 if S.a.harmonics > 3 else 1)
+    ax.text(0.01, 0.02, "not blind: known camera, hand-picked aircraft", transform=ax.transAxes, color="w",
+            fontsize=8, va="bottom")
     ax.set_title(f"{label(ac)}: closest {ac['cpa_r']:.0f} m slant, {ac['cpa_hor']:.0f} m horizontal, "
                  f"{ac['cpa_agl']:.0f} m AGL   L = {L:.2f} s{extra}", fontsize=10)
     fig.tight_layout()
@@ -531,7 +594,7 @@ def event_reference(S, ev):
     w = S.W[m].mean(axis=0)
     best = -1e30
     for k0 in range(S.k0lo, S.k0hi + 1):
-        idx = [k0 + h for h in S.hk if k0 + h < S.K]
+        idx = [k0 + h for h in S.hk if 0 <= k0 + h < S.K]
         best = max(best, w[idx].sum() / math.sqrt(len(idx)))
     return float(best)
 
@@ -579,6 +642,14 @@ def run_each(S, a, Ls, cam, grid_pts, out, summary, grid):
                       predicted_swing_bins=round(swing, 1), scored_frames=int(n0[0]),
                       window_frames=int(round(2 * a.half / S.hop_s)),
                       camera_over_peak=round(float(s0[0] / rec["fit_peak"]), 3))
+        ib = int(np.nanargmax(ac["scan"]))  # contiguous L range scoring >= 0.9 of the scan max
+        near = np.nan_to_num(ac["scan"], nan=-np.inf) >= 0.9 * ac["scan"][ib]
+        lo = hi = ib
+        while lo > 0 and near[lo - 1]:
+            lo -= 1
+        while hi < len(Ls) - 1 and near[hi + 1]:
+            hi += 1
+        checks["L_within_10pct_of_max_s"] = [float(Ls[lo]), float(Ls[hi])]
         fails = []
         if z < 4:
             fails.append(f"latency scan has no distinct peak (z = {z:.1f})")
@@ -620,8 +691,9 @@ def run_each(S, a, Ls, cam, grid_pts, out, summary, grid):
     else:
         summary["combined"] = f"not made: {len(fit_acs)} aircraft fit (needs 2)"
     summary["verdict_rules"] = VERDICT_RULES
-    if S.cfg.get("event_note"):
-        summary["event_note"] = S.cfg["event_note"]
+    for k in ("event_note", "reading_note"):
+        if S.cfg.get(k):
+            summary[k] = S.cfg[k]
     summary["verdict"] = ("fits: " + ", ".join(ac["flight"] for ac in fit_acs)) if fit_acs else "does not fit"
 
 
@@ -645,6 +717,10 @@ def main():
     ap.add_argument("--lstep", type=float, default=0.25)
     ap.add_argument("--extent", type=float, default=6000.0)
     ap.add_argument("--step", type=float, default=100.0)
+    ap.add_argument("--picks", help="comma-separated hex list (overrides the case's picks)")
+    ap.add_argument("--max-gap", type=float, help="longest ADS-B gap bridged by the track interpolation, s")
+    ap.add_argument("--cand-radius", type=float, default=6000.0, help="candidate list: horizontal radius, m")
+    ap.add_argument("--cand-agl", type=float, default=1500.0, help="candidate list: max height above camera ground, m")
     a = ap.parse_args()
     name = json.loads((Path(a.case_dir) / "case.json").read_text())["case"]
     cfg = CASES[name]
@@ -677,6 +753,15 @@ def main():
     summary = dict(note="NOT blind: known (revealed) camera, hand-picked aircraft, Paras-style setup",
                    camera=dict(lat=cfg["camera"][0], lon=cfg["camera"][1], z_m=S.cam_z), params=vars(a),
                    aircraft=[], skipped=[])
+    summary["candidates"] = dict(
+        rule=f"within {a.cand_radius:.0f} m horizontal, below {a.cand_agl:.0f} m above the camera ground, "
+             f"emission time utc_start - {a.lmax:.0f} s .. end of audio (closest point per pass, by slant)",
+        passes=S.candidates(a.cand_radius, a.cand_agl, a.lmax),
+        nearest_any_height=S.candidates(2 * a.cand_radius, np.inf, a.lmax, top=12),
+        picked=[ac["hex"] for ac in S.ac])
+    for c in summary["candidates"]["passes"]:
+        print(f"candidate {c['flight']:8s} {c['type']:6s} {c['horizontal_m']:5d} m hor  {c['agl_m']:5d} m AGL  "
+              f"at {c['cpa_utc']}")
     grid = dict(lat0=S.lat0, lon0=S.lon0, x_m=xs.tolist(), y_m=ys.tolist(), shape=list(GX.shape),
                 layout="heat[iy, ix], y north from -extent, x east from -extent (origin lower)", aircraft=[])
     run = run_shared if cfg["shared_l"] else run_each

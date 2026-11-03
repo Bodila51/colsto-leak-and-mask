@@ -1,0 +1,315 @@
+{
+ "note": "NOT blind: known (revealed) camera, hand-picked aircraft, Paras-style setup",
+ "camera": {
+  "lat": 50.89677,
+  "lon": -1.40477,
+  "z_m": 9.910312498648192
+ },
+ "params": {
+  "case_dir": "cases/case_C",
+  "out": "C:/Users/Asus/AppData/Local/Temp/claude/C--Users-Asus-flyover-leak/b39dc475-d131-4b15-a247-48192548f630/scratchpad/diag_negL",
+  "fmin": 50.0,
+  "fmax": 600.0,
+  "f0min": 40.0,
+  "f0max": 250.0,
+  "harmonics": 5,
+  "win": 1.0,
+  "hop": 0.125,
+  "dlog": 0.01,
+  "ridge": 15,
+  "half": 30.0,
+  "min_frac": 0.3,
+  "lmin": -20.0,
+  "lmax": 30.0,
+  "lstep": 0.25,
+  "extent": 1000.0,
+  "step": 500.0,
+  "picks": "4012da,aba778",
+  "max_gap": 60.0,
+  "cand_radius": 6000.0,
+  "cand_agl": 1500.0
+ },
+ "aircraft": [
+  {
+   "hex": "4012da",
+   "flight": "AUR507",
+   "type": "DHC6",
+   "cpa_audio_s": 4137.964727163315,
+   "cpa_slant_m": 1282.4196341997447,
+   "cpa_horizontal_m": 1239.0727449082444,
+   "cpa_agl_m": 335.60376738106874,
+   "track_deg": 19.12105334957298,
+   "camera_track_offset_m": 1238.8654860192926,
+   "first_adsb_report_rel_cpa_s": -725.2009539604187,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 2477.730972038585,
+   "f0_hz": 79.999709660868,
+   "fit_at_camera": 1.1207110581740833,
+   "fit_peak": 1.120711088180542,
+   "peak": {
+    "lat": 50.89677,
+    "lon": -1.40477,
+    "x_m": 0.0,
+    "y_m": 0.0
+   },
+   "peak_error_m": 0.0,
+   "scan_best_L_s": 11.5,
+   "L_s": 11.5,
+   "checks": {
+    "scan_peak_z": 1.03,
+    "fit_flat_same_frames": 0.6349329423534816,
+    "doppler_over_flat": 1.765,
+    "predicted_swing_bins": 21.2,
+    "scored_frames": 480,
+    "window_frames": 480,
+    "camera_over_peak": 1.0,
+    "L_within_10pct_of_max_s": [
+     6.5,
+     12.75
+    ]
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 1.0)"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -725.2009539604187,
+    67.09304618835449
+   ],
+   "despiked_reports": 0
+  },
+  {
+   "hex": "aba778",
+   "flight": "N850BG",
+   "type": "TBM7",
+   "cpa_audio_s": 655.3707137107849,
+   "cpa_slant_m": 5009.338815106667,
+   "cpa_horizontal_m": 2968.4909418529464,
+   "cpa_agl_m": 4040.038648225229,
+   "track_deg": 10.631142915411646,
+   "camera_track_offset_m": 2968.4901933619985,
+   "first_adsb_report_rel_cpa_s": -490.782274723053,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 5936.980386723997,
+   "f0_hz": 134.56172361746312,
+   "fit_at_camera": 0.7966471611211697,
+   "fit_peak": 0.8333866596221924,
+   "peak": {
+    "lat": 50.89677,
+    "lon": -1.3976406795590681,
+    "x_m": 500.0,
+    "y_m": 0.0
+   },
+   "peak_error_m": 500.0,
+   "scan_best_L_s": 0.25,
+   "L_s": 0.25,
+   "checks": {
+    "scan_peak_z": 1.35,
+    "fit_flat_same_frames": 0.3988925539866034,
+    "doppler_over_flat": 1.997,
+    "predicted_swing_bins": 42.4,
+    "scored_frames": 480,
+    "window_frames": 480,
+    "camera_over_peak": 0.956,
+    "L_within_10pct_of_max_s": [
+     -2.5,
+     5.0
+    ]
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 1.4)"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -490.782274723053,
+    433.9977252483368
+   ],
+   "despiked_reports": 1
+  }
+ ],
+ "skipped": [],
+ "candidates": {
+  "rule": "within 6000 m horizontal, below 1500 m above the camera ground, emission time utc_start - 30 s .. end of audio (closest point per pass, by slant)",
+  "passes": [
+   {
+    "hex": "4012da",
+    "flight": "AUR507",
+    "type": "DHC6",
+    "cpa_rel_utc_start_s": 4122.5,
+    "cpa_utc": "14:38:15",
+    "horizontal_m": 1239,
+    "agl_m": 336,
+    "slant_m": 1284,
+    "gs_kt": 96.0,
+    "adsb_reports_within_30s": 2
+   },
+   {
+    "hex": "4083f3",
+    "flight": "PIPE65",
+    "type": "rotorcraft (A7)",
+    "cpa_rel_utc_start_s": 3226.0,
+    "cpa_utc": "14:23:19",
+    "horizontal_m": 5886,
+    "agl_m": 316,
+    "slant_m": 5895,
+    "gs_kt": 113.0,
+    "adsb_reports_within_30s": 31
+   }
+  ],
+  "nearest_any_height": [
+   {
+    "hex": "4012da",
+    "flight": "AUR507",
+    "type": "DHC6",
+    "cpa_rel_utc_start_s": 4122.5,
+    "cpa_utc": "14:38:15",
+    "horizontal_m": 1239,
+    "agl_m": 336,
+    "slant_m": 1284,
+    "gs_kt": 96.0,
+    "adsb_reports_within_30s": 2
+   },
+   {
+    "hex": "aba778",
+    "flight": "N850BG",
+    "type": "TBM7",
+    "cpa_rel_utc_start_s": 640.5,
+    "cpa_utc": "13:40:13",
+    "horizontal_m": 2969,
+    "agl_m": 4040,
+    "slant_m": 5013,
+    "gs_kt": 228.0,
+    "adsb_reports_within_30s": 7
+   },
+   {
+    "hex": "4083f3",
+    "flight": "PIPE65",
+    "type": "rotorcraft (A7)",
+    "cpa_rel_utc_start_s": 3226.0,
+    "cpa_utc": "14:23:19",
+    "horizontal_m": 5886,
+    "agl_m": 316,
+    "slant_m": 5895,
+    "gs_kt": 113.0,
+    "adsb_reports_within_30s": 31
+   },
+   {
+    "hex": "4952d3",
+    "flight": "TAP1359",
+    "type": "A21N",
+    "cpa_rel_utc_start_s": 3035.5,
+    "cpa_utc": "14:20:08",
+    "horizontal_m": 2703,
+    "agl_m": 6562,
+    "slant_m": 7097,
+    "gs_kt": 424.0,
+    "adsb_reports_within_30s": 3
+   },
+   {
+    "hex": "407666",
+    "flight": "EZY42PM",
+    "type": "A21N",
+    "cpa_rel_utc_start_s": 998.5,
+    "cpa_utc": "13:46:11",
+    "horizontal_m": 1841,
+    "agl_m": 6896,
+    "slant_m": 7137,
+    "gs_kt": 427.0,
+    "adsb_reports_within_30s": 14
+   },
+   {
+    "hex": "4083f3",
+    "flight": "PIPE65",
+    "type": "rotorcraft (A7)",
+    "cpa_rel_utc_start_s": 3759.5,
+    "cpa_utc": "14:32:12",
+    "horizontal_m": 7269,
+    "agl_m": 313,
+    "slant_m": 7275,
+    "gs_kt": 104.0,
+    "adsb_reports_within_30s": 2
+   },
+   {
+    "hex": "4006c1",
+    "flight": "BAW22G",
+    "type": "B772",
+    "cpa_rel_utc_start_s": 1290.0,
+    "cpa_utc": "13:51:03",
+    "horizontal_m": 5562,
+    "agl_m": 4715,
+    "slant_m": 7291,
+    "gs_kt": 404.0,
+    "adsb_reports_within_30s": 15
+   },
+   {
+    "hex": "43c208",
+    "flight": "RRR6139",
+    "type": "C17",
+    "cpa_rel_utc_start_s": 1148.5,
+    "cpa_utc": "13:48:41",
+    "horizontal_m": 7101,
+    "agl_m": 1678,
+    "slant_m": 7297,
+    "gs_kt": 285.0,
+    "adsb_reports_within_30s": 24
+   },
+   {
+    "hex": "4080ea",
+    "flight": "BAW46BL",
+    "type": "A21N",
+    "cpa_rel_utc_start_s": 2170.5,
+    "cpa_utc": "14:05:43",
+    "horizontal_m": 3928,
+    "agl_m": 6383,
+    "slant_m": 7495,
+    "gs_kt": 418.0,
+    "adsb_reports_within_30s": 16
+   },
+   {
+    "hex": "4073a1",
+    "flight": "EZY84XL",
+    "type": "A20N",
+    "cpa_rel_utc_start_s": 830.5,
+    "cpa_utc": "13:43:23",
+    "horizontal_m": 214,
+    "agl_m": 7760,
+    "slant_m": 7763,
+    "gs_kt": 462.0,
+    "adsb_reports_within_30s": 15
+   },
+   {
+    "hex": "4071d7",
+    "flight": "EZY68QF",
+    "type": "A320",
+    "cpa_rel_utc_start_s": 2533.5,
+    "cpa_utc": "14:11:46",
+    "horizontal_m": 4832,
+    "agl_m": 6576,
+    "slant_m": 8160,
+    "gs_kt": 445.0,
+    "adsb_reports_within_30s": 9
+   },
+   {
+    "hex": "40796a",
+    "flight": "TOM224",
+    "type": "B38M",
+    "cpa_rel_utc_start_s": 3655.0,
+    "cpa_utc": "14:30:28",
+    "horizontal_m": 6968,
+    "agl_m": 5060,
+    "slant_m": 8611,
+    "gs_kt": 386.0,
+    "adsb_reports_within_30s": 2
+   }
+  ],
+  "picked": [
+   "4012da",
+   "aba778"
+  ]
+ },
+ "event_reference_fit": null,
+ "combined": "not made: 0 aircraft fit (needs 2)",
+ "verdict_rules": "fits only if all hold: (1) the latency scan has a distinct peak, z = (max - median) / (1.4826 MAD) >= 4; (2) at that L the Doppler curve beats a flat line on the same frames by >= 15 %; (3) the predicted Doppler swing in the scored frames is >= 2 log bins (else the shape is untestable); (4) the camera scores >= 0.9 of the heat-map peak; (5) the fit reaches >= 0.5 of what the recording's own clear stack (cfg event) scores along a flat line, i.e. there is a ridge at all. Rule 5 was added after seeing G-BONT pass rules 1-4 with no visible ridge under its curve.",
+ "reading_note": "Read off spec_*.png and heat_*.png; not part of the verdict. N850BG: a falling tone ~170 -> ~120 Hz at audio ~625-685 s, with x2 (~340 -> ~235 Hz), lies under the predicted curve. Its heat map shows the band through the camera and the mirror band ~5.3 km east across the track (the peak; camera 0.95 of it). AUR507: a falling tone ~93 -> ~84 Hz at audio ~4108-4135 s, with x2 (~185 -> ~170 Hz), lies under the curve on the approach half. After ~4140 s the curve flattens onto a steady ~76 Hz line that is also present before the pass (a non-Doppler source), so the receding half is no independent match. Its latency scan is a broad plateau, the along-track / L trade-off, so rule 1 fails. Its heat map shows the two mirror blobs, the camera and one 2.4 km across the track (the peak; camera 0.99 of it). Only 2 ADS-B reports fall within 30 s of its CPA; the 48 s gaps either side are bridged (max_gap 60). The two turboprops' L ranges within 10 % of their scan maxima (0-5 s, 6.5-12.75 s) do not overlap: no consistent L. PIPE65 and RRR6139 score about a quarter of the turboprops (no ridge to fit). A diagnostic scan over L = -20..30 s (diag_L_-20_30/) keeps both maxima (0.25 s, 11.5 s), so N850BG's peak is not an edge effect, but its z drops to 1.4 there: z depends on the scan range.",
+ "verdict": "does not fit"
+}
