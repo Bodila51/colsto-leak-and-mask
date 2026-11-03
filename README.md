@@ -31,10 +31,13 @@ Every row comes from a run in this repo on one Windows PC (Ryzen 7 5700X, 16 GB 
 | Search area | Engine | Flyovers | Rank 1 | Town match | Flights it picked |
 |---|---|---|---|---|---|
 | 300 × 300 km box centred on New York City | [doppler-locate](https://github.com/digitalis-p/doppler-locate) search + score | the two events measured in doppler-locate's `cases/oyster.toml` | 40.8764, -73.5258 (best of 48 flight pairs, score 3.662 vs 3.483 for rank 2) | **inside the Oyster Bay hamlet**, 925 m from its centre | Pilatus PC-12 N22NY (CST1219) and King Air 350 N93CQ (EGE93) |
+| same box | doppler-locate end to end: our own `dopploc detect` on the raw audio, then search + score | the 2 strongest of 8 detected events | 41.9212, -72.6856 in Connecticut (best of 517 pairs, score 5.135 vs 5.010) | **miss**: 137 km from the hamlet. The right pair (PC-12 + King Air) came 5th of 517, at 4.881 | N217DC (TBM 900) and N65031 (Cessna 400) |
 
 Plainly:
 - colsto published only the town (Oyster Bay, NY), not the camera's coordinates. So this is a town match, not an error in metres.
-- The box was chosen knowing that the answer is on Long Island, so this run is not blind. Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json). Runtime: 23 min.
+- The box was chosen knowing that the answer is on Long Island, so neither run is blind.
+- The town match needs the flyover events as measured by doppler-locate's author. With our fully automatic detection, the second event's tone came out at 140.7 Hz instead of about 134 Hz, and rank 1 moved to Connecticut. So on this PC the town match depends on carefully measured events, not on detection alone.
+- Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json) (23 min) and [`results/colsto_dopploc_e2e/`](results/colsto_dopploc_e2e/) (44 min).
 
 ### Blind webcam runs
 
