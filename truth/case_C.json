@@ -1,0 +1,13 @@
+{
+  "case": "case_C",
+  "camera_name": "Solent Ships Ferry Cam",
+  "stream_url": "https://www.youtube.com/watch?v=QO-hO_kwwmY",
+  "owner_location_text": "With many thanks to La Regata Spanish Restaurant for hosting the camera. You can find La Regata at Town Quay, opposite the Ferry Terminal.",
+  "owner_location_source_url": "https://www.youtube.com/watch?v=QO-hO_kwwmY",
+  "lat": 50.89677,
+  "lon": -1.40477,
+  "uncertainty_m": 15,
+  "coord_method": "Nominatim result for \"La Regata Town Quay Southampton\": OSM way 183691403 (restaurant) centroid",
+  "coord_source_url": "https://nominatim.openstreetmap.org/search?format=json&q=La+Regata+Town+Quay+Southampton",
+  "written_utc": "2026-11-03T13:32:42Z"
+}

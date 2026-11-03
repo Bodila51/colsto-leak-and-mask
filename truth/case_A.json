@@ -1,0 +1,13 @@
+{
+  "case": "case_A",
+  "camera_name": "Miami Airport Cam (PTZtv)",
+  "stream_url": "https://www.youtube.com/watch?v=_GUsXnlVJmo",
+  "owner_location_text": "fabulous panoramic views from the 94th Aero Squadron Restaurant alongside MIA runway 9/27",
+  "owner_location_source_url": "https://www.youtube.com/watch?v=_GUsXnlVJmo",
+  "lat": 25.78503,
+  "lon": -80.28755,
+  "uncertainty_m": 40,
+  "coord_method": "Nominatim result for \"94th Aero Squadron, Miami\": OSM node 5533485322 (restaurant)",
+  "coord_source_url": "https://nominatim.openstreetmap.org/search?format=json&q=94th+Aero+Squadron,+Miami",
+  "written_utc": "2026-11-03T13:32:42Z"
+}

@@ -1,0 +1,56 @@
+{
+ "case": "case_A",
+ "camera": "Miami Airport Cam (PTZtv)",
+ "truth_hash_ok": true,
+ "truth": [
+  25.78503,
+  -80.28755
+ ],
+ "truth_uncertainty_m": 40,
+ "runs": [
+  {
+   "run": "solver v1 (detector-first)",
+   "answer": "results/case_A/answer.json",
+   "found": null,
+   "error_m": null,
+   "status": "no_flyovers",
+   "score_over_null": null,
+   "latency_s": null,
+   "top_aircraft": []
+  },
+  {
+   "run": "ridge v1",
+   "answer": "results/case_A_ridge/answer.json",
+   "found": [
+    25.768208,
+    -80.286752
+   ],
+   "error_m": 1872,
+   "status": "point",
+   "score_over_null": 23.03,
+   "latency_s": 24.25,
+   "top_aircraft": [
+    "ENY3714",
+    "AAL2543",
+    "LNE213"
+   ]
+  },
+  {
+   "run": "ridge v1.1",
+   "answer": "results/case_A_ridge_v11/answer.json",
+   "found": [
+    25.785745,
+    -80.29499
+   ],
+   "error_m": 749,
+   "status": "point",
+   "score_over_null": 15.86,
+   "latency_s": 38.5,
+   "top_aircraft": [
+    "ENY3714",
+    "AAL1901",
+    "AAL2883"
+   ]
+  }
+ ]
+}

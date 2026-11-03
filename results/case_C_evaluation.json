@@ -1,0 +1,29 @@
+{
+ "case": "case_C",
+ "camera": "Solent Ships Ferry Cam",
+ "truth_hash_ok": true,
+ "truth": [
+  50.89677,
+  -1.40477
+ ],
+ "truth_uncertainty_m": 15,
+ "runs": [
+  {
+   "run": "ridge v1.1",
+   "answer": "results/case_C_ridge_v11/answer.json",
+   "found": [
+    50.75677,
+    -1.213454
+   ],
+   "error_m": 20565,
+   "status": "point",
+   "score_over_null": 7.8,
+   "latency_s": 38.5,
+   "top_aircraft": [
+    "SRD375",
+    "GOVFR",
+    "SFU44"
+   ]
+  }
+ ]
+}
