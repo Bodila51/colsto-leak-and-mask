@@ -155,4 +155,7 @@ stream's owner if in doubt. Never commit an mp4 or a frame of the footage.
 - `index.html`: the animation, `window.renderAt(t)`, `?layout=landscape|vertical`. No requestAnimationFrame, no Date.now, no Math.random.
 - `tools/cap.js`: Playwright capture, 8 pages in parallel (uses `tools/node_modules`, else the shared copy in `~/Downloads/legends-video/tools`).
 - `make_preview.py`: regenerates `preview_data.json` (demo values only).
+- `triptych.py` + `terminal.html`: the Miami triptych (webcam | analysis `?layout=panel` / terminal replay of `results/case_A_ridge_v11/run.log`,
+  `answer.json` and `case_A_evaluation.json`). Writes `post/miami_triptych.mp4` and `post/miami_triptych_vertical.mp4`: **local only**
+  (PTZtv footage and audio).
 - `fonts/`: Inter and JetBrains Mono, SIL Open Font License 1.1.

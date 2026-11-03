@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>run log replay</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  html,body{margin:0;background:#0a0d12;overflow:hidden}
+  html.clear,html.clear body{background:transparent}
+  canvas{display:block}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+/* The triptych's terminal strip and its frame overlay: window.renderAt(t), t in clip seconds (0..20).
+   Every line comes from build/terminal.json, which post/anim/triptych.py writes from real files (repo commands,
+   results/case_A_ridge_v11/run.log, answer.json, case_A_evaluation.json). Nothing is typed into this page.
+   ?layout=term (1920x540) | termv (1080x242) | overlay (1920x1080, transparent) | overlayv (1080x1350, transparent).
+   No requestAnimationFrame, no Date, no Math.random. */
+"use strict";
+const Q = new URLSearchParams(location.search);
+const LAYOUT = Q.get('layout') || 'term';
+const DUR = 20;
+const C = { bg: '#0a0d12', bar: '#11161d', line: 'rgba(255,255,255,0.10)', text: '#f3f6f9', dim: 'rgba(243,246,249,0.62)',
+  dimmer: 'rgba(243,246,249,0.38)', cyan: '#19e3ff', amber: '#f5b84a' };
+const SANS = "'Inter','Segoe UI',system-ui,sans-serif";
+const MONO = "'JetBrains Mono','Cascadia Mono',Consolas,monospace";
+const L = {
+  term: { W: 1920, H: 540, bar: 40, fs: 17, lh: 24, padX: 28, padY: 14, titleSz: 15 },
+  termv: { W: 1080, H: 242, bar: 26, fs: 12, lh: 16.5, padX: 16, padY: 7, titleSz: 11 },
+  overlay: { W: 1920, H: 1080, video: { x: 0, y: 0, w: 960, h: 540 }, capSz: 17, subSz: 12, divs: [[960, 0, 960, 540], [0, 540, 1920, 540]] },
+  overlayv: { W: 1080, H: 1350, video: { x: 0, y: 0, w: 1080, h: 500 }, capSz: 17, subSz: 12, divs: [[0, 500, 1080, 500], [0, 1108, 1080, 1108]] }
+}[LAYOUT];
+if (LAYOUT.startsWith('overlay')) document.documentElement.classList.add('clear');
+const cv = document.getElementById('c');
+cv.width = L.W; cv.height = L.H;
+const ctx = cv.getContext('2d');
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ramp = (t, a, b) => cl((t - a) / (b - a));
+
+function text(s, x, y, o = {}) {
+  ctx.save();
+  ctx.font = `${o.weight || 500} ${o.size || 16}px ${o.mono === false ? SANS : MONO}`;
+  ctx.textAlign = o.align || 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.globalAlpha = (o.alpha ?? 1) * ctx.globalAlpha;
+  if (o.shadow) { ctx.shadowColor = o.shadow; ctx.shadowBlur = o.shadowBlur || 14; }
+  ctx.fillStyle = o.color || C.text; ctx.fillText(s, x, y);
+  const w = ctx.measureText(s).width; ctx.restore(); return w;
+}
+function rrect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+let D;
+window.ready = (async () => {
+  const font = (fam, url) => new FontFace(fam, `url(${url})`, { weight: '100 900' }).load().then(f => document.fonts.add(f));
+  await Promise.all([font('Inter', 'fonts/Inter-var.woff2'), font('JetBrains Mono', 'fonts/JetBrainsMono-var.woff2')]);
+  D = await fetch('build/terminal.json').then(r => r.json());
+  window.__ok = true;
+})();
+
+// one terminal line; kinds: cmd (prompt, typed), log, head, ac (table row), res, hi
+function drawLine(ln, x, y, t) {
+  const fs = L.fs;
+  if (ln.kind === 'cmd') {
+    const n = Math.floor(cl((t - ln.t) / (ln.type_s || 0.8)) * ln.text.length);
+    const w0 = text('❯ ', x, y, { size: fs, weight: 700, color: C.cyan });
+    const w1 = text(ln.text.slice(0, n), x + w0, y, { size: fs, weight: 600 });
+    return { typing: n < ln.text.length, end: x + w0 + w1 };
+  }
+  if (ln.kind === 'head') { text(ln.text, x, y, { size: fs, color: C.cyan, alpha: .7 }); return {}; }
+  if (ln.kind === 'ac') {
+    let cx = x;
+    const top = ln.rank === 1, c1 = top ? C.cyan : C.text, c2 = top ? C.cyan : C.dim;
+    for (const [s, w, col] of [[ln.cells[0], 4, C.dimmer], [ln.cells[1], 10, c1], [ln.cells[2], 6, c2], [ln.cells[3], 22, c2], [ln.cells[4], 20, c2]]) {
+      text(s, cx, y, { size: fs, color: col, weight: top ? 700 : 500 }); cx += w * fs * 0.6;
+    }
+    ctx.save(); ctx.fillStyle = top ? C.cyan : 'rgba(25,227,255,0.55)';
+    ctx.fillRect(cx, y - fs * .72, Math.max(2, ln.bar * fs * 9), fs * .62); ctx.restore();
+    return {};
+  }
+  if (ln.kind === 'res') { text(ln.text, x, y, { size: fs, weight: 600 }); return {}; }
+  if (ln.kind === 'hi') { text(ln.text, x, y, { size: fs, weight: 700, color: C.cyan, shadow: 'rgba(25,227,255,0.55)' }); return {}; }
+  text(ln.text, x, y, { size: fs, color: C.dim }); return {};
+}
+
+function drawTerm(t) {
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, L.W, L.H);
+  // title bar: window dots, title, the honesty label
+  ctx.fillStyle = C.bar; ctx.fillRect(0, 0, L.W, L.bar);
+  ctx.fillStyle = C.line; ctx.fillRect(0, L.bar, L.W, 1);
+  const r = L.bar * .16, cy = L.bar / 2;
+  ['#ff5f57', '#febc2e', '#28c840'].forEach((c, i) => { ctx.beginPath(); ctx.arc(L.padX + r + i * r * 3.4, cy, r, 0, 7); ctx.fillStyle = c; ctx.globalAlpha = .85; ctx.fill(); ctx.globalAlpha = 1; });
+  text(D.title, L.padX + r * 10, cy + L.titleSz * .36, { size: L.titleSz, color: C.dim });
+  text(D.label, L.W - L.padX, cy + L.titleSz * .36, { size: L.titleSz, color: C.amber, align: 'right', weight: 600 });
+  // body: the lines shown so far, newest at the bottom, scrolled to fit
+  const vis = D.lines.filter(l => l.t <= t);
+  const rows = Math.floor((L.H - L.bar - 2 * L.padY) / L.lh) - 1;      // keep one row for the prompt
+  const first = Math.max(0, vis.length - rows);
+  let y = L.bar + L.padY + L.lh * .8, last = {};
+  ctx.save(); ctx.beginPath(); ctx.rect(0, L.bar + 1, L.W, L.H - L.bar - 1); ctx.clip();
+  for (let i = first; i < vis.length; i++) { last = drawLine(vis[i], L.padX, y, t); y += L.lh; }
+  // cursor: on the command being typed, else on a fresh prompt line
+  const on = Math.floor(t * 2.2) % 2 === 0;
+  if (last.typing) { ctx.fillStyle = C.text; ctx.fillRect(last.end + 2, y - L.lh - L.fs * .78, L.fs * .58, L.fs * .95); }
+  else {
+    const w0 = text('❯ ', L.padX, y, { size: L.fs, weight: 700, color: C.cyan });
+    if (on) { ctx.fillStyle = C.text; ctx.fillRect(L.padX + w0 + 2, y - L.fs * .78, L.fs * .58, L.fs * .95); }
+  }
+  ctx.restore();
+}
+
+function drawOverlay(t) {
+  ctx.clearRect(0, 0, L.W, L.H);
+  ctx.fillStyle = 'rgba(255,255,255,0.14)';
+  for (const [x0, y0, x1, y1] of L.divs) ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+  // caption on the webcam picture
+  const V = L.video, cap = D.caption, sub = D.caption_sub;
+  ctx.save(); ctx.font = `600 ${L.capSz}px ${SANS}`; const w1 = ctx.measureText(cap).width;
+  ctx.font = `500 ${L.subSz}px ${MONO}`; const w2 = ctx.measureText(sub).width; ctx.restore();
+  const bw = Math.max(w1, w2) + 28, bh = L.capSz + L.subSz + 30, bx = V.x + 16, by = V.y + V.h - bh - 16;
+  rrect(bx, by, bw, bh, 8); ctx.fillStyle = 'rgba(5,7,10,0.74)'; ctx.fill();
+  text(cap, bx + 14, by + 12 + L.capSz * .82, { size: L.capSz, weight: 600, mono: false });
+  text(sub, bx + 14, by + bh - 11, { size: L.subSz, color: C.dim });
+  // tag top-left
+  const tag = D.video_tag, tw = (() => { ctx.save(); ctx.font = `600 ${L.subSz}px ${MONO}`; const w = ctx.measureText(tag).width; ctx.restore(); return w; })();
+  rrect(V.x + 16, V.y + 14, tw + 20, L.subSz + 14, 6); ctx.fillStyle = 'rgba(5,7,10,0.7)'; ctx.fill();
+  text(tag, V.x + 26, V.y + 14 + L.subSz + 3, { size: L.subSz, weight: 600, color: C.cyan });
+}
+
+window.renderAt = function (t) {
+  t = cl(t, 0, DUR - 1e-6);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+  if (LAYOUT.startsWith('overlay')) drawOverlay(t); else drawTerm(t);
+};
+</script>
+</body>
+</html>

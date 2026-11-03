@@ -17,7 +17,7 @@
    map vectors, data.json). ?layout=landscape (1920x1080) | vertical (1080x742). */
 "use strict";
 const Q = new URLSearchParams(location.search);
-const LAYOUT = ['vertical', 'tall'].includes(Q.get('layout')) ? Q.get('layout') : 'landscape';   // tall = 1080x1350, no stream footage
+const LAYOUT = ['vertical', 'tall', 'panel'].includes(Q.get('layout')) ? Q.get('layout') : 'landscape';   // tall = 1080x1350, no stream footage; panel = 960x540 box of the triptych
 const DUR = 20;
 
 // ------------------------------------------------------------------------------------------ design tokens
@@ -39,7 +39,7 @@ const LAYOUTS = {
     axisSz: 23, tipSz: 30, tipSub: 22, lw: 3.2, pill: 22,
     badge: { w: 640, pad: 28, s1: 24, s2: 40, s3: 28 },
     big: 92, mid: 64, found: 132, foundSub: 48, note: 26, mapLab: 20, wm: 100,
-    scaleSz: 20, ph: 14, trackLab: 20
+    scaleSz: 20, ph: 14, trackLab: 20, foundGap: 100
   },
   vertical: {
     W: 1080, H: 742, pad: 24,
@@ -61,6 +61,17 @@ const LAYOUTS = {
     axisSz: 20, tipSz: 28, tipSub: 20, lw: 3, pill: 20,
     badge: { w: 640, pad: 24, s1: 20, s2: 36, s3: 24 },
     big: 54, mid: 54, found: 64, foundSub: 40, note: 24, mapLab: 18, wm: 80, scaleSz: 18, ph: 12, trackLab: 18
+  },
+  panel: {  // one 960x540 box of the triptych (post/anim/triptych.py): the landscape scenes at half size, larger type
+    W: 960, H: 540, pad: 22,
+    stepY: 28, stepSz: 13, headY: 60, headSz: 28, clockSz: 14, creditY: 528, creditSz: 13,
+    spec: { big: { x: 74, y: 84, w: 866, h: 380 }, mini: { x: 476, y: 84, w: 464, h: 120 }, s5: { x: 74, y: 84, w: 866, h: 380 } },
+    map: { big: { x: 20, y: 80, w: 410, h: 410 }, card: { x: 20, y: 80, w: 410, h: 410 } },
+    col: { x: 476, y: 236, w: 464 },
+    axisSz: 12, tipSz: 17, tipSub: 12, lw: 2, pill: 12,
+    badge: { w: 340, pad: 16, s1: 12, s2: 24, s3: 15 },
+    big: 40, mid: 30, found: 56, foundSub: 20, note: 13, mapLab: 11, wm: 50, scaleSz: 11, ph: 8, trackLab: 12,
+    foundGap: 72, markS: .6
   }
 }[LAYOUT];
 const L = LAYOUTS;
@@ -477,7 +488,7 @@ function drawArea(t, R, pr, a) {
   text(lab, lx, ly, o); ctx.restore();
 }
 function drawMarkers(t, R, pr) {
-  const M = DATA.map, S = L.W > 1500 ? 1.15 : .8;
+  const M = DATA.map, S = L.markS ?? (L.W > 1500 ? 1.15 : .8);
   const [fx, fy] = pr.p(M.found.lat, M.found.lon), [tx, ty] = M.true ? pr.p(M.true.lat, M.true.lon) : pr.p(M.area.center.lat, M.area.center.lon);
   const pin0 = 15.75, star0 = 16.25, side = tx >= fx ? 1 : -1;
   // area answer (camera coordinates not published): the town polygon, drawn under the pin
@@ -543,7 +554,7 @@ function drawColumn(t) {
     text(n + ' aircraft', K.x, y0 + rise(15.0), { size: L.big, weight: 700, alpha: ramp(t, 15.0, 15.4) });
     text('→ 1 place', K.x, y0 + L.mid + 22 + rise(15.6), { size: L.mid, weight: 700, color: C.cyan, alpha: ramp(t, 15.6, 16.0) });
     const area = M.area && !M.true;   // town match: no distance to show, a shorter block
-    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (LAYOUT === 'landscape' ? 100 : 40) - (area ? 40 : M.note ? 34 : 0);
+    const fa = ramp(t, 16.3, 16.75), fy = K.y + L.big + L.mid + 22 + L.found + (L.foundGap ?? 40) - (area ? 40 : M.note ? 34 : 0);
     if (DATA.second_event_note) text(DATA.second_event_note, K.x, y0 + L.mid + 22 + L.note + 34, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 15.8, 16.1) * (1 - ramp(t, 16.0, 16.3)) });
     text(M.found_label ?? 'found:', K.x, fy - L.found - 4 + rise(16.3, 12), { size: L.note + 2, mono: true, color: C.cyan, alpha: fa, track: 1.5 });
     if (area) {
