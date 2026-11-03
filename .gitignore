@@ -13,3 +13,4 @@ cases/*/adsb.jsonl
 # third-party webcam footage (StreamTime LIVE forbids duplication without permission): never commit
 post/monitor1_recording.mp4
 post/post_vertical.mp4
+solver_ridge_v11_ref/
