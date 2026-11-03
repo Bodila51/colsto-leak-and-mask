@@ -43,6 +43,15 @@ Plainly:
 - The town match needs the flyover events as measured by doppler-locate's author. With our fully automatic detection, the second event's tone came out at 140.7 Hz instead of about 134 Hz, and rank 1 moved to Connecticut. So on this PC the town match depends on carefully measured events, not on detection alone.
 - Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json) (23 min) and [`results/colsto_dopploc_e2e/`](results/colsto_dopploc_e2e/) (44 min).
 
+### Synthetic test (answer known by construction)
+
+| Case | Engine | Injected | Found | Error |
+|---|---|---|---|---|
+| `dopploc synth` seed 11, clean (+6 dB), Orlando | ridge v1 | latency 22.0 s | latency 50.75 s | **6,221 m, miss** |
+| `dopploc synth` seed 12, noisy (-12 dB), Manhattan | ridge v1 | latency 41.5 s | latency 2.25 s | **3,346 m, miss** |
+
+Our ridge solver misses even on synthetic audio. Distant airliners 6-8 km away outscore the true propeller flyovers. Together with the Miami control below, this says the ridge solver in this repo does not yet locate anything by sound. Details: [`results/synth_11`](results/synth_11), [`results/synth_12`](results/synth_12).
+
 ### Blind webcam runs
 
 How a blind run works, so you don't have to trust us:
