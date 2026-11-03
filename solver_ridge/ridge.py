@@ -11,6 +11,10 @@ v1.1: track samples count only when airborne (not "ground", gs >= 50 kt, >= 30 m
 ground), and a (g, a, L) curve is scored only if its predicted Doppler ratio swings by at least
 ~0.5 % across the scored frames, so flat curves carry no weight.
 
+v1.2: latency step 0.5 s and STFT hop <= 0.1 s when the band reaches above 1 kHz; a dense 100 m
+sub-grid within 1.5 km of every airborne track sample below 600 m AGL inside the bbox; refinement of
+the top 25 peaks plus every local maximum within 30 % of the best.
+
     python solver_ridge/ridge.py cases/case_E --out results/case_E_ridge
 """
 
@@ -28,7 +32,7 @@ import numba as nb
 import numpy as np
 import soundfile as sf
 from scipy.interpolate import CubicHermiteSpline
-from scipy.ndimage import maximum_filter1d
+from scipy.ndimage import binary_dilation, maximum_filter1d
 
 ROOT = Path(__file__).resolve().parents[1]
 VENDOR = ROOT / "data" / "vendor" / "doppler-locate"
@@ -46,23 +50,25 @@ def whitened_spectrogram(x, fs, fmin, fmax, nperseg, hop, dlog):
     """Log-frequency, whitened spectrogram W[frame, bin] and the frame centre times (s)."""
     win = np.hanning(nperseg).astype(np.float32)
     n = 1 + (len(x) - nperseg) // hop
-    idx = np.arange(nperseg)[None, :] + hop * np.arange(n)[:, None]
-    P = np.abs(np.fft.rfft(x[idx] * win, axis=1)) ** 2
-    lp = 10 * np.log10(P + 1e-12).astype(np.float32)
     flin = np.fft.rfftfreq(nperseg, 1 / fs)
     K = int(round(math.log(fmax / fmin) / dlog)) + 1
     fk = fmin * np.exp(dlog * np.arange(K))
     lo = fk * math.exp(-dlog / 2)
     hi = fk * math.exp(dlog / 2)
     out = np.empty((n, K), np.float32)
-    for k in range(K):
-        sel = np.nonzero((flin >= lo[k]) & (flin < hi[k]))[0]
-        if len(sel):
-            out[:, k] = lp[:, sel].max(axis=1)
-        else:  # bin narrower than the FFT resolution: interpolate
-            j = np.searchsorted(flin, fk[k]) - 1
-            w = (fk[k] - flin[j]) / (flin[j + 1] - flin[j])
-            out[:, k] = (1 - w) * lp[:, j] + w * lp[:, j + 1]
+    for c0 in range(0, n, 2000):  # chunks keep long files in memory
+        c1 = min(n, c0 + 2000)
+        idx = np.arange(nperseg)[None, :] + hop * np.arange(c0, c1)[:, None]
+        P = np.abs(np.fft.rfft(x[idx] * win, axis=1)) ** 2
+        lp = 10 * np.log10(P + 1e-12).astype(np.float32)
+        for k in range(K):
+            sel = np.nonzero((flin >= lo[k]) & (flin < hi[k]))[0]
+            if len(sel):
+                out[c0:c1, k] = lp[:, sel].max(axis=1)
+            else:  # bin narrower than the FFT resolution: interpolate
+                j = np.searchsorted(flin, fk[k]) - 1
+                w = (fk[k] - flin[j]) / (flin[j + 1] - flin[j])
+                out[c0:c1, k] = (1 - w) * lp[:, j] + w * lp[:, j + 1]
     out -= np.median(out, axis=0, keepdims=True)  # per-frequency median over time
     med = np.median(out, axis=1, keepdims=True)
     mad = np.median(np.abs(out - med), axis=1, keepdims=True) * 1.4826 + 1e-6
@@ -284,7 +290,7 @@ def score_kernel(Wp, Cc, pad, d, j0a, j1a, rowofs, h2, h3, k0lo, k0hi, nmin, fla
     for g in nb.prange(G):
         j0 = j0a[g]
         j1 = j1a[g]
-        S = np.empty(K)
+        S = np.empty(K, np.float32)  # float32 accumulators: speed only
         Nn = np.empty(K)
         for li in range(nL):
             exc_out[g, li] = np.nan
@@ -374,7 +380,8 @@ class Problem:
         x = x.mean(axis=1)
         self.fs = fs
         self.dur = len(x) / fs
-        hop = int(round(a.hop * fs))
+        hop_s = a.hop if a.fmax <= 1000 else min(a.hop, 0.1)  # v1.2: fast jet sweeps need <= 0.1 s
+        hop = int(round(hop_s * fs))
         nper = int(round(a.win * fs))
         self.W, self.tau, self.fk = whitened_spectrogram(x, fs, a.fmin, a.fmax, nper, hop, a.dlog)
         self.hop_s = hop / fs
@@ -405,7 +412,7 @@ class Problem:
         offs = [np.median(tr["geom"][m] - tr["baro"][m]) for tr in tracks.values()
                 for m in [np.isfinite(tr["geom"]) & np.isfinite(tr["baro"])] if m.any()]
         goff = float(np.median(offs)) if offs else 0.0
-        self.te = np.arange(self.tj0 - 30.0, self.tj0 + self.nj * self.hop_s + 2.0, 0.25)
+        self.te = np.arange(self.tj0 - 30.0, self.tj0 + self.nj * self.hop_s + 2.0, min(0.25, self.hop_s))
         # audio span in real time (any latency)
         w_lo = self.t0 - a.lmax - 20
         w_hi = self.t0 + self.dur - a.lmin
@@ -440,12 +447,24 @@ class Problem:
         lat, lon = to_ll(gx, gy, self.lat0, self.lon0)
         return self.terrain.elevation(lat, lon) + MIC_AGL
 
-    def score(self, gx, gy, gz, rowofs, flat=False):
-        """exc, cur, k0 (A, G, nL) plus rmin, temin (A, G) for the given grid and latencies."""
+    def score(self, gx, gy, gz, rowofs, flat=False, med=None, chunk=3000):
+        """exc, cur, k0 (A, G, nL) plus rmin, temin (A, G) for the given grid and latencies.
+        With med (A, 1, nL) given, returns only the summed positive excess (G, nL)."""
+        if len(gx) > chunk:
+            parts = [self.score(gx[i:i + chunk], gy[i:i + chunk], gz[i:i + chunk], rowofs, flat, med, chunk)
+                     for i in range(0, len(gx), chunk)]
+            if med is not None:
+                return np.concatenate(parts, axis=0)
+            return tuple(np.concatenate([q[k] for q in parts], axis=1) for k in range(5))
         A, G, nL = len(self.ac), len(gx), len(rowofs)
-        exc = np.full((A, G, nL), np.nan, np.float32)
-        cur = np.full((A, G, nL), np.nan, np.float32)
-        k0 = np.full((A, G, nL), -1, np.int32)
+        if med is not None:
+            tot = np.zeros((G, nL), np.float32)
+            A_store = 0
+        else:
+            A_store = A
+        exc = np.full((A_store, G, nL), np.nan, np.float32)
+        cur = np.full((A_store, G, nL), np.nan, np.float32)
+        k0 = np.full((A_store, G, nL), -1, np.int32)
         rmin = np.full((A, G), np.nan)
         temin = np.full((A, G), np.nan)
         d = np.empty((G, self.nj), np.int16)
@@ -464,8 +483,39 @@ class Problem:
             kk = np.empty((G, nL), np.int32)
             score_kernel(self.Wp, self.Cc, self.pad, d, j0, j1, rowofs, self.h2, self.h3,
                          self.k0lo, self.k0hi, nmin, flat, self.min_swing_bins, e, c, kk)
-            exc[i], cur[i], k0[i] = e, c, kk
+            if med is not None:
+                tot += np.nan_to_num(np.maximum(e - med[i], 0.0))
+            else:
+                exc[i], cur[i], k0[i] = e, c, kk
+        if med is not None:
+            return tot
         return exc, cur, k0, rmin, temin
+
+    def dense_points(self):
+        """v1.2: 100 m lattice points within 1.5 km of airborne track samples below 600 m AGL in the bbox."""
+        a = self.a
+        xs = np.arange(self.xb[0], self.xb[1] + 1e-6, a.dense)
+        ys = np.arange(self.yb[0], self.yb[1] + 1e-6, a.dense)
+        mask = np.zeros((len(ys), len(xs)), bool)
+        s = (self.te >= self.t0 - a.lmax - 20) & (self.te <= self.t0 + self.dur - a.lmin)
+        step = max(1, int(round(1.0 / (self.te[1] - self.te[0]))))
+        for ac in self.ac:
+            X, Y, Z = ac["X"][s][::step], ac["Y"][s][::step], ac["Z"][s][::step]
+            ok = (np.isfinite(X) & (X >= self.xb[0]) & (X <= self.xb[1])
+                  & (Y >= self.yb[0]) & (Y <= self.yb[1]))
+            if not ok.any():
+                continue
+            X, Y, Z = X[ok], Y[ok], Z[ok]
+            lat, lon = to_ll(X, Y, self.lat0, self.lon0)
+            low = (Z - self.terrain.elevation(lat, lon)) < a.dense_agl
+            ix = np.clip(np.round((X[low] - xs[0]) / a.dense).astype(int), 0, len(xs) - 1)
+            iy = np.clip(np.round((Y[low] - ys[0]) / a.dense).astype(int), 0, len(ys) - 1)
+            mask[iy, ix] = True
+        r = int(round(a.dense_radius / a.dense))
+        yy, xx = np.mgrid[-r:r + 1, -r:r + 1]
+        mask = binary_dilation(mask, structure=(xx ** 2 + yy ** 2) <= r * r)
+        GX, GY = np.meshgrid(xs, ys)
+        return GX[mask], GY[mask]
 
     def curve_for(self, ac, gx, gy, gz, L_s):
         """Predicted log-ratio curve (bins) for one point at latency L, on audio frames."""
@@ -517,7 +567,7 @@ def main():
     ap.add_argument("--dlog", type=float, default=0.005)
     ap.add_argument("--lmin", type=float, default=-10.0)
     ap.add_argument("--lmax", type=float, default=60.0)
-    ap.add_argument("--lstep", type=float, default=1.0)
+    ap.add_argument("--lstep", type=float, default=0.5)
     ap.add_argument("--grid", type=float, default=450.0)
     ap.add_argument("--fine", type=float, default=75.0)
     ap.add_argument("--fine_half", type=float, default=1200.0)
@@ -526,7 +576,12 @@ def main():
     ap.add_argument("--max_alt", type=float, default=4000.0)
     ap.add_argument("--min_window", type=float, default=10.0)
     ap.add_argument("--min_swing", type=float, default=0.005, help="v1.1: min Doppler ratio swing in the scored frames")
-    ap.add_argument("--peaks", type=int, default=4)
+    ap.add_argument("--peaks", type=int, default=25)
+    ap.add_argument("--near_best", type=float, default=0.7, help="also refine local maxima >= this x best")
+    ap.add_argument("--max_refine", type=int, default=100)
+    ap.add_argument("--dense", type=float, default=100.0)
+    ap.add_argument("--dense_radius", type=float, default=1500.0)
+    ap.add_argument("--dense_agl", type=float, default=600.0)
     a = ap.parse_args()
     t_start = time.time()
     out = Path(a.out)
@@ -550,9 +605,35 @@ def main():
     tot = contrib.sum(axis=0)  # (G, nL)
     print(f"coarse done ({time.time() - t_start:.1f}s)", flush=True)
 
-    # ---- refine around the top coarse peaks (each with its own latency neighbourhood)
+    # ---- dense sub-grid near low airborne passes, scored with the coarse grid's null
     heat_all = tot.max(axis=1)
-    peaks = local_maxima(heat_all, gx, gy, a.peaks, 2000.0)
+    dx, dy = P.dense_points()
+    print(f"dense sub-grid {len(dx)} pts", flush=True)
+    if len(dx):
+        dz = P.grid_heights(dx, dy)
+        dtot = P.score(dx, dy, dz, rowofs, med=med)
+    else:
+        dz, dtot = np.zeros(0), np.zeros((0, len(Ls)), np.float32)
+    dlat, dlon = to_ll(dx, dy, P.lat0, P.lon0)
+    np.savez_compressed(out / "dense.npz", lat=dlat, lon=dlon, heat=dtot.max(axis=1) if len(dx) else dx,
+                        latency_s=Ls[np.argmax(dtot, axis=1)] if len(dx) else dx)
+    print(f"dense done ({time.time() - t_start:.1f}s)", flush=True)
+
+    # ---- refine: top peaks plus every local maximum within 30 % of the best (coarse + dense pool)
+    px_ = np.r_[gx, dx]
+    py_ = np.r_[gy, dy]
+    ptot = np.r_[tot, dtot]
+    pheat = ptot.max(axis=1)
+    pk = local_maxima(pheat, px_, py_, a.peaks, 2000.0)
+    near = [i for i in local_maxima(pheat, px_, py_, 10 ** 6, 1000.0) if pheat[i] >= a.near_best * pheat.max()]
+    peaks = []
+    for i in sorted(set(pk) | set(near), key=lambda q: -pheat[q]):
+        if all(math.hypot(px_[i] - px_[j], py_[i] - py_[j]) >= 500 for j in peaks):
+            peaks.append(i)
+    if len(peaks) > a.max_refine:
+        print(f"  {len(peaks)} peaks, refining the best {a.max_refine}", flush=True)
+        peaks = peaks[:a.max_refine]
+    print(f"refining {len(peaks)} peaks", flush=True)
     fine_step = max(1, int(round(0.25 / P.hop_s)))
 
     def refine(cx, cy, Lc_f, half=a.fine_half):
@@ -573,11 +654,11 @@ def main():
 
     regions = []
     for p in peaks:
-        Lc = Ls_f[int(np.argmax(tot[p]))]
-        r = refine(gx[p], gy[p], Lc)
+        Lc = Ls_f[int(np.argmax(ptot[p]))]
+        r = refine(px_[p], py_[p], Lc)
         regions.append(r)
         i, l = np.unravel_index(np.argmax(r["tot"]), r["tot"].shape)
-        print(f"  peak coarse {heat_all[p]:.3f} -> fine {r['tot'][i, l]:.3f} at L={r['Lf'][l] * P.hop_s:.2f}s", flush=True)
+        print(f"  peak {pheat[p]:.3f} -> fine {r['tot'][i, l]:.3f} at L={r['Lf'][l] * P.hop_s:.2f}s", flush=True)
     best_r = max(range(len(regions)), key=lambda q: np.max(regions[q]["tot"]))
     R = regions[best_r]
     bi, bl = np.unravel_index(np.argmax(R["tot"]), R["tot"].shape)
@@ -696,7 +777,7 @@ def main():
 
     runtime = time.time() - t_start
     ans = dict(
-        case=P.name, version="1.1", method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
+        case=P.name, version="1.2", method="ridge: emission-time Doppler curve on whitened log-f spectrogram, "
         "max over f0 (x1,x2,x3), minus flat-line null, airborne track segments only, min Doppler swing, positive excess over per-aircraft grid median, "
         "summed over aircraft, argmax over grid and shared latency",
         lat=round(float(blat), 6), lon=round(float(blon), 6), score=round(best_score, 4),
