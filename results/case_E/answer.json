@@ -1,0 +1,18 @@
+{
+ "case": "case_E",
+ "status": "no_flyovers",
+ "method": "argmax of the summed per-flyover scores, one shared latency",
+ "bbox": [
+  41.62323,
+  -88.06869,
+  41.98255,
+  -87.58666
+ ],
+ "utc_start": "2026-11-03T14:25:17Z",
+ "lat": null,
+ "lon": null,
+ "score": null,
+ "latency_s": null,
+ "flights_used": [],
+ "two_band": null
+}

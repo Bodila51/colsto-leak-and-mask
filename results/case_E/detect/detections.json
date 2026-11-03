@@ -1,0 +1,51 @@
+{
+ "source": "C:\\Users\\Asus\\flyover-leak\\cases\\case_E\\audio.flac",
+ "start": 0.0,
+ "end": 502.485313,
+ "meta": {},
+ "found": false,
+ "flyovers": [
+  {
+   "t_cpa": 102.25,
+   "f0": 143.48,
+   "v": 43.6,
+   "d": 220.18,
+   "z": 9.231416702270508,
+   "contrast": 1.7224559783935547,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    143.48
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 143.48024807683348,
+   "kind": "aircraft"
+  },
+  {
+   "t_cpa": 325.25,
+   "f0": 86.68,
+   "v": 95.1,
+   "d": 337.60499999999996,
+   "z": 8.00148868560791,
+   "contrast": 0.6101909875869751,
+   "harmonics": [
+    1
+   ],
+   "freqs": [
+    86.68
+   ],
+   "refined": false,
+   "rms": NaN,
+   "points": 0,
+   "ranges": null,
+   "confidence": "low",
+   "f_main": 86.67776411770704,
+   "kind": "aircraft"
+  }
+ ]
+}

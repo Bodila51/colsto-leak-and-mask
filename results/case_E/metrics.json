@@ -1,0 +1,63 @@
+{
+ "case": "case_E",
+ "audio": "audio.flac",
+ "utc_start": "2026-11-03T14:25:17Z",
+ "bbox": [
+  41.62323,
+  -88.06869,
+  41.98255,
+  -87.58666
+ ],
+ "bbox_km": [
+  40.0,
+  40.0
+ ],
+ "settings": {
+  "latency_range_s": [
+   -10.0,
+   60.0
+  ],
+  "cpa_tol_s": 8.0,
+  "f0_frac": 0.08,
+  "max_events": 8,
+  "coarse": {
+   "model_dt": 0.25,
+   "frame_step": 4,
+   "dlam": 0.5,
+   "f0_step_hz": 0.5
+  },
+  "fine": {
+   "model_dt": 0.1,
+   "frame_step": 1,
+   "dlam": 0.2,
+   "f0_step_hz": 0.2,
+   "f0_frac": 0.06
+  },
+  "atmosphere": "gfs",
+  "c": 343.0,
+  "exclude_engines": []
+ },
+ "adsb": {
+  "polls": 19197,
+  "sources": {
+   "adsblol": 65,
+   "adsblol-trace": 19132
+  },
+  "rows": 21257,
+  "points": 17396,
+  "aircraft": 155,
+  "segments": 159
+ },
+ "audio_duration_s": 502.5,
+ "flyovers_detected": {
+  "total": 2,
+  "high_medium": 0,
+  "low_confidence_added": 0,
+  "used_as_events": 0
+ },
+ "stages_s": {
+  "adsb_s": 0.7,
+  "detect_s": 30.9
+ },
+ "wall_s": 31.6
+}
