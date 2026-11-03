@@ -1,0 +1,221 @@
+{
+ "note": "NOT blind: known (revealed) camera, hand-picked aircraft, Paras-style setup",
+ "camera": {
+  "lat": 50.8335,
+  "lon": -0.29075,
+  "z_m": 7.191393744943198
+ },
+ "params": {
+  "case_dir": "cases/case_B",
+  "out": "results/paras_setup_B",
+  "fmin": 40.0,
+  "fmax": 500.0,
+  "f0min": 40.0,
+  "f0max": 150.0,
+  "harmonics": 6,
+  "win": 1.0,
+  "hop": 0.125,
+  "dlog": 0.01,
+  "ridge": 15,
+  "half": 40.0,
+  "min_frac": 0.3,
+  "lmin": 0.0,
+  "lmax": 60.0,
+  "lstep": 0.25,
+  "extent": 6000.0,
+  "step": 100.0
+ },
+ "aircraft": [
+  {
+   "hex": "407ee4",
+   "flight": "GTJPK",
+   "type": "A109",
+   "cpa_audio_s": 175.2381772994995,
+   "cpa_slant_m": 1438.8281808832437,
+   "cpa_horizontal_m": 1428.0020057661181,
+   "cpa_agl_m": 181.1726585816541,
+   "track_deg": 298.4128274553844,
+   "camera_track_offset_m": 253.29540915577707,
+   "first_adsb_report_rel_cpa_s": -0.01775074005126953,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 506.59081831155413,
+   "f0_hz": 83.83742057977457,
+   "fit_at_camera": 0.22600375773291997,
+   "fit_peak": 0.3549184203147888,
+   "peak": {
+    "lat": 50.8299027185451,
+    "lon": -0.22524920446201635,
+    "x_m": 4600.0,
+    "y_m": -400.0
+   },
+   "peak_error_m": 4617.4,
+   "scan_best_L_s": 29.75,
+   "L_s": 29.75,
+   "checks": {
+    "scan_peak_z": 1.74,
+    "fit_flat_same_frames": 0.22409794546099923,
+    "doppler_over_flat": 1.009,
+    "predicted_swing_bins": 5.1,
+    "scored_frames": 319,
+    "window_frames": 640,
+    "camera_over_peak": 0.637,
+    "fit_over_event_reference": 0.121
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 1.7)",
+    "Doppler curve does not beat a flat line on the same frames (0.23 vs 0.22)",
+    "camera scores 0.64 of the heat-map peak",
+    "no ridge: fit 0.23 is 0.12 of the clear stack's 1.87"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -0.01775074005126953,
+    862.7922492027283
+   ],
+   "despiked_reports": 3,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     141.2,
+     1068.3
+    ],
+    "scored_window_audio_s": [
+     171.0,
+     215.2
+    ],
+    "window_can_reach_event": false
+   }
+  },
+  {
+   "hex": "402b2f",
+   "flight": "GBONT",
+   "type": "RF6",
+   "cpa_audio_s": 433.8214647769928,
+   "cpa_slant_m": 2532.3087129833843,
+   "cpa_horizontal_m": 2487.6517502475212,
+   "cpa_agl_m": 478.47247791398496,
+   "track_deg": 76.43280512514413,
+   "camera_track_offset_m": 1210.011991911973,
+   "first_adsb_report_rel_cpa_s": -0.012518882751464844,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 2420.023983823946,
+   "f0_hz": 60.27271140451415,
+   "fit_at_camera": 0.2950773914495381,
+   "fit_peak": 0.29551878571510315,
+   "peak": {
+    "lat": 50.840694562909796,
+    "lon": -0.2978696516889113,
+    "x_m": -500.0,
+    "y_m": 800.0
+   },
+   "peak_error_m": 943.4,
+   "scan_best_L_s": 42.0,
+   "L_s": 42.0,
+   "checks": {
+    "scan_peak_z": 5.07,
+    "fit_flat_same_frames": 0.2045443590582024,
+    "doppler_over_flat": 1.443,
+    "predicted_swing_bins": 5.4,
+    "scored_frames": 320,
+    "window_frames": 640,
+    "camera_over_peak": 0.999,
+    "fit_over_event_reference": 0.158
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "no ridge: fit 0.30 is 0.16 of the clear stack's 1.87"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -0.012518882751464844,
+    2235.574481010437
+   ],
+   "despiked_reports": 17,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     384.4,
+     2687.4
+    ],
+    "scored_window_audio_s": [
+     426.4,
+     473.8
+    ],
+    "window_can_reach_event": false
+   }
+  },
+  {
+   "hex": "407063",
+   "flight": "GCODA",
+   "type": "H500",
+   "cpa_audio_s": 1148.50621342659,
+   "cpa_slant_m": 1207.0883239252637,
+   "cpa_horizontal_m": 1202.9424719755823,
+   "cpa_agl_m": 104.95814561094048,
+   "track_deg": 30.25399804659805,
+   "camera_track_offset_m": 488.4375382919109,
+   "first_adsb_report_rel_cpa_s": -784.2148237228394,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 976.8750765838219,
+   "f0_hz": 72.15953661591428,
+   "fit_at_camera": 0.18933704959687897,
+   "fit_peak": 0.19482460618019104,
+   "peak": {
+    "lat": 50.83529864072745,
+    "lon": -0.3590986562135482,
+    "x_m": -4800.0,
+    "y_m": 200.0
+   },
+   "peak_error_m": 4804.2,
+   "scan_best_L_s": 31.5,
+   "L_s": 31.5,
+   "checks": {
+    "scan_peak_z": 2.2,
+    "fit_flat_same_frames": 0.14209397285746272,
+    "doppler_over_flat": 1.332,
+    "predicted_swing_bins": 1.8,
+    "scored_frames": 319,
+    "window_frames": 640,
+    "camera_over_peak": 0.972,
+    "fit_over_event_reference": 0.101
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 2.2)",
+    "predicted Doppler swing is only 1.8 log bins (shape untestable)",
+    "no ridge: fit 0.19 is 0.10 of the clear stack's 1.87"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -784.2148237228394,
+    0.01817631721496582
+   ],
+   "despiked_reports": 7,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     329.2,
+     1177.0
+    ],
+    "scored_window_audio_s": [
+     1108.5,
+     1188.5
+    ],
+    "window_can_reach_event": false
+   }
+  }
+ ],
+ "skipped": [],
+ "event_reference_fit": 1.8709989786148071,
+ "combined": "not made: 0 aircraft fit (needs 2)",
+ "verdict_rules": "fits only if all hold: (1) the latency scan has a distinct peak, z = (max - median) / (1.4826 MAD) >= 4; (2) at that L the Doppler curve beats a flat line on the same frames by >= 15 %; (3) the predicted Doppler swing in the scored frames is >= 2 log bins (else the shape is untestable); (4) the camera scores >= 0.9 of the heat-map peak; (5) the fit reaches >= 0.5 of what the recording's own clear stack (cfg event) scores along a flat line, i.e. there is a ridge at all. Rule 5 was added after seeing G-BONT pass rules 1-4 with no visible ridge under its curve.",
+ "event_note": "The clear stack (70 Hz x1..x6, audio 38-130 s) starts with an upward sweep at 38-43 s (an engine spooling up), stays steady, then slides ~10 % down and fades by ~130 s. For any L in 0-60 s it ends (real time <= 130 s) before G-TJPK's first ADS-B report (141 s), and G-BONT (from 384 s) and G-CODA (to 1113 s) are further away in time: no candidate's ADS-B-covered track can explain it. An engine on the ground (the apron aircraft, or the A109 before lift-off, below ADS-B coverage) fits the onset better than a pass.",
+ "verdict": "does not fit"
+}
