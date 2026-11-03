@@ -1,0 +1,23 @@
+auto: 407ee4 GTJPK   A109  stretch   141.2-  168.0 s (7 reports)  local min 1427 m at 141 s, 181 m AGL
+auto: 407063 GCODA   H500  stretch   329.2-  433.8 s (24 reports)  local min 1751 m at 346 s, 204 m AGL
+auto: 402b2f GBONT   RF6   stretch   384.4-  404.3 s (6 reports)  local min 2487 m at 384 s, 478 m AGL
+auto: 407063 GCODA   H500  stretch   329.2-  433.8 s (24 reports)  local min 1276 m at 434 s, 105 m AGL
+auto: 407063 GCODA   H500  stretch   988.1- 1113.5 s (40 reports)  local min 1747 m at 1012 s, 234 m AGL
+auto: 407063 GCODA   H500  stretch   988.1- 1113.5 s (40 reports)  local min 1203 m at 1114 s, 105 m AGL
+auto: 402b2f GBONT   RF6   stretch  2608.2- 2620.0 s (3 reports)  local min 2467 m at 2620 s, 181 m AGL
+spectrogram (28353, 272), 7 passes  (31.7s)
+GTJPK_1331  A109  CPA  145.5s  1439 m slant  track 298  lateral 253 m  reports -0.0..+862.8s rel CPA  scan max 0.24 at L 42.75
+GCODA_1335  H500  CPA  354.3s  1753 m slant  track 180  lateral 1742 m  reports -19.9..+764.4s rel CPA  scan max 0.21 at L 55.00
+GBONT_1335  RF6   CPA  391.8s  2532 m slant  track 76  lateral 1210 m  reports -0.0..+2235.6s rel CPA  scan max 0.30 at L 42.00
+GCODA_1336  H500  CPA  437.5s  1280 m slant  track 25  lateral 582 m  reports -104.5..+679.7s rel CPA  scan max 0.24 at L 24.00
+GCODA_1346  H500  CPA 1017.2s  1762 m slant  track 180  lateral 1747 m  reports -682.8..+101.5s rel CPA  scan max 0.47 at L 17.25
+GCODA_1348  H500  CPA 1117.0s  1207 m slant  track 30  lateral 488 m  reports -784.2..+0.0s rel CPA  scan max 0.19 at L 31.50
+GBONT_1413  RF6   CPA 2627.2s  2473 m slant  track 290  lateral 2428 m  reports -2235.6..+0.0s rel CPA  no scored frames
+GTJPK_1331 L 42.75  fit 0.242 flat 0.263  z 2.3  swing 5.1 bins  peak 5514 m (camera 0.76 of peak)  -> does not fit ['latency scan has no distinct peak (z = 2.3)', 'Doppler curve does not beat a flat line on the same frames (0.24 vs 0.26)', 'camera scores 0.76 of the heat-map peak', "no ridge: fit 0.24 is 0.13 of the clear stack's 1.83"]
+GCODA_1335 L 55.00  fit 0.214 flat 0.163  z 3.8  swing 16.7 bins  peak 8415 m (camera 0.89 of peak)  -> does not fit ['latency scan has no distinct peak (z = 3.8)', 'camera scores 0.89 of the heat-map peak', "no ridge: fit 0.21 is 0.12 of the clear stack's 1.83"]
+GBONT_1335 L 42.00  fit 0.299 flat 0.208  z 4.6  swing 5.4 bins  peak 5140 m (camera 0.97 of peak)  -> does not fit ["no ridge: fit 0.30 is 0.16 of the clear stack's 1.83"]
+GCODA_1336 L 24.00  fit 0.236 flat 0.209  z 2.6  swing 15.5 bins  peak 3672 m (camera 0.91 of peak)  -> does not fit ['latency scan has no distinct peak (z = 2.6)', 'Doppler curve does not beat a flat line on the same frames (0.24 vs 0.21)', "no ridge: fit 0.24 is 0.13 of the clear stack's 1.83"]
+GCODA_1346 L 17.25  fit 0.471 flat 0.403  z 5.1  swing 22.0 bins  peak 4243 m (camera 0.88 of peak)  -> does not fit ['camera scores 0.88 of the heat-map peak', "no ridge: fit 0.47 is 0.26 of the clear stack's 1.83"]
+GCODA_1348 L 31.50  fit 0.188 flat 0.140  z 2.2  swing 1.8 bins  peak 3920 m (camera 0.97 of peak)  -> does not fit ['latency scan has no distinct peak (z = 2.2)', 'predicted Doppler swing is only 1.8 log bins (shape untestable)', "no ridge: fit 0.19 is 0.10 of the clear stack's 1.83"]
+combined: not made: 0 aircraft fit (needs 2)
+done  (43.7s)

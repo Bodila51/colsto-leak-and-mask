@@ -43,6 +43,21 @@ Plainly:
 - The town match needs the flyover events as measured by doppler-locate's author. With our fully automatic detection, the second event's tone came out at 140.7 Hz instead of about 134 Hz, and rank 1 moved to Connecticut. So on this PC the town match depends on carefully measured events, not on detection alone.
 - Details: [`results/colsto_dopploc/metrics.json`](results/colsto_dopploc/metrics.json) (23 min) and [`results/colsto_dopploc_e2e/`](results/colsto_dopploc_e2e/) (44 min).
 
+### Same test as the public replication on X (known camera, one hand-picked aircraft, not blind)
+
+<p align="center"><img src="docs/img/southampton_paras_style.png" width="95%"></p>
+
+The setup is the same as Paras Chopra's: the camera position is known, one aircraft is picked by hand from ADS-B, the stream latency is scanned, and the fit of its predicted Doppler curve is mapped over ±6 km.
+
+| Camera | Aircraft | Verdict | Details |
+|---|---|---|---|
+| **Southampton, Town Quay ferry cam** | **TBM 700 N850BG**, passed 3.0 km away horizontally, 4.0 km up | **fits**: the predicted tone (170 → 120 Hz, plus ×2) lies on the real ridge (fit 0.80 vs 0.40 for a flat tone). The camera sits on the brighter of the two mirror bands, at 0.95 of the map's peak; the peak itself is on the mirror band, 5.3 km away | [`results/paras_setup_C`](results/paras_setup_C/summary.json) |
+| Southampton | Twin Otter AUR507, DHC-6 on final to runway 02, 1.2 km | does not fit: no clear latency peak | same |
+| Brighton City Airport | AW109, RF6 G-BONT, MD500 G-CODA | do not fit. The clean hum in that audio is probably an aircraft's engine on the apron, not a pass | [`results/paras_setup_B`](results/paras_setup_B/summary.json) |
+| Midway (our screen recording) | 4 departures right over the camera | not convincing: the best spot is only 3% above one 4.5 km away | [`results/paras_setup_E`](results/paras_setup_E/summary.json) |
+
+What it shows: in the Southampton webcam's audio, the engine tone of a real, identified aircraft follows the Doppler curve that flight data predicts for the camera's real position. What it does not show: that the camera can be found from scratch. One aircraft leaves two bands, and we knew the answer.
+
 ### Synthetic test (answer known by construction)
 
 | Case | Engine | Injected | Found | Error |

@@ -1,0 +1,735 @@
+{
+ "note": "NOT blind: known (revealed) camera, hand-picked aircraft, Paras-style setup. Passes picked by ADS-B geometry only.",
+ "camera": {
+  "lat": 50.8335,
+  "lon": -0.29075,
+  "z_m": 7.191393744943198
+ },
+ "params": {
+  "case_dir": "cases/case_B",
+  "out": "results/paras_setup_B2",
+  "camera": "50.8335,-0.29075",
+  "passes": [],
+  "auto": "3000:600",
+  "sep": 30.0,
+  "event": [
+   38.0,
+   130.0
+  ],
+  "overview": [
+   0.0,
+   300.0
+  ],
+  "no_despike": false,
+  "note": [
+   "Passes picked by ADS-B geometry only: within 3 km horizontal of the camera, below 600 m AGL, inside the audio; one pass per local distance minimum (+-30 s). The brief named G-BONT ~13:36 (~3.2 km) and G-CODA ~13:48 (~1.2 km); both are in this set (G-BONT is 2.49 km at its first report, receding, 3.2 km at ~416 s).",
+   "One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it).",
+   "Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum.",
+   "G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session).",
+   "paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py.",
+   "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+  ],
+  "fmin": 40.0,
+  "fmax": 600.0,
+  "f0min": 40.0,
+  "f0max": 200.0,
+  "harmonics": 6,
+  "win": 1.0,
+  "hop": 0.125,
+  "dlog": 0.01,
+  "ridge": 15,
+  "half": 40.0,
+  "min_frac": 0.3,
+  "lmin": 0.0,
+  "lmax": 60.0,
+  "lstep": 0.25,
+  "extent": 6000.0,
+  "step": 100.0
+ },
+ "paras_py_sha256": "88bf0d7ce2ab10389b70e249613250a81ce98c5a7fd31ef7cc4bef258e0a7dcb",
+ "git_head": "65b8ead",
+ "paras_py_is_head": false,
+ "passes_picked": [
+  {
+   "hex": "407ee4",
+   "flight": "GTJPK",
+   "type": "A109",
+   "lo": 111.24200010299683,
+   "hi": 171.24200010299683,
+   "stretch_s": [
+    141.24200010299683,
+    168.03200006484985
+   ],
+   "reports": 7,
+   "min_hor_m": 1427.2,
+   "min_at_s": 141.2,
+   "agl_at_min_m": 181.1,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "407063",
+   "flight": "GCODA",
+   "type": "H500",
+   "lo": 315.8900001049042,
+   "hi": 375.8900001049042,
+   "stretch_s": [
+    329.24399995803833,
+    433.779000043869
+   ],
+   "reports": 24,
+   "min_hor_m": 1751.2,
+   "min_at_s": 345.9,
+   "agl_at_min_m": 204.0,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "402b2f",
+   "flight": "GBONT",
+   "type": "RF6",
+   "lo": 354.3670001029968,
+   "hi": 414.3670001029968,
+   "stretch_s": [
+    384.3670001029968,
+    404.3269999027252
+   ],
+   "reports": 6,
+   "min_hor_m": 2487.3,
+   "min_at_s": 384.4,
+   "agl_at_min_m": 478.3,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "407063",
+   "flight": "GCODA",
+   "type": "H500",
+   "lo": 403.779000043869,
+   "hi": 463.779000043869,
+   "stretch_s": [
+    329.24399995803833,
+    433.779000043869
+   ],
+   "reports": 24,
+   "min_hor_m": 1275.6,
+   "min_at_s": 433.8,
+   "agl_at_min_m": 104.9,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "407063",
+   "flight": "GCODA",
+   "type": "H500",
+   "lo": 981.614000082016,
+   "hi": 1041.614000082016,
+   "stretch_s": [
+    988.1169998645782,
+    1113.4769999980927
+   ],
+   "reports": 40,
+   "min_hor_m": 1747.2,
+   "min_at_s": 1011.6,
+   "agl_at_min_m": 234.5,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "407063",
+   "flight": "GCODA",
+   "type": "H500",
+   "lo": 1083.4769999980927,
+   "hi": 1143.4769999980927,
+   "stretch_s": [
+    988.1169998645782,
+    1113.4769999980927
+   ],
+   "reports": 40,
+   "min_hor_m": 1202.6,
+   "min_at_s": 1113.5,
+   "agl_at_min_m": 104.9,
+   "how": "--auto 3000:600"
+  },
+  {
+   "hex": "402b2f",
+   "flight": "GBONT",
+   "type": "RF6",
+   "lo": 2589.9539999961853,
+   "hi": 2649.9539999961853,
+   "stretch_s": [
+    2608.236000061035,
+    2619.9539999961853
+   ],
+   "reports": 3,
+   "min_hor_m": 2466.7,
+   "min_at_s": 2620.0,
+   "agl_at_min_m": 181.1,
+   "how": "--auto 3000:600"
+  }
+ ],
+ "aircraft": [
+  {
+   "hex": "407ee4/1331",
+   "flight": "GTJPK_1331",
+   "type": "A109",
+   "cpa_audio_s": 188.2381772994995,
+   "cpa_slant_m": 1438.8281808832437,
+   "cpa_horizontal_m": 1428.0020057661181,
+   "cpa_agl_m": 181.1726585816541,
+   "track_deg": 298.4128274553844,
+   "camera_track_offset_m": 253.29540915577707,
+   "first_adsb_report_rel_cpa_s": -0.01775074005126953,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 506.59081831155413,
+   "f0_hz": 114.30604472252655,
+   "fit_at_camera": 0.24151096604538522,
+   "fit_peak": 0.3191361427307129,
+   "peak": {
+    "lat": 50.78403737999515,
+    "lon": -0.296445721351129,
+    "x_m": -400.0,
+    "y_m": -5500.0
+   },
+   "peak_error_m": 5514.5,
+   "scan_best_L_s": 42.75,
+   "L_s": 42.75,
+   "checks": {
+    "scan_peak_z": 2.35,
+    "fit_flat_same_frames": 0.2628170811001517,
+    "doppler_over_flat": 0.919,
+    "predicted_swing_bins": 5.1,
+    "scored_frames": 319,
+    "window_frames": 640,
+    "camera_over_peak": 0.757,
+    "L_within_10pct_of_max_s": [
+     42.25,
+     44.5
+    ],
+    "fit_over_event_reference": 0.132
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 2.3)",
+    "Doppler curve does not beat a flat line on the same frames (0.24 vs 0.26)",
+    "camera scores 0.76 of the heat-map peak",
+    "no ridge: fit 0.24 is 0.13 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -0.01775074005126953,
+    862.7922492027283
+   ],
+   "despiked_reports": 3,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     141.2,
+     1068.3
+    ],
+    "scored_window_audio_s": [
+     184.0,
+     228.2
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "407ee4",
+   "registration": "G-TJPK",
+   "camera_vs_peak_fit": [
+    0.24151096604538522,
+    0.3191361427307129
+   ],
+   "mirror_xy_m": [
+    241.0,
+    445.6
+   ],
+   "peak_to_mirror_m": 5980.0
+  },
+  {
+   "hex": "407063/1335",
+   "flight": "GCODA_1335",
+   "type": "H500",
+   "cpa_audio_s": 409.27138018608093,
+   "cpa_slant_m": 1753.038502874895,
+   "cpa_horizontal_m": 1741.9274277714621,
+   "cpa_agl_m": 202.06047026065488,
+   "track_deg": 179.62525581983124,
+   "camera_track_offset_m": 1741.9242840904465,
+   "first_adsb_report_rel_cpa_s": -19.875552654266357,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 3483.848568180893,
+   "f0_hz": 60.27271140451415,
+   "fit_at_camera": 0.21412789262493234,
+   "fit_peak": 0.2397003322839737,
+   "peak": {
+    "lat": 50.77954077817653,
+    "lon": -0.20673811007084708,
+    "x_m": 5900.0,
+    "y_m": -6000.0
+   },
+   "peak_error_m": 8414.9,
+   "scan_best_L_s": 55.0,
+   "L_s": 55.0,
+   "checks": {
+    "scan_peak_z": 3.81,
+    "fit_flat_same_frames": 0.16328730714882655,
+    "doppler_over_flat": 1.311,
+    "predicted_swing_bins": 16.7,
+    "scored_frames": 470,
+    "window_frames": 640,
+    "camera_over_peak": 0.893,
+    "L_within_10pct_of_max_s": [
+     54.75,
+     55.25
+    ],
+    "fit_over_event_reference": 0.117
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 3.8)",
+    "camera scores 0.89 of the heat-map peak",
+    "no ridge: fit 0.21 is 0.12 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -19.875552654266357,
+    764.357447385788
+   ],
+   "despiked_reports": 7,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     329.2,
+     1178.6
+    ],
+    "scored_window_audio_s": [
+     384.2,
+     449.3
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "407063",
+   "registration": "G-CODA",
+   "camera_vs_peak_fit": [
+    0.21412789262493234,
+    0.2397003322839737
+   ],
+   "mirror_xy_m": [
+    -3483.8,
+    -22.8
+   ],
+   "peak_to_mirror_m": 11125.7
+  },
+  {
+   "hex": "402b2f/1335",
+   "flight": "GBONT_1335",
+   "type": "RF6",
+   "cpa_audio_s": 433.8214647769928,
+   "cpa_slant_m": 2532.3087129833843,
+   "cpa_horizontal_m": 2487.6517502475212,
+   "cpa_agl_m": 478.47247791398496,
+   "track_deg": 76.43280512514413,
+   "camera_track_offset_m": 1210.011991911973,
+   "first_adsb_report_rel_cpa_s": -0.012518882751464844,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 2420.023983823946,
+   "f0_hz": 60.27271140451415,
+   "fit_at_camera": 0.29883114069310446,
+   "fit_peak": 0.3066289722919464,
+   "peak": {
+    "lat": 50.796627865087295,
+    "lon": -0.33489184047124987,
+    "x_m": -3100.0,
+    "y_m": -4100.0
+   },
+   "peak_error_m": 5140.0,
+   "scan_best_L_s": 42.0,
+   "L_s": 42.0,
+   "checks": {
+    "scan_peak_z": 4.58,
+    "fit_flat_same_frames": 0.20834539246922135,
+    "doppler_over_flat": 1.434,
+    "predicted_swing_bins": 5.4,
+    "scored_frames": 320,
+    "window_frames": 640,
+    "camera_over_peak": 0.975,
+    "L_within_10pct_of_max_s": [
+     41.75,
+     42.0
+    ],
+    "fit_over_event_reference": 0.163
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "no ridge: fit 0.30 is 0.16 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -0.012518882751464844,
+    2235.574481010437
+   ],
+   "despiked_reports": 17,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     384.4,
+     2687.4
+    ],
+    "scored_window_audio_s": [
+     426.4,
+     473.8
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "402b2f",
+   "registration": "G-BONT",
+   "camera_vs_peak_fit": [
+    0.29883114069310446,
+    0.3066289722919464
+   ],
+   "mirror_xy_m": [
+    -567.7,
+    2352.5
+   ],
+   "peak_to_mirror_m": 6931.6
+  },
+  {
+   "hex": "407063/1336",
+   "flight": "GCODA_1336",
+   "type": "H500",
+   "cpa_audio_s": 461.52066111564636,
+   "cpa_slant_m": 1279.8389499609207,
+   "cpa_horizontal_m": 1275.9281752700156,
+   "cpa_agl_m": 104.97514385686104,
+   "track_deg": 25.02504732968619,
+   "camera_track_offset_m": 581.6720344669811,
+   "first_adsb_report_rel_cpa_s": -104.51547193527222,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 1163.3440689339623,
+   "f0_hz": 52.39857802932989,
+   "fit_at_camera": 0.2358844840357298,
+   "fit_peak": 0.2595006823539734,
+   "peak": {
+    "lat": 50.81731223345296,
+    "lon": -0.2451842291909679,
+    "x_m": 3200.0,
+    "y_m": -1800.0
+   },
+   "peak_error_m": 3671.5,
+   "scan_best_L_s": 24.0,
+   "L_s": 24.0,
+   "checks": {
+    "scan_peak_z": 2.6,
+    "fit_flat_same_frames": 0.2092099335663942,
+    "doppler_over_flat": 1.128,
+    "predicted_swing_bins": 15.5,
+    "scored_frames": 320,
+    "window_frames": 640,
+    "camera_over_peak": 0.909,
+    "L_within_10pct_of_max_s": [
+     23.75,
+     24.75
+    ],
+    "fit_over_event_reference": 0.129
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 2.6)",
+    "Doppler curve does not beat a flat line on the same frames (0.24 vs 0.21)",
+    "no ridge: fit 0.24 is 0.13 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -104.51547193527222,
+    679.7175281047821
+   ],
+   "despiked_reports": 7,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     329.2,
+     1177.2
+    ],
+    "scored_window_audio_s": [
+     421.5,
+     501.5
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "407063",
+   "registration": "G-CODA",
+   "camera_vs_peak_fit": [
+    0.2358844840357298,
+    0.2595006823539734
+   ],
+   "mirror_xy_m": [
+    -1054.1,
+    492.1
+   ],
+   "peak_to_mirror_m": 4832.3
+  },
+  {
+   "hex": "407063/1346",
+   "flight": "GCODA_1346",
+   "type": "H500",
+   "cpa_audio_s": 1034.4270482063293,
+   "cpa_slant_m": 1761.987810216805,
+   "cpa_horizontal_m": 1747.0882178014115,
+   "cpa_agl_m": 233.6565165747527,
+   "track_deg": 180.30027274630595,
+   "camera_track_offset_m": 1747.0473346543183,
+   "first_adsb_report_rel_cpa_s": -682.7549204826355,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 3494.0946693086366,
+   "f0_hz": 45.09987406317503,
+   "fit_at_camera": 0.4709411961458028,
+   "fit_peak": 0.5325616598129272,
+   "peak": {
+    "lat": 50.838895922182346,
+    "lon": -0.35055507418685466,
+    "x_m": -4200.0,
+    "y_m": 600.0
+   },
+   "peak_error_m": 4242.6,
+   "scan_best_L_s": 17.25,
+   "L_s": 17.25,
+   "checks": {
+    "scan_peak_z": 5.05,
+    "fit_flat_same_frames": 0.40341835881400095,
+    "doppler_over_flat": 1.167,
+    "predicted_swing_bins": 22.0,
+    "scored_frames": 503,
+    "window_frames": 640,
+    "camera_over_peak": 0.884,
+    "L_within_10pct_of_max_s": [
+     15.5,
+     17.5
+    ],
+    "fit_over_event_reference": 0.257
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "camera scores 0.88 of the heat-map peak",
+    "no ridge: fit 0.47 is 0.26 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -682.7549204826355,
+    101.47807955741882
+   ],
+   "despiked_reports": 7,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     329.2,
+     1178.7
+    ],
+    "scored_window_audio_s": [
+     994.4,
+     1074.4
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "407063",
+   "registration": "G-CODA",
+   "camera_vs_peak_fit": [
+    0.4709411961458028,
+    0.5325616598129272
+   ],
+   "mirror_xy_m": [
+    -3494.0,
+    18.3
+   ],
+   "peak_to_mirror_m": 914.7
+  },
+  {
+   "hex": "407063/1348",
+   "flight": "GCODA_1348",
+   "type": "H500",
+   "cpa_audio_s": 1148.50621342659,
+   "cpa_slant_m": 1207.0883239252637,
+   "cpa_horizontal_m": 1202.9424719755823,
+   "cpa_agl_m": 104.95814561094048,
+   "track_deg": 30.25399804659805,
+   "camera_track_offset_m": 488.4375382919109,
+   "first_adsb_report_rel_cpa_s": -784.2148237228394,
+   "climb_m_s": NaN,
+   "mirror_separation_m": 976.8750765838219,
+   "f0_hz": 72.15953661591428,
+   "fit_at_camera": 0.18780441463498407,
+   "fit_peak": 0.19295398890972137,
+   "peak": {
+    "lat": 50.85508368872939,
+    "lon": -0.33489184047124987,
+    "x_m": -3100.0,
+    "y_m": 2400.0
+   },
+   "peak_error_m": 3920.5,
+   "scan_best_L_s": 31.5,
+   "L_s": 31.5,
+   "checks": {
+    "scan_peak_z": 2.19,
+    "fit_flat_same_frames": 0.13953690769584115,
+    "doppler_over_flat": 1.346,
+    "predicted_swing_bins": 1.8,
+    "scored_frames": 319,
+    "window_frames": 640,
+    "camera_over_peak": 0.973,
+    "L_within_10pct_of_max_s": [
+     31.0,
+     32.0
+    ],
+    "fit_over_event_reference": 0.102
+   },
+   "verdict": "does not fit",
+   "reasons": [
+    "latency scan has no distinct peak (z = 2.2)",
+    "predicted Doppler swing is only 1.8 log bins (shape untestable)",
+    "no ridge: fit 0.19 is 0.10 of the clear stack's 1.83"
+   ],
+   "adsb_reports_rel_cpa_s": [
+    -784.2148237228394,
+    0.01817631721496582
+   ],
+   "despiked_reports": 7,
+   "event_check": {
+    "event_audio_s": [
+     38.0,
+     130.0
+    ],
+    "adsb_audio_span_any_L_s": [
+     329.2,
+     1177.0
+    ],
+    "scored_window_audio_s": [
+     1108.5,
+     1188.5
+    ],
+    "window_can_reach_event": false
+   },
+   "icao": "407063",
+   "registration": "G-CODA",
+   "camera_vs_peak_fit": [
+    0.18780441463498407,
+    0.19295398890972137
+   ],
+   "mirror_xy_m": [
+    -843.8,
+    492.2
+   ],
+   "peak_to_mirror_m": 2954.7
+  }
+ ],
+ "skipped": [
+  {
+   "hex": "402b2f/1413",
+   "flight": "GBONT_1413",
+   "reason": "untestable: ADS-B covers at most 89 of the 192 frames needed (min_frac 0.3 of the +-40 s window) at any L in 0-60 s",
+   "registration": "G-BONT",
+   "type": "RF6",
+   "verdict": "does not fit",
+   "cpa_slant_m": 2473.0718515087924,
+   "adsb_reports_rel_cpa_s": [
+    -2235.5703868865967,
+    0.016613006591796875
+   ]
+  }
+ ],
+ "event_reference_fit": 1.8346503973007202,
+ "combined": "not made: 0 aircraft fit (needs 2)",
+ "verdict_rules": "fits only if all hold: (1) the latency scan has a distinct peak, z = (max - median) / (1.4826 MAD) >= 4; (2) at that L the Doppler curve beats a flat line on the same frames by >= 15 %; (3) the predicted Doppler swing in the scored frames is >= 2 log bins (else the shape is untestable); (4) the camera scores >= 0.9 of the heat-map peak; (5) the fit reaches >= 0.5 of what the recording's own clear stack (cfg event) scores along a flat line, i.e. there is a ridge at all. Rule 5 was added after seeing G-BONT pass rules 1-4 with no visible ridge under its curve.",
+ "verdict": "does not fit",
+ "table": [
+  {
+   "pass_": "GTJPK_1331",
+   "registration": "G-TJPK",
+   "type": "A109",
+   "L_s": 42.75,
+   "cpa_slant_m": 1439,
+   "fit_camera": 0.242,
+   "fit_peak": 0.319,
+   "peak_dist_m": 5514.5,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GCODA_1335",
+   "registration": "G-CODA",
+   "type": "H500",
+   "L_s": 55.0,
+   "cpa_slant_m": 1753,
+   "fit_camera": 0.214,
+   "fit_peak": 0.24,
+   "peak_dist_m": 8414.9,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GBONT_1335",
+   "registration": "G-BONT",
+   "type": "RF6",
+   "L_s": 42.0,
+   "cpa_slant_m": 2532,
+   "fit_camera": 0.299,
+   "fit_peak": 0.307,
+   "peak_dist_m": 5140.0,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GCODA_1336",
+   "registration": "G-CODA",
+   "type": "H500",
+   "L_s": 24.0,
+   "cpa_slant_m": 1280,
+   "fit_camera": 0.236,
+   "fit_peak": 0.26,
+   "peak_dist_m": 3671.5,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GCODA_1346",
+   "registration": "G-CODA",
+   "type": "H500",
+   "L_s": 17.25,
+   "cpa_slant_m": 1762,
+   "fit_camera": 0.471,
+   "fit_peak": 0.533,
+   "peak_dist_m": 4242.6,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GCODA_1348",
+   "registration": "G-CODA",
+   "type": "H500",
+   "L_s": 31.5,
+   "cpa_slant_m": 1207,
+   "fit_camera": 0.188,
+   "fit_peak": 0.193,
+   "peak_dist_m": 3920.5,
+   "verdict": "does not fit"
+  },
+  {
+   "pass_": "GBONT_1413",
+   "registration": "G-BONT",
+   "type": "RF6",
+   "L_s": null,
+   "cpa_slant_m": 2473,
+   "fit_camera": null,
+   "fit_peak": null,
+   "peak_dist_m": null,
+   "verdict": "does not fit"
+  }
+ ],
+ "notes": [
+  "Passes picked by ADS-B geometry only: within 3 km horizontal of the camera, below 600 m AGL, inside the audio; one pass per local distance minimum (+-30 s). The brief named G-BONT ~13:36 (~3.2 km) and G-CODA ~13:48 (~1.2 km); both are in this set (G-BONT is 2.49 km at its first report, receding, 3.2 km at ~416 s).",
+  "One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it).",
+  "Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum.",
+  "G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session).",
+  "paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py.",
+  "GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+ ],
+ "command": "python solver_paras/paras_passes.py cases/case_B --out results/paras_setup_B2 --camera 50.8335,-0.29075 --auto 3000:600 --fmin 40 --fmax 600 --f0min 40 --f0max 200 --harmonics 6 --event 38:130 --overview 0:300 --note Passes picked by ADS-B geometry only: within 3 km horizontal of the camera, below 600 m AGL, inside the audio; one pass per local distance minimum (+-30 s). The brief named G-BONT ~13:36 (~3.2 km) and G-CODA ~13:48 (~1.2 km); both are in this set (G-BONT is 2.49 km at its first report, receding, 3.2 km at ~416 s). --note One band for every pass: 40-600 Hz, f0 40-200 Hz, harmonics x1..x6 (given for the RF6; the helicopter rotor and tail tones also fall in it). --note Rule 5 reference: the clear harmonic stack at audio 38-130 s (overview.png), scored along a flat line with the same harmonic sum. --note G-TJPK (AW109) qualifies by geometry and is included; its dedicated run is results/paras_setup_B (another session). --note paras_py_is_head false: the imported paras.py had another session's uncommitted case_C edits (a case_C entry, an in-band harmonic guard for f0 < fmin, a max_gap option, an extra L-range check, a 'not blind' label on the spectrogram). By reading the diff: with f0min = fmin and max_gap unset (45 s, as at HEAD), the scores here are the same as with HEAD's paras.py. --note GCODA_1346 (abeam at 1.75 km, 22 log bins of predicted swing) is the closest call: z 5.1, Doppler 0.47 vs flat 0.40, two mirror bands on the heat map (the camera on the east band, the peak 4.2 km away near the west mirror). The curve sits on a flat harmonic stack only at audio 1013-1021 s, which ends abruptly; the remaining ~45 s of the curve lie on noise. Read off spec_GCODA_1346.png."
+}
