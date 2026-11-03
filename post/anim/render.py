@@ -6,8 +6,13 @@
     python post/anim/render.py --data PATH     # any data file (see post/anim/DATA.md)
     python post/anim/render.py --stills-only   # only the five stills (fast check)
 
-Writes post/monitor2_analysis.mp4 (1920x1080, 20 s, 30 fps, no audio), post/post_vertical.mp4 (1080x1350, with the
-monitor-1 audio) and post/still_01_spectrogram.png .. still_05_safe.png (1080x1350).
+Writes
+  post/monitor2_analysis.mp4   1920x1080, 20 s, 30 fps, no audio (second monitor; our visuals only)
+  post/post_no_footage.mp4     1080x1350, 20 s, no audio: our visuals only (spectrogram, curves, map, numbers). Publishable.
+  post/post_vertical.mp4       1080x1350 with the stream footage on top and its audio. LOCAL ONLY: the footage may not be copied.
+  post/still_01_spectrogram.png .. still_05_safe.png   1080x1350, our visuals only (publishable)
+  data/post_local/still_0N_*_with_footage.png          the same with a stream frame on top. LOCAL ONLY (data/ is git-ignored).
+Never commit an mp4 that contains the stream footage (see the root .gitignore).
 Needs: python 3.12 with numpy, pillow, matplotlib; node with playwright (post/anim/tools, or the shared copy at
 ~/Downloads/legends-video/tools); ffmpeg on PATH; the chromium that Playwright installed.
 """
@@ -24,6 +29,7 @@ from PIL import Image
 
 ANIM = Path(__file__).resolve().parent
 POST = ANIM.parent
+ROOT = POST.parent
 BUILD = ANIM / "build"
 MON1 = POST / "monitor1_recording.mp4"
 FPS, NFRAMES = 30, 600
@@ -51,16 +57,21 @@ TV = "scale=out_range=tv:out_color_matrix=bt709,format=yuv420p"
 
 
 def stills(data_name: str):
-    out = BUILD / "stills_v"
-    cap("vertical", out, "--times", ",".join(str(t) for _, t in STILLS), "--workers", "5")
+    times = ",".join(str(t) for _, t in STILLS)
+    tall, vert = BUILD / "stills_t", BUILD / "stills_v"
+    cap("tall", tall, "--times", times, "--workers", "5")
+    cap("vertical", vert, "--times", times, "--workers", "5")
+    local = ROOT / "data" / "post_local"
+    local.mkdir(parents=True, exist_ok=True)
     for name, t in STILLS:
-        panel = Image.open(out / f"t{str(t).replace('.', '_')}.png").convert("RGB")
+        key = f"t{str(t).replace('.', '_')}.png"
+        Image.open(tall / key).convert("RGB").save(POST / f"still_{name}.png")           # no footage: publishable
         m = BUILD / f"mon_{name}.png"
         ffmpeg("-ss", f"{t:.3f}", "-i", MON1, "-frames:v", "1", "-vf", "scale=1080:608:flags=lanczos", m)
         im = Image.new("RGB", (1080, 1350), (5, 7, 10))
         im.paste(Image.open(m).convert("RGB"), (0, 0))
-        im.paste(panel, (0, 608))
-        im.save(POST / f"still_{name}.png")
+        im.paste(Image.open(vert / key).convert("RGB"), (0, 608))
+        im.save(local / f"still_{name}_with_footage.png")                                 # footage: local only
         print(f"[render] still_{name}.png  (t = {t} s, {data_name})")
 
 
@@ -87,17 +98,19 @@ def main():
     t1 = time.time()
 
     if not a.stills_only:
-        fl, fv = BUILD / "frames_l", BUILD / "frames_v"
-        for d in (fl, fv):
+        fl, fv, ft = BUILD / "frames_l", BUILD / "frames_v", BUILD / "frames_t"
+        for d in (fl, fv, ft):
             shutil.rmtree(d, ignore_errors=True)
-        # both layouts at once: 8 pages each
+        # three layouts at once: 8 pages each
         procs = [subprocess.Popen(["node", str(ANIM / "tools" / "cap.js"), "--layout", lay, "--out", str(out), "--from", "0",
-                                   "--to", str(NFRAMES), "--workers", a.workers]) for lay, out in (("landscape", fl), ("vertical", fv))]
+                                   "--to", str(NFRAMES), "--workers", a.workers]) for lay, out in (("landscape", fl), ("vertical", fv), ("tall", ft))]
         if any(p.wait() for p in procs):
             sys.exit("frame capture failed")
         ffmpeg("-framerate", str(FPS), "-start_number", "0", "-i", fl / "f%04d.jpg", "-vf", TV, "-r", str(FPS), *ENC,
                POST / "monitor2_analysis.mp4")
-        # black 1080x1350 base, the analysis panel at y=608, monitor 1 on top (its own timestamps keep the sync)
+        ffmpeg("-framerate", str(FPS), "-start_number", "0", "-i", ft / "f%04d.jpg", "-vf", TV, "-r", str(FPS), *ENC, "-an",
+               POST / "post_no_footage.mp4")
+        # LOCAL ONLY (stream footage): black 1080x1350 base, the analysis panel at y=608, monitor 1 on top (its own timestamps keep the sync)
         ffmpeg("-f", "lavfi", "-i", f"color=c=0x05070a:s=1080x1350:r={FPS}:d=20", "-framerate", str(FPS), "-start_number", "0",
                "-i", fv / "f%04d.jpg", "-i", MON1,
                "-filter_complex", f"[2:v]scale=1080:608:flags=lanczos,setsar=1[m];[0:v][1:v]overlay=0:608:shortest=0[a];"
@@ -105,8 +118,8 @@ def main():
                "-map", "[v]", "-map", "2:a", "-t", "20", "-r", str(FPS), *ENC, "-c:a", "aac", "-b:a", "192k",
                POST / "post_vertical.mp4")
         if not a.keep_frames:
-            shutil.rmtree(fl, ignore_errors=True)
-            shutil.rmtree(fv, ignore_errors=True)
+            for d in (fl, fv, ft):
+                shutil.rmtree(d, ignore_errors=True)
     stills(name)
     t2 = time.time()
     print(f"[render] done: build {t1 - t0:.0f}s, video+stills {t2 - t1:.0f}s, total {t2 - t0:.0f}s  ({name})")

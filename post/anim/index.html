@@ -17,7 +17,7 @@
    map vectors, data.json). ?layout=landscape (1920x1080) | vertical (1080x742). */
 "use strict";
 const Q = new URLSearchParams(location.search);
-const LAYOUT = Q.get('layout') === 'vertical' ? 'vertical' : 'landscape';
+const LAYOUT = ['vertical', 'tall'].includes(Q.get('layout')) ? Q.get('layout') : 'landscape';   // tall = 1080x1350, no stream footage
 const DUR = 20;
 
 // ------------------------------------------------------------------------------------------ design tokens
@@ -51,6 +51,16 @@ const LAYOUTS = {
     badge: { w: 470, pad: 20, s1: 17, s2: 30, s3: 21 },
     big: 58, mid: 38, found: 80, foundSub: 28, note: 19, mapLab: 15, wm: 62,
     scaleSz: 15, ph: 10, trackLab: 15
+  },
+  tall: {   // whole 1080x1350 frame is ours: stage on top, one big line of text under it
+    W: 1080, H: 1350, pad: 30,
+    stepY: 50, stepSz: 20, headY: 104, headSz: 46, clockSz: 19, creditY: 1330, creditSz: 18,
+    spec: { big: { x: 112, y: 150, w: 940, h: 1000 }, mini: { x: 40, y: 1060, w: 1000, h: 70 }, s5: { x: 112, y: 150, w: 940, h: 600 } },
+    map: { big: { x: 90, y: 140, w: 900, h: 900 }, card: { x: 90, y: 830, w: 420, h: 420 } },
+    col: { x: 40, y: 0, w: 1000 },
+    axisSz: 20, tipSz: 28, tipSub: 20, lw: 3, pill: 20,
+    badge: { w: 640, pad: 24, s1: 20, s2: 36, s3: 24 },
+    big: 54, mid: 54, found: 64, foundSub: 40, note: 24, mapLab: 18, wm: 80, scaleSz: 18, ph: 12, trackLab: 18
   }
 }[LAYOUT];
 const L = LAYOUTS;
@@ -108,7 +118,7 @@ window.ready = (async () => {
   HEAT1 = buildHeat(M.heat_1, M.lat, M.lon, M.gamma_1 ?? 2.2);
   HEAT2 = buildHeat(M.heat_2 ?? M.heat_all, M.lat, M.lon, M.gamma_2 ?? 3.0);
   HEATS = M.safe && M.safe.heat ? buildHeat(M.safe.heat, M.lat, M.lon, 1.6, true) : null;
-  { const m = /T(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(DATA.clip.utc_start); DATA._sod = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]); }   // UTC time of day of t = 0, no Date
+  { const m = /T(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(DATA.clip.utc_start); DATA._sod = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]) - (DATA.clip.latency_s || 0); }   // UTC time of day of t = 0, no Date
   for (const l of VEC.lines) if (l.k === 'runway') l.long = pathLenM(l.p) > 700;
   window.__ok = true;
 })();
@@ -182,7 +192,7 @@ function drawSpecImg(img, R, v0, v1, alpha, x0, x1) {
 const xOfT = (R, v0, v1, tt) => R.x + (tt - v0) / (v1 - v0) * R.w;
 const yOfF = (R, f) => R.y + R.h * (1 - (f - META.f_min_hz) / (META.f_max_hz - META.f_min_hz));
 function freqTicks() {
-  const span = META.f_max_hz - META.f_min_hz, raw = span / 4.5, p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const span = META.f_max_hz - META.f_min_hz, raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(m => m * p).find(v => v >= raw) || raw, out = [];
   for (let f = Math.ceil(META.f_min_hz / step) * step; f <= META.f_max_hz + 1e-6; f += step) out.push(Math.round(f));
   return out;
@@ -233,7 +243,7 @@ function drawSpecPanel(t) {
       text(s + ' s', x, R.y + R.h + 8 + L.axisSz + 2, { size: L.axisSz, mono: true, align: 'center', color: C.dimmer });
     }
     ctx.globalAlpha = ax;
-  } else {
+  } else if (LAYOUT !== 'tall') {
     text(`audio  ·  ${META.f_min_hz} – ${META.f_max_hz} Hz`, R.x, R.y + R.h + L.axisSz + 8, { size: L.axisSz, mono: true, color: C.dimmer });
   }
   // playhead
@@ -377,11 +387,11 @@ function drawMap(t, R, alpha, mk) {
     ctx.stroke(); }
   // water
   ctx.fillStyle = '#0b1722'; ctx.strokeStyle = '#143042'; ctx.lineWidth = 1;
-  for (const w of VEC.polys) { path(w.p); ctx.fill(); ctx.stroke(); }
+  for (const w of VEC.polys) { path(w.p); ctx.fill(); if (w.k !== 'sea') ctx.stroke(); }
   // lines
-  const sty = { coast: ['#2c5a76', 1.6], primary: ['rgba(255,255,255,0.13)', 1.2], major: ['rgba(255,255,255,0.24)', 2], runway: ['rgba(255,255,255,0.55)', 2.6] };
+  const sty = { waterline: ['#143042', 1.2], coast: ['#2c5a76', 1.6], primary: ['rgba(255,255,255,0.13)', 1.2], major: ['rgba(255,255,255,0.24)', 2], runway: ['rgba(255,255,255,0.55)', 2.6] };
   const lw = Math.max(1, R.w / 800);
-  for (const k of ['primary', 'major', 'coast', 'runway']) {
+  for (const k of ['waterline', 'primary', 'major', 'coast', 'runway']) {
     ctx.strokeStyle = sty[k][0]; ctx.lineWidth = sty[k][1] * lw; ctx.lineJoin = 'round';
     for (const l of VEC.lines) if (l.k === k && (k !== 'runway' || l.long)) { path(l.p); ctx.stroke(); }
   }
@@ -487,6 +497,7 @@ function drawMarkers(t, R, pr) {
 
 // ------------------------------------------------------------------------------------------ text column + header
 function drawColumn(t) {
+  if (LAYOUT === 'tall') return drawColumnTall(t);
   const K = L.col, M = DATA.map, A = DATA.aircraft[0];
   const vis = ramp(t, T.s3 + .1, T.s3 + .5) * (1 - ramp(t, T.s5 - .25, T.s5 - .02));
   if (vis <= 0) return;
@@ -519,6 +530,38 @@ function drawColumn(t) {
   ctx.restore();
 }
 
+function drawColumnTall(t) {         // one big line under the stage: scene 3, 4 and the result
+  const K = L.col, M = DATA.map, A = DATA.aircraft[0], n = M.planes_used ?? 2, y = 1205, ys = 1252;
+  const vis = ramp(t, T.s3 + .1, T.s3 + .5) * (1 - ramp(t, T.s5 - .25, T.s5 - .02));
+  if (vis <= 0) return;
+  const rise = (t0, d = 12) => (1 - EZ.out(ramp(t, t0, t0 + .45))) * d;
+  const two = (a, b, ta, tb, fade) => {          // white part, then cyan part on the same line
+    const fo = { size: L.big, weight: 700 }, w = measure(a + ' ', fo);
+    ctx.save(); ctx.globalAlpha *= fade;
+    text(a, K.x, y + rise(ta), { ...fo, alpha: ramp(t, ta, ta + .4) });
+    text(b, K.x + w, y + rise(tb), { ...fo, color: C.cyan, alpha: ramp(t, tb, tb + .4) });
+    ctx.restore();
+  };
+  ctx.save(); ctx.globalAlpha *= vis;
+  const s3 = 1 - ramp(t, T.s4 - .25, T.s4), s4a = ramp(t, T.s4, T.s4 + .3) * (1 - ramp(t, 16.05, 16.3)), s4b = ramp(t, 16.3, 16.6);
+  if (s3 > 0) {
+    two('1 aircraft', '→ 2 possible places', 11.3, 12.0, s3);
+    text('distance known · side unknown · closest approach ' + fmtM(A.closest_m) + ' m', K.x, ys, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 12.6, 13.0) * s3 });
+  }
+  if (s4a > 0) two(n + ' aircraft', '→ 1 place', 15.0, 15.6, s4a);
+  if (s4b > 0) {
+    ctx.save(); ctx.globalAlpha *= s4b;
+    const a = 'found: ' + fmtM(M.error_m) + ' m', fo = { size: L.found, weight: 700 }, w = measure(a + '  ', fo);
+    text('found:', K.x, y + rise(16.3), { ...fo, color: C.cyan });
+    const w1 = measure('found: ', fo);
+    text(fmtM(M.error_m) + ' m', K.x + w1, y + rise(16.3), { ...fo, shadow: 'rgba(25,227,255,0.35)', shadowBlur: 26 });
+    text('from the real camera', K.x + w, y + rise(16.5), { size: L.foundSub, weight: 500, alpha: ramp(t, 16.5, 16.9) });
+    text('pin = solver answer  ·  star = real camera', K.x, ys, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, 16.8, 17.2) });
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 function drawScene5(t) {
   const a = ramp(t, T.wipe[1] - .1, T.wipe[1] + .3);
   if (a <= 0) return;
@@ -532,7 +575,8 @@ function drawScene5(t) {
   ctx.restore();
   // note under the map card
   const lab = found ? 'same search, safe copy' : 'same search, safe copy';
-  text(lab, R.x, R.y + R.h + L.note + 18, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, T.s5 + .3, T.s5 + .6) });
+  if (LAYOUT === 'tall') { text('same search,', R.x + R.w + 36, R.y + R.h / 2 - 6, { size: 30, mono: true, color: C.dim, alpha: ramp(t, T.s5 + .3, T.s5 + .6) }); text('safe copy', R.x + R.w + 36, R.y + R.h / 2 + 34, { size: 30, mono: true, color: C.dim, alpha: ramp(t, T.s5 + .3, T.s5 + .6) }); }
+  else text(lab, R.x, R.y + R.h + L.note + 18, { size: L.note, mono: true, color: C.dim, alpha: ramp(t, T.s5 + .3, T.s5 + .6) });
 }
 
 function drawHeader(t) {

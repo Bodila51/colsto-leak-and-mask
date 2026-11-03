@@ -264,7 +264,7 @@ def vectors_from_overpass(d, bbox):
                 if pts[0] == pts[-1]:
                     polys.append(dict(k="water", p=dp(pts, tol * 2)))
                 else:
-                    lines.append(dict(k="coast", p=dp(pts, tol)))
+                    lines.append(dict(k="waterline", p=dp(pts, tol)))
             elif t.get("aeroway") == "runway":
                 lines.append(dict(k="runway", p=pts))
             elif t.get("highway") in ("motorway", "trunk"):
@@ -314,15 +314,112 @@ def vectors_from_natural_earth(bbox):
     return dict(source="Natural Earth 10m coastline (public domain)", lines=lines, polys=[], places=[])
 
 
+def clip_runs(pts, bbox):
+    """Liang-Barsky: the parts of a polyline (lat, lon) inside bbox, as runs that start/end on the box edge where it is crossed."""
+    s, w, n, e = bbox
+    runs, cur = [], []
+    for (la0, lo0), (la1, lo1) in zip(pts[:-1], pts[1:]):
+        dx, dy = lo1 - lo0, la1 - la0
+        t0, t1, ok = 0.0, 1.0, True
+        for p, q in ((-dx, lo0 - w), (dx, e - lo0), (-dy, la0 - s), (dy, n - la0)):
+            if p == 0:
+                if q < 0:
+                    ok = False
+                    break
+            else:
+                r = q / p
+                if p < 0:
+                    t0 = max(t0, r)
+                else:
+                    t1 = min(t1, r)
+        if not ok or t0 > t1:
+            if len(cur) > 1:
+                runs.append(cur)
+            cur = []
+            continue
+        a, b = [la0 + t0 * dy, lo0 + t0 * dx], [la0 + t1 * dy, lo0 + t1 * dx]
+        if not cur:
+            cur = [a]
+        cur.append(b)
+        if t1 < 1.0:
+            runs.append(cur)
+            cur = []
+    if len(cur) > 1:
+        runs.append(cur)
+    return runs
+
+
+def sea_polygons(coast_lines, bbox):
+    """Fill the water side of OSM coastlines (water is on the right of the way direction) up to the box edge."""
+    s, w, n, e = bbox
+    W, H = e - w, n - s
+    key = lambda p: (round(p[0], 5), round(p[1], 5))  # noqa: E731
+    # join ways end to start (coastline ways all run the same way)
+    ways = [list(l["p"]) for l in coast_lines]
+    starts = {key(wy[0]): i for i, wy in enumerate(ways)}
+    used, chains = set(), []
+    for i, wy in enumerate(ways):
+        if i in used:
+            continue
+        # walk back to the true start of this chain
+        j = i
+        seen = {j}
+        ends = {key(w2[-1]): k for k, w2 in enumerate(ways)}
+        while key(ways[j][0]) in ends and ends[key(ways[j][0])] not in seen:
+            j = ends[key(ways[j][0])]
+            seen.add(j)
+        chain, cur = [], j
+        while cur is not None and cur not in used:
+            used.add(cur)
+            chain += ways[cur] if not chain else ways[cur][1:]
+            cur = starts.get(key(ways[cur][-1]))
+        chains.append(chain)
+
+    def perim(p):
+        la, lo = p
+        eps = 1e-6
+        if abs(la - n) < eps:
+            return lo - w
+        if abs(lo - e) < eps:
+            return W + (n - la)
+        if abs(la - s) < eps:
+            return W + H + (e - lo)
+        if abs(lo - w) < eps:
+            return 2 * W + H + (la - s)
+        return None
+
+    corners = [(0.0, [n, w]), (W, [n, e]), (W + H, [s, e]), (2 * W + H, [s, w])]
+    P = 2 * (W + H)
+    out = []
+    for ch in chains:
+        for run in clip_runs(ch, bbox):
+            a, b = perim(run[0]), perim(run[-1])
+            if a is None or b is None:
+                continue
+            s0, s1 = b, a
+            if s1 <= s0:
+                s1 += P
+            ring = list(run)
+            for off in (0.0, P):
+                for cs, cp in corners:
+                    if s0 < cs + off < s1:
+                        ring.append(cp)
+            ring.append(run[0])
+            out.append(dict(k="sea", p=[[round(x, 5), round(y, 5)] for x, y in dp(ring, 12 / 111320.0)]))
+    return out
+
+
 def build_map(bbox, force_ne=False):
     if not force_ne:
         try:
             v = vectors_from_overpass(overpass(bbox), bbox)
+            v["polys"] += sea_polygons([l for l in v["lines"] if l["k"] == "coast"], bbox)
             log(f"map: {len(v['lines'])} lines, {len(v['polys'])} polygons, {len(v['places'])} places from OpenStreetMap")
             return v
         except Exception as ex:  # noqa: BLE001
             log("overpass unavailable, falling back to Natural Earth:", ex)
     v = vectors_from_natural_earth(bbox)
+    v["polys"] += sea_polygons(v["lines"], bbox)
     log(f"map: {len(v['lines'])} coastline pieces from Natural Earth")
     return v
 

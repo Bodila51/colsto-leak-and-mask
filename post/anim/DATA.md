@@ -10,7 +10,9 @@ and from the safe-copy audio. Nothing is typed into the page.
 ```jsonc
 {
   "preview": false,                       // true stamps the big PREVIEW watermark on every frame. Omit or false for the real run.
-  "clip": { "utc_start": "2026-11-03T13:31:14.000Z" },   // UTC of clip t = 0 (first audio sample). Drives the clock top right.
+  "clip": { "utc_start": "2026-11-03T14:32:29.000Z",     // stream clock at clip t = 0 (first audio sample)
+            "latency_s": 28.0 },                          // optional: how far the stream lags real time. The clock top right shows
+                                                          //   utc_start - latency_s + t, i.e. the real UTC of the sound. Use the solver's value.
   "safe_audio": "results/case_V/safe.wav", // path from the repo root; any file ffmpeg can read, >= 20 s, same t = 0 as the clip.
                                            // Its spectrogram is the "after" picture (scene 5).
 
@@ -47,7 +49,8 @@ and from the safe-copy audio. Nothing is typed into the page.
   },
 
   // optional ---------------------------------------------------------------------------------------------------------
-  "spectrogram": { "f_min_hz": 0, "f_max_hz": 450,   // band shown. default 0-450 Hz (colsto style). Use e.g. 0-4500 for a jet fan tone.
+  "spectrogram": { "f_min_hz": 0, "f_max_hz": 450,   // band shown. default 0-450 Hz (colsto style) for propellers and helicopters.
+                                                     //   The Midway 737 clip: fan lines at about 1.4 / 2.8 / 4.2 / 5.6 kHz, so use 500-6000.
                    "window_s": 1.0,                  // analysis window; use ~0.3 for tones that slide fast. default 1.0
                    "view_s": 12,                     // seconds visible while it scrolls (scene 1). 20 = the whole clip, no scrolling. default 12
                    "e_range_db": [6, 26] },          // brightness range (dB above the local median). default 6-26 for <= 600 Hz, else percentiles
@@ -71,6 +74,19 @@ and from the safe-copy audio. Nothing is typed into the page.
 | "not found" | `map.safe.found == false` |
 | Clock | `clip.utc_start` + t |
 | Roads, coast, runways | OpenStreetMap via the Overpass API for `map.bbox` (cached in `build/`); Natural Earth 10m coastline if Overpass is down |
+
+## Outputs
+
+| File | What | Publishable |
+|---|---|---|
+| `post/monitor2_analysis.mp4` | 1920×1080, 20 s, silent, our visuals only | yes |
+| `post/post_no_footage.mp4` | 1080×1350, 20 s, silent, our visuals only (own tall layout) | yes |
+| `post/still_01_spectrogram.png` … `still_05_safe.png` | 1080×1350, our visuals only | yes |
+| `post/post_vertical.mp4` | 1080×1350, stream footage on top + its audio | **no, local only** (StreamTime LIVE forbids copying) |
+| `data/post_local/still_0N_*_with_footage.png` | stills with a stream frame on top | **no, local only** |
+
+The spectrogram is computed from the stream's audio. It is a derived picture, not a copy of the footage; check that is fine with the
+stream's owner if in doubt. Never commit an mp4 or a frame of the footage.
 
 ## Things to get right
 

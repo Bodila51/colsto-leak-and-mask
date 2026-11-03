@@ -20,7 +20,7 @@ ANIM = Path(__file__).resolve().parent
 
 def main():
     x = B.decode(B.POST / "monitor1_recording.mp4")
-    sp = dict(f_min_hz=0.0, f_max_hz=4500.0, window_s=0.3, view_s=20)
+    sp = dict(f_min_hz=500.0, f_max_hz=6000.0, window_s=0.3, view_s=20)
     D, fr = B.stft_db(x, sp)
     E = B.line_enhance(D, fr[1] - fr[0], 150.0)
     t = np.arange(E.shape[1]) * B.HOP / B.SR
@@ -38,11 +38,13 @@ def main():
     print("ridge points used:", int(w.sum()), "of", int(win.sum()), " f1 at", t0, t1, "=", np.polyval(c, [t0, t1]).round(0))
     tt = np.linspace(t0, t1, 57)
     f1 = np.minimum.accumulate(np.polyval(c, tt))
-    curves = [dict(harmonic=h, f0_hz=round(float(f1[0]), 1), t_s=[round(float(v), 3) for v in tt], f_hz=[round(float(h * v), 1) for v in f1]) for h in (1, 2, 3)]
+    curves = [dict(harmonic=h, f0_hz=round(float(f1[0]), 1), t_s=[round(float(v), 3) for v in tt], f_hz=[round(float(h * v), 1) for v in f1]) for h in (1, 2, 3, 4)]
 
-    # fake map around the synthetic test case box (Tennessee), 40 x 40 km
-    bbox = [35.95152, -86.37686, 36.3472, -85.88684]
-    lat_c, lon_c = (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2
+    # 40 x 40 km search box around Chicago Midway (the real box of the case); everything drawn inside it is invented
+    lat_c, lon_c = 41.7868, -87.7522
+    dlat = 20 / 111.32
+    dlon = 20 / (111.32 * math.cos(math.radians(lat_c)))
+    bbox = [round(lat_c - dlat, 5), round(lon_c - dlon, 5), round(lat_c + dlat, 5), round(lon_c + dlon, 5)]
     kx = 111.32 * math.cos(math.radians(lat_c))
     n = 110
     lat = np.linspace(bbox[0], bbox[2], n)
@@ -59,15 +61,15 @@ def main():
         d = np.array(p1) - np.array(p0)
         return np.abs(d[0] * (Y - p0[1]) - d[1] * (X - p0[0])) / math.hypot(*d)
 
-    a0, a1 = (-19500, 4200), (19500, 6800)
-    b0, b1 = (-5200, -19500), (-1800, 19500)
-    dA, dB = 3100.0, 4300.0
+    a0, a1 = (-19500, 2600), (19500, 3400)
+    b0, b1 = (-3000, -19500), (-2400, 19500)
+    dA, dB = 1900.0, 2500.0
     sig = 420.0
     hA = np.exp(-0.5 * ((dist_to_line(a0, a1) - dA) / sig) ** 2)
     heat1 = hA
     hB = np.exp(-0.5 * ((dist_to_line(b0, b1) - dB) / sig) ** 2)
     cross = np.sqrt(hA * hB)  # the two pairs of bands cross in four places; the demo keeps one
-    best = np.unravel_index(np.argmax(cross), cross.shape)
+    best = np.unravel_index(np.argmax(cross * np.exp(-np.hypot(X, Y) / 8000.0)), cross.shape)  # the crossing nearest the airport
     px, py = X[best], Y[best]
     heat2 = 0.14 * np.maximum(hA, hB) + np.exp(-0.5 * (((X - px) ** 2 + (Y - py) ** 2) / 650.0 ** 2))
     found = dict(lat=round(float(lat[best[0]]), 5), lon=round(float(lon[best[1]]), 5))
@@ -77,7 +79,7 @@ def main():
     out = dict(
         preview=True,
         note="PREVIEW demo values: aircraft, distances, map and heat are invented. Tone curves follow the real ridge.",
-        clip=dict(utc_start="2026-11-03T13:31:14.000Z", duration_s=20.0),
+        clip=dict(utc_start="2026-11-03T14:32:29.000Z", latency_s=28.0, duration_s=20.0),
         spectrogram=sp,
         callout=dict(tip_t_s=15.4, tip_f_hz=round(float(2 * np.interp(15.4, tt, f1)), 1), from_s=0.35, to_s=7.6, sub="slides down as it passes"),
         safe_audio="post/anim/build/preview_safe.wav",

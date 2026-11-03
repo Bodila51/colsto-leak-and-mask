@@ -1,5 +1,5 @@
 // Frame capture: N Playwright pages in parallel, each calling window.renderAt(t) and taking a screenshot.
-//   node cap.js --layout landscape|vertical --out DIR [--from 0 --to 600 | --times 0,5,10] [--png] [--workers 8]
+//   node cap.js --layout landscape|vertical|tall --out DIR [--from 0 --to 600 | --times 0,5,10] [--png] [--workers 8]
 // Serves post/anim over a throw-away local http server (fetch() does not work from file://).
 const fs = require('fs'), path = require('path'), http = require('http');
 const argv = process.argv.slice(2), arg = (k, d) => { const i = argv.indexOf('--' + k); return i < 0 ? d : (argv[i + 1] === undefined || argv[i + 1].startsWith('--') ? true : argv[i + 1]); };
@@ -7,7 +7,7 @@ const layout = arg('layout', 'landscape'), out = path.resolve(arg('out', 'frames
 const N = +arg('workers', 8), FPS = 30;
 const times = arg('times', null) ? String(arg('times')).split(',').map(Number) : null;
 const f0 = +arg('from', 0), f1 = +arg('to', 600);
-const size = layout === 'vertical' ? { width: 1080, height: 742 } : { width: 1920, height: 1080 };
+const size = { vertical: { width: 1080, height: 742 }, tall: { width: 1080, height: 1350 } }[layout] || { width: 1920, height: 1080 };
 const root = path.resolve(__dirname, '..');
 
 function loadPlaywright() {
