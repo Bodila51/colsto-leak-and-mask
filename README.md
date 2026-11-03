@@ -47,16 +47,16 @@ Plainly:
 
 How a blind run works, so you don't have to trust us:
 
-1. Before any solving, the camera's location from the owner's own public page was written into a sealed file. Only its SHA-256 was committed ([`truth/SEALED.sha256`](truth/SEALED.sha256)).
+1. Before any solving, the camera's location as the owner describes it publicly was written into a sealed file: coordinates where the owner publishes them (Midway), otherwise the OpenStreetMap position of the place the owner names. Only its SHA-256 was committed ([`truth/SEALED.sha256`](truth/SEALED.sha256)).
 2. The solver got only the audio, the UTC start time and a 40×40 km box. The box contains the camera, but its centre was offset at random. ADS-B was logged around the box centre, never around the camera.
 3. The solver code was committed before the case was opened. Its answer is the computed best point, committed before the truth was revealed.
 4. Then the truth file was committed. Its hash matches the seal, and the commit order is seal → answer → truth.
 
 | Case | Camera (owner-published, revealed after the answers) | Audio | Engine | Result | Error |
 |---|---|---|---|---|---|
-| **A** | Miami airport webcam (PTZtv), 94th Aero Squadron restaurant by runway 9/27 | 66 min, mostly jets | detector-first (doppler-locate based) | no flyover detected | miss |
+| **A** | Miami airport webcam (PTZtv); the owner names the 94th Aero Squadron restaurant by runway 9/27 (OSM position of that building, ±40 m) | 66 min, mostly jets | detector-first (doppler-locate based) | no flyover detected | miss |
 | A | | | ridge v1 | 69 aircraft used | 1,872 m |
-| **A** | | | **ridge v1.1** | **74 aircraft used; top: ENY3714 (Embraer 175), AAL1901, AAL2883** | **749 m** |
+| **A** | | | **ridge v1.1** | **74 aircraft used; top: ENY3714 (Embraer 175), AAL1901, AAL2883. Near tie: the runner-up peak, 2.9 km away, scored only 0.6% lower** | **749 m** |
 | B | Brighton City Airport apron cam (ATC tower) | 59 min, light aircraft and helicopters | detector-first | no flyover detected | miss |
 | B | | | ridge v1.1 | | 6,956 m |
 | B | | | ridge v1.2 | | 17,607 m |
@@ -71,7 +71,7 @@ How a blind run works, so you don't have to trust us:
 - Every box is 40 × 40 km, with its centre offset at random. Per-case details are in `results/case_X_evaluation.json`.
 - The ridge solver is in [`solver_ridge/ridge.py`](solver_ridge/ridge.py). It scores each aircraft's predicted Doppler curve against the whitened spectrogram on a grid, and has no detector.
 - v1.1 was written after the first case E miss. It is a generic change: drop aircraft on the ground, and drop curves with no pitch change. A's truth stayed sealed until all of A's runs were committed.
-- So far 1 of 6 cameras was found within 1 km: Miami, from busy airliner traffic. The others missed. Light traffic (Southampton) and jets passing right over the camera just after takeoff (Midway) are where it failed.
+- So far 1 of 6 blind recordings (4 cameras) was found within 1 km: Miami, from busy airliner traffic. The others missed. Light traffic (Southampton) and jets passing right over the camera just after takeoff (Midway) are where it failed.
 
 Why E missed: in that clip the departing jets pass right over the camera only 90-150 m up. The loudest thing is broadband roar, and the clean tonal "slide" the method needs is short and weak. Propeller aircraft (as in colsto's clip) are where the method works best. A run with the camera already known ([`results/paras_setup_E`](results/paras_setup_E/summary.json), the same setup as the public replication on X) was not convincing either: the best spot was only 3% above a spot 4.5 km away.
 
