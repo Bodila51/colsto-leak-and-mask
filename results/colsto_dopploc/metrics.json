@@ -1,0 +1,67 @@
+{
+ "case": "colsto-dopploc-NYC300",
+ "pipeline": "doppler-locate (MIT) documented flow: dopploc search, dopploc score; events as measured in its cases/oyster.toml",
+ "regional_box_note": "300 x 300 km regional box centred on New York City (40.71, -74.01); not the continental US and not blind: the box was chosen knowing the answer is on Long Island.",
+ "camera_coordinates": "camera coordinates not published; only the town (hamlet Oyster Bay, NY) is known, so there is no error in metres, only the town match",
+ "rank1_point": {
+  "lat": 40.87638527678785,
+  "lon": -73.5257740273078
+ },
+ "town_match_inside_osm_hamlet_boundary": true,
+ "distance_to_hamlet_centroid_m": 925.2,
+ "distance_to_hamlet_boundary_m": 0.0,
+ "inside_town_of_oyster_bay_municipality": true,
+ "hamlet": {
+  "name": "Oyster Bay, NY (hamlet / census place)",
+  "osm": "relation 174432 (Nominatim polygon_geojson=1)",
+  "centroid_lat": 40.869293,
+  "centroid_lon": -73.531534,
+  "polygon_file": "oyster_bay_hamlet.geojson"
+ },
+ "rank1_score": 3.6621,
+ "rank2_score": 3.4832,
+ "flights_used": {
+  "event1": {
+   "fid": "a1dfeb:1788899524",
+   "icao": "a1dfeb",
+   "type": "PC12",
+   "reg": "N22NY",
+   "callsign": "CST1219"
+  },
+  "event2": {
+   "fid": "ace391:1788901233",
+   "icao": "ace391",
+   "type": "B350",
+   "reg": "N93CQ",
+   "callsign": "EGE93"
+  }
+ },
+ "n_flight_pairs": 48,
+ "n_scored_points": 19032,
+ "search_counts": {
+  "cpa_records_e1": 8895011,
+  "e1": 6786711,
+  "e1_cells": 1753653,
+  "cpa_records_e2": 18936176,
+  "e2": 14467974,
+  "e2_cells": 1802352,
+  "offset": 18180,
+  "offset_cells": 17658,
+  "silent": 4758,
+  "silent_cells": 4675
+ },
+ "runtime_s": {
+  "search": 201.6,
+  "score": 1187.0,
+  "total": 1388.6
+ },
+ "peak_private_gb": {
+  "search": 4.96,
+  "score": 3.14
+ },
+ "settings": "[search] bbox -75.789,39.361,-72.231,42.059, gpu=false, workers=3, offset_tol_s=8; [score] dt_sweep -8..8 step 0.1; atmosphere gfs (default); numba CPU backend; BelowNormal priority; another solver was running at the same time",
+ "osm_attribution": "Hamlet and town polygons (c) OpenStreetMap contributors, ODbL, via Nominatim.",
+ "n_flight_pairs_note": "48 flight pairs survive in this 300 x 300 km box (the README's 1,060 is for the whole continental US)",
+ "readme_reference": "doppler-locate README (cases/oyster.toml, CONUS search): rank 1, score 3.662 vs 3.504. This regional run: rank 1, score 3.662 vs 3.483.",
+ "event_measurements": "not repeated here: the two events are the ones measured in doppler-locate's cases/oyster.toml (E1 f0 112.735 Hz, E2 f0 134.415 Hz; audio CPA 2155.80 s and 3072.36 s)"
+}

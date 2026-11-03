@@ -1,0 +1,213 @@
+{
+ "case": "colsto-dopploc-NYC300",
+ "method": "doppler-locate's own pipeline: dopploc search + dopploc score (cases/oyster.toml events)",
+ "rank1": {
+  "rank": 1,
+  "lat": 40.87638527678785,
+  "lon": -73.5257740273078,
+  "score": 3.6621,
+  "S1": 2.1145,
+  "S2": 1.5475,
+  "event1_flight": {
+   "fid": "a1dfeb:1788899524",
+   "icao": "a1dfeb",
+   "type": "PC12",
+   "reg": "N22NY",
+   "callsign": "CST1219"
+  },
+  "event2_flight": {
+   "fid": "ace391:1788901233",
+   "icao": "ace391",
+   "type": "B350",
+   "reg": "N93CQ",
+   "callsign": "EGE93"
+  },
+  "t1m_utc_delayed_cpa": 1788900805.2049353,
+  "t2m_utc_delayed_cpa": 1788901729.4099123,
+  "d1m": 6129,
+  "d2m": 3596,
+  "clock_shift_delta_s": -0.7000000000000259,
+  "f0_event1_hz": 112.5661999999995,
+  "f0_event2_hz": 125.91179999999987,
+  "inside_osm_hamlet_boundary": true,
+  "distance_to_hamlet_centroid_m": 925.2,
+  "distance_to_hamlet_boundary_m": 0.0,
+  "inside_town_of_oyster_bay_municipality": true
+ },
+ "top5": [
+  {
+   "rank": 1,
+   "lat": 40.87638527678785,
+   "lon": -73.5257740273078,
+   "score": 3.6621,
+   "S1": 2.1145,
+   "S2": 1.5475,
+   "event1_flight": {
+    "fid": "a1dfeb:1788899524",
+    "icao": "a1dfeb",
+    "type": "PC12",
+    "reg": "N22NY",
+    "callsign": "CST1219"
+   },
+   "event2_flight": {
+    "fid": "ace391:1788901233",
+    "icao": "ace391",
+    "type": "B350",
+    "reg": "N93CQ",
+    "callsign": "EGE93"
+   },
+   "t1m_utc_delayed_cpa": 1788900805.2049353,
+   "t2m_utc_delayed_cpa": 1788901729.4099123,
+   "d1m": 6129,
+   "d2m": 3596,
+   "clock_shift_delta_s": -0.7000000000000259,
+   "f0_event1_hz": 112.5661999999995,
+   "f0_event2_hz": 125.91179999999987,
+   "inside_osm_hamlet_boundary": true,
+   "distance_to_hamlet_centroid_m": 925.2,
+   "distance_to_hamlet_boundary_m": 0.0,
+   "inside_town_of_oyster_bay_municipality": true
+  },
+  {
+   "rank": 2,
+   "lat": 41.92008794355998,
+   "lon": -72.68469559109903,
+   "score": 3.4832,
+   "S1": 2.2112,
+   "S2": 1.272,
+   "event1_flight": {
+    "fid": "a1d3d1:1788874327",
+    "icao": "a1d3d1",
+    "type": "TBM9",
+    "reg": "N217DC",
+    "callsign": "N217DC"
+   },
+   "event2_flight": {
+    "fid": "a88f95:1788873766",
+    "icao": "a88f95",
+    "type": "COL3",
+    "reg": "N65031",
+    "callsign": "N65031"
+   },
+   "t1m_utc_delayed_cpa": 1788874562.169192,
+   "t2m_utc_delayed_cpa": 1788875475.9191368,
+   "d1m": 6718,
+   "d2m": 1670,
+   "clock_shift_delta_s": 0.4999999999999698,
+   "f0_event1_hz": 111.56619999999955,
+   "f0_event2_hz": 137.46179999999922,
+   "inside_osm_hamlet_boundary": false,
+   "distance_to_hamlet_centroid_m": 136509.4,
+   "distance_to_hamlet_boundary_m": 133855.6,
+   "inside_town_of_oyster_bay_municipality": false
+  },
+  {
+   "rank": 3,
+   "lat": 40.807287560706534,
+   "lon": -72.50174463286517,
+   "score": 3.2866,
+   "S1": 2.1311,
+   "S2": 1.1555,
+   "event1_flight": {
+    "fid": "a1b038:1788882437",
+    "icao": "a1b038",
+    "type": "BE20",
+    "reg": "N208F",
+    "callsign": "N208F"
+   },
+   "event2_flight": {
+    "fid": "a944b5:1788880596",
+    "icao": "a944b5",
+    "type": "C310",
+    "reg": "N69699",
+    "callsign": "N69699"
+   },
+   "t1m_utc_delayed_cpa": 1788882644.9945586,
+   "t2m_utc_delayed_cpa": 1788883564.5444736,
+   "d1m": 5927,
+   "d2m": 2528,
+   "clock_shift_delta_s": -2.0000000000000213,
+   "f0_event1_hz": 114.01619999999942,
+   "f0_event2_hz": 133.66179999999943,
+   "inside_osm_hamlet_boundary": false,
+   "distance_to_hamlet_centroid_m": 87124.9,
+   "distance_to_hamlet_boundary_m": 85765.5,
+   "inside_town_of_oyster_bay_municipality": false
+  },
+  {
+   "rank": 4,
+   "lat": 41.14133805131529,
+   "lon": -72.53945304310534,
+   "score": 3.0938,
+   "S1": 2.2509,
+   "S2": 0.8428,
+   "event1_flight": {
+    "fid": "abb40e:1788888191",
+    "icao": "abb40e",
+    "type": "PC12",
+    "reg": "N853SA",
+    "callsign": "GPD853"
+   },
+   "event2_flight": {
+    "fid": "abf1dc:1788889969",
+    "icao": "abf1dc",
+    "type": null,
+    "reg": null,
+    "callsign": "N869SF"
+   },
+   "t1m_utc_delayed_cpa": 1788889427.5248253,
+   "t2m_utc_delayed_cpa": 1788890343.6451523,
+   "d1m": 6646,
+   "d2m": 3017,
+   "clock_shift_delta_s": -1.3000000000000238,
+   "f0_event1_hz": 113.46619999999945,
+   "f0_event2_hz": 142.16179999999895,
+   "inside_osm_hamlet_boundary": false,
+   "distance_to_hamlet_centroid_m": 88761.3,
+   "distance_to_hamlet_boundary_m": 86679.0,
+   "inside_town_of_oyster_bay_municipality": false
+  },
+  {
+   "rank": 5,
+   "lat": 41.200820850086416,
+   "lon": -72.71011129656583,
+   "score": 3.0896,
+   "S1": 2.2378,
+   "S2": 0.8518,
+   "event1_flight": {
+    "fid": "a26f86:1788870110",
+    "icao": "a26f86",
+    "type": "PC12",
+    "reg": "N256TW",
+    "callsign": "GPD256"
+   },
+   "event2_flight": {
+    "fid": "a77707:1788871425",
+    "icao": "a77707",
+    "type": "P46T",
+    "reg": "N580MM",
+    "callsign": "N580MM"
+   },
+   "t1m_utc_delayed_cpa": 1788870943.0906556,
+   "t2m_utc_delayed_cpa": 1788871857.6512852,
+   "d1m": 6737,
+   "d2m": 1453,
+   "clock_shift_delta_s": -0.9000000000000252,
+   "f0_event1_hz": 113.31619999999945,
+   "f0_event2_hz": 130.41179999999963,
+   "inside_osm_hamlet_boundary": false,
+   "distance_to_hamlet_centroid_m": 78273.0,
+   "distance_to_hamlet_boundary_m": 76097.5,
+   "inside_town_of_oyster_bay_municipality": false
+  }
+ ],
+ "n_flight_pairs": 48,
+ "n_scored_points": 19032,
+ "ranks_of_pairs_whose_best_point_is_inside_hamlet": [
+  1
+ ],
+ "closest_pair_to_hamlet_centroid": {
+  "rank": 1,
+  "distance_m": 925.2
+ }
+}

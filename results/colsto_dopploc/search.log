@@ -1,0 +1,10 @@
+loading propeller tracks
+  1,717,073 points -> 6,995 track segments
+  2,688,803 samples at 3 s
+  E1: 129,209 samples within 115-167 m/s, slant <= 8492 m
+  E2: 729,983 samples within 61-135 m/s, slant <= 4489 m
+  309 tiles of 20 km
+  scanning tiles on 3 processes
+  counts: cpa_records_e1=8,895,011, e1=6,786,711, e1_cells=1,753,653, cpa_records_e2=18,936,176, e2=14,467,974, e2_cells=1,802,352, offset=18,180, offset_cells=17,658, silent=4,758, silent_cells=4,675
+wrote 18,180 candidate rows in 191 s
+{"cmd": ["C:\\Users\\Asus\\flyover-leak\\data\\vendor\\doppler-locate\\.venv\\Scripts\\dopploc.exe", "search", "out\\colsto_dopploc\\case.toml"], "returncode": 0, "wall_s": 201.6, "peak_rss_gb": 1.82, "peak_private_gb": 4.96, "min_free_ram_gb": 0.42, "max_processes": 8}
