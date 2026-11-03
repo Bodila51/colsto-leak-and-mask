@@ -404,7 +404,12 @@ def main():
                    audio_only=audio, best_adsb=adsb, second=second["flight"] if second else None,
                    second_over_best_rms=round(ratio2, 2) if ratio2 else None, clearly_separated=bool(clear),
                    separation_rule="clearly separated if the second-best RMS is >= 2x the best",
-                   verdict=verdict, threshold_sensitivity=sens, flights=flights,
+                   verdict=verdict, threshold_sensitivity=sens,
+                   separation_note=(f"second/best over the {len(sens)} thresholds: x{min(rs):.2f}-x{max(rs):.2f}; >= 2x at "
+                                    f"{sum(r >= 2 for r in rs)} of {len(rs)}"
+                                    + ("; the second's best L sits at the scan bound" if second and second.get("L_at_bound")
+                                       else "")),
+                   flights=flights,
                    extracted_track=dict(t_audio_s=np.round(t_trk, 2).tolist(), f_hz=np.round(f_trk, 2).tolist()))
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
     print("done")

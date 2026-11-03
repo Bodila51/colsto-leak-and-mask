@@ -138,6 +138,7 @@
    "ratio": 2.29
   }
  ],
+ "separation_note": "second/best over the 4 thresholds: x1.77-x2.54; >= 2x at 3 of 4; the second's best L sits at the scan bound",
  "flights": [
   {
    "hex": "aba778",
